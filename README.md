@@ -7,4 +7,28 @@ checking of jwt token not yet enabled by default for the ease of debugging, can 
 
 registrationBean.addUrlPatterns("/PathToSecure/*");
 
-Backend is using springboot, running 'Application.java' should suffice, will start committing .jars/.wars as well 
+Backend is using springboot, running 'Application.java' should suffice, will start committing .jars/.wars as well
+
+## Development
+
+### Run locally
+
+`mvn org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:run`
+
+### Build
+
+Creates an executable JAR file and builds a docker conatiner running the JAR.
+
+#### Executable JAR
+
+`mvn clean package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage`
+ 
+#### Docker container
+
+Build the container
+`docker build --build-arg JAR_FILE=target/SR-1.0-SNAPSHOT.jar --tag scienceroot:backend  .`
+
+Run the container
+`docker run -it -p 8080:8080 scienceroot:backend`
+ 
+ 

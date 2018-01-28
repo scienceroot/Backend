@@ -6,17 +6,18 @@ pipeline {
     }
 
     stages {
-        stage('Clean') {
-            steps {
-                sh 'mvn clean'
-            }
-        }
         stage('Build') {
+	        agent {
+		      docker {
+		        image 'node:9-alpine'
+		      }
+		    }
             steps {
-                sh 'mvn package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage'
+                sh 'mvn clean package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage'
             }
         }
         stage('Dockerize') {
+        		agent any
             steps {
                 sh 'docker build --build-arg JAR_FILE=target/SR-1.0-SNAPSHOT.jar --tag scienceroot:backend .'
             }

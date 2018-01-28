@@ -1,8 +1,8 @@
 pipeline {
-    agent none
+	agent none
     stages {
         stage('Build') {
-	        agent {
+        		agent {
 		      docker {
 		        image 'maven:3.5.2-jdk-8-alpine'
 		      }
@@ -12,9 +12,9 @@ pipeline {
             }
         }
         stage('Dockerize') {
-        		agent any
+        		agent docker
             steps {
-                sh 'docker build --build-arg JAR_FILE=target/SR-1.0-SNAPSHOT.jar --tag scienceroot:backend .'
+                docker.build('scienceroot:backend')
             }
         }
     }

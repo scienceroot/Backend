@@ -71,6 +71,7 @@ public class RegistrationController {
             String jwtStr = jwt.createJWT("0", "ScienceRoot", username, 10000);
             JSONObject job = new JSONObject();
             job.put("uid", user.getId());
+            job.put("username", username);
             job.put("authorization", jwtStr);
             return new ResponseEntity(job.toString(), HttpStatus.CREATED);
         }
@@ -88,6 +89,11 @@ public class RegistrationController {
             JSONObject job = new JSONObject();
             job.put("uid", user.getId());
             job.put("username", user.getUsername());
+            job.put("mail", user.getMail());
+            job.put("roles", user.getRoles());
+            job.put("skills", user.getSkills());
+            job.put("interests", user.getInterests());
+            job.put("location", user.getLocation());
             return new ResponseEntity(job.toString(), HttpStatus.CREATED);
         }
     }
@@ -95,7 +101,11 @@ public class RegistrationController {
     @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
     public ResponseEntity usersIDedit(@PathVariable("id") long id,
             @RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) {
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "mail") String mail,
+            @RequestParam(value = "roles") String[] roles,
+            @RequestParam(value = "skills") String[] skills,
+            @RequestParam(value = "interests") String[] interests) {
         try (Session session = getSessionFactory().openSession()) {
             Query query = session.createQuery("from ApplicationUser where id = :id");
             query.setParameter("id", id);
@@ -107,6 +117,10 @@ public class RegistrationController {
             ApplicationUser user = (ApplicationUser) query.uniqueResult();
             user.setPassword(securePassword);
             user.setUsername(username);
+            user.setMail(mail);
+            user.setRoles(roles);
+            user.setSkills(skills);
+            user.setInterests(interests);
             
             session.beginTransaction();
             session.save(user);

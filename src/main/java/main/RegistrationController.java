@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import static misc.HibernateUtil.getSessionFactory;
 import org.hibernate.Session;
 import org.hibernate.Query;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author husche
  */
 @RestController
+@CrossOrigin
 public class RegistrationController {
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)

@@ -10,11 +10,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -50,7 +53,8 @@ public class ApplicationUser implements Serializable {
 
     @Column
     @JsonProperty("interests")
-    private String[] interests;
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
+    private List<Interest> interests;
 
     @Column
     @JsonProperty("skills")
@@ -90,11 +94,11 @@ public class ApplicationUser implements Serializable {
         this.location = location;
     }
 
-    public String[] getInterests() {
+    public List<Interest> getInterests() {
         return interests;
     }
 
-    public void setInterests(String[] interests) {
+    public void setInterests(List<Interest> interests) {
         this.interests = interests;
     }
 

@@ -52,5 +52,6 @@ Contributor(s):
     <property name="hibernate.show_sql">true</property>
     <property name="hibernate.hbm2ddl.auto">create-drop</property>
     <mapping class="main.ApplicationUser"/>
+    <mapping class="main.Interest"/>
   </session-factory>
 </hibernate-configuration>

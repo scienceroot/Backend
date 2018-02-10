@@ -8,6 +8,9 @@ package main;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,26 +36,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class RegistrationController {
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)
-    public ResponseEntity createUser(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) throws JsonProcessingException {
+    public ResponseEntity createUser(@RequestBody ApplicationUser user) throws JsonProcessingException {
 
-        String securePassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
-        ApplicationUser myUser = new ApplicationUser(username, securePassword);
+        String securePassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
 
         try (Session session = getSessionFactory().openSession()) {
 
             Query query = session.createQuery("from ApplicationUser where username = :username");
-            query.setParameter("username", username);
-            if (null == query.uniqueResult()) {
+            query.setParameter("username", user.getUsername());
+            if (null == query.uniqueResult()) {               
                 //no duplicate usernames, save user to db
                 session.beginTransaction();
-                session.save(myUser);
+                session.save(user);
                 session.getTransaction().commit();
 
-                String token = new JWT().createJWT("0", "ScienceRoot", username, 10000);
+                String token = new JWT().createJWT("0", "ScienceRoot", user.getUsername(), 10000);
                 HttpHeaders responseHeaders = new HttpHeaders();
                 responseHeaders.set("authorization", token);
-                String userStr = new ObjectMapper().writeValueAsString(myUser);
+                String userStr = new ObjectMapper().writeValueAsString(user);
                 return new ResponseEntity(userStr, responseHeaders, HttpStatus.CREATED);
             } else {
                 return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
@@ -61,20 +62,19 @@ public class RegistrationController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity login(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) throws JsonProcessingException {
+    public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
         try (Session session = getSessionFactory().openSession()) {
             Query query = session.createQuery("from ApplicationUser where username = :username");
-            query.setParameter("username", username);
+            query.setParameter("username", user.getUsername());
             if (null == query.uniqueResult()) {
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
-            ApplicationUser user = (ApplicationUser) query.uniqueResult();
-            if (!BCrypt.checkpw(password, user.getPassword())) {
+            ApplicationUser dbuser = (ApplicationUser) query.uniqueResult();
+            if (!BCrypt.checkpw(user.getPassword(), dbuser.getPassword())) {
                 return new ResponseEntity(HttpStatus.UNAUTHORIZED);
             }
 
-            String token = new JWT().createJWT("0", "ScienceRoot", username, 10000);
+            String token = new JWT().createJWT("0", "ScienceRoot", dbuser.getUsername(), 10000);
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("authorization", token);
             String userStr = new ObjectMapper().writeValueAsString(user);
@@ -115,6 +115,21 @@ public class RegistrationController {
 
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         }
+    }
+    
+    @RequestMapping(value = "/interests", method = RequestMethod.GET)
+    public ResponseEntity searchInterests(@RequestParam("q") String q) throws IOException{
+        Session session = getSessionFactory().openSession();
+        session.beginTransaction();
+        System.out.println(q);
+        Query query = session.createQuery("from Interest where name like :name");
+        query.setParameter("name", '%'+q+'%');
+        List interests = query.list();
+        StringWriter sw = new StringWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(sw, interests);
+        return new ResponseEntity(sw.toString(), HttpStatus.CREATED);       
+        
     }
 
     @RequestMapping(value = "/hue")

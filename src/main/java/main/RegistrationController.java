@@ -5,6 +5,9 @@
  */
 package main;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,7 +21,9 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.mindrot.jbcrypt.BCrypt;
 import main.security.JWT;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
@@ -29,7 +34,7 @@ public class RegistrationController {
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)
     public ResponseEntity createUser(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) {
+            @RequestParam(value = "password") String password) throws JsonProcessingException {
 
         String securePassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
         ApplicationUser myUser = new ApplicationUser(username, securePassword);
@@ -44,18 +49,20 @@ public class RegistrationController {
                 session.save(myUser);
                 session.getTransaction().commit();
 
-                JSONObject job = new JSONObject();
-                job.put("uid", myUser.getId());
-                return new ResponseEntity(job.toString(), HttpStatus.CREATED);
+                String token = new JWT().createJWT("0", "ScienceRoot", username, 10000);
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.set("authorization", token);
+                String userStr = new ObjectMapper().writeValueAsString(myUser);
+                return new ResponseEntity(userStr, responseHeaders, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
             }
         }
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity login(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) {
+            @RequestParam(value = "password") String password) throws JsonProcessingException {
         try (Session session = getSessionFactory().openSession()) {
             Query query = session.createQuery("from ApplicationUser where username = :username");
             query.setParameter("username", username);
@@ -67,18 +74,16 @@ public class RegistrationController {
                 return new ResponseEntity(HttpStatus.UNAUTHORIZED);
             }
 
-            JWT jwt = new JWT();
-            String jwtStr = jwt.createJWT("0", "ScienceRoot", username, 10000);
-            JSONObject job = new JSONObject();
-            job.put("uid", user.getId());
-            job.put("username", username);
-            job.put("authorization", jwtStr);
-            return new ResponseEntity(job.toString(), HttpStatus.CREATED);
+            String token = new JWT().createJWT("0", "ScienceRoot", username, 10000);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("authorization", token);
+            String userStr = new ObjectMapper().writeValueAsString(user);
+            return new ResponseEntity(userStr, responseHeaders, HttpStatus.CREATED);
         }
     }
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
-    public ResponseEntity usersID(@PathVariable("id") long id) {
+    public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
         try (Session session = getSessionFactory().openSession()) {
             Query query = session.createQuery("from ApplicationUser where id = :id");
             query.setParameter("id", id);
@@ -86,26 +91,14 @@ public class RegistrationController {
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
             ApplicationUser user = (ApplicationUser) query.uniqueResult();
-            JSONObject job = new JSONObject();
-            job.put("uid", user.getId());
-            job.put("username", user.getUsername());
-            job.put("mail", user.getMail());
-            job.put("roles", user.getRoles());
-            job.put("skills", user.getSkills());
-            job.put("interests", user.getInterests());
-            job.put("location", user.getLocation());
-            return new ResponseEntity(job.toString(), HttpStatus.CREATED);
+            String UserStr = new ObjectMapper().writeValueAsString(user);
+            return new ResponseEntity(UserStr, HttpStatus.CREATED);
         }
     }
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
     public ResponseEntity usersIDedit(@PathVariable("id") long id,
-            @RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password,
-            @RequestParam(value = "mail") String mail,
-            @RequestParam(value = "roles") String[] roles,
-            @RequestParam(value = "skills") String[] skills,
-            @RequestParam(value = "interests") String[] interests) {
+            @RequestBody String user) {
         try (Session session = getSessionFactory().openSession()) {
             Query query = session.createQuery("from ApplicationUser where id = :id");
             query.setParameter("id", id);
@@ -113,17 +106,11 @@ public class RegistrationController {
                 return new ResponseEntity(HttpStatus.NOT_FOUND);
             }
 
-            String securePassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
-            ApplicationUser user = (ApplicationUser) query.uniqueResult();
-            user.setPassword(securePassword);
-            user.setUsername(username);
-            user.setMail(mail);
-            user.setRoles(roles);
-            user.setSkills(skills);
-            user.setInterests(interests);
-            
+            ApplicationUser existingUser = (ApplicationUser) query.uniqueResult();
+            //user.setPassword(existingUser.getPassword());
+
             session.beginTransaction();
-            session.save(user);
+            session.save(existingUser);
             session.getTransaction().commit();
 
             return new ResponseEntity(HttpStatus.NO_CONTENT);

@@ -5,6 +5,7 @@
  */
 package main;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,18 +25,23 @@ public class Location implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private long id;
 
     @Column
+    @JsonProperty("employer")
     private String employer;
 
     @Column
+    @JsonProperty("zip")
     private String zip;
 
     @Column
+    @JsonProperty("city")
     private String city;
 
     @Column
+    @JsonProperty("country")
     private String country;
 
     public Location() {

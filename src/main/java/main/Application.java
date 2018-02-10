@@ -19,6 +19,7 @@ public class Application {
         final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new JwtFilter());
         registrationBean.addUrlPatterns("/usersaoeu/*");
+        //register, login
 
         return registrationBean;
     }

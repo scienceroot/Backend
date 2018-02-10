@@ -5,13 +5,16 @@
  */
 package main;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -21,54 +24,68 @@ public class ApplicationUser implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("uid")
     private long id;
+    
     @Column
+    @JsonProperty("username")
     private String username;
+    
     @Column
+    @JsonIgnore
     private String password;
 
     @Column
+    @JsonProperty("mail")
     private String mail;
 
-    @Column(columnDefinition = "text[]")
+    //investor/journal
+    //@Column(columnDefinition = "text[]")
+    //@JsonProperty("roles")
     private String[] roles;
 
     @Column
     @PrimaryKeyJoinColumn
     private Location location;
 
-    @Column(columnDefinition = "text[]")
+    @Column
+    @JsonProperty("interests")
     private String[] interests;
 
-    @Column(columnDefinition = "text[]")
+    @Column
+    @JsonProperty("skills")
     private String[] skills;
-
-    private String JWTtoken;
 
     public void setId(long id) {
         this.id = id;
     }
 
+    @JsonGetter("mail")
     public String getMail() {
         return mail;
     }
 
+    @JsonSetter("mail")
     public void setMail(String mail) {
         this.mail = mail;
     }
 
+    @JsonGetter("roles")
     public String[] getRoles() {
         return roles;
     }
 
+    @JsonSetter("roles")
     public void setRoles(String[] roles) {
         this.roles = roles;
     }
 
+    @JsonGetter("location")
     public Location getLocation() {
         return location;
     }
 
+    @JsonSetter("location")
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -95,22 +112,25 @@ public class ApplicationUser implements Serializable {
     public ApplicationUser(String username, String password) {
         this.username = username;
         this.password = password;
+        this.location = new Location();
     }
 
+    @JsonGetter("uid")
     public long getId() {
         return id;
     }
 
+    @JsonGetter("username")
     public String getUsername() {
         return username;
     }
 
+    @JsonSetter("username")
     public void setUsername(String username) {
         this.username = username;
     }
 
     public String getPassword() {
-        //todo: actually hash pw
         return password;
     }
 
@@ -118,11 +138,4 @@ public class ApplicationUser implements Serializable {
         this.password = password;
     }
 
-    public String getJWTtoken() {
-        return JWTtoken;
-    }
-
-    public void setJWTtoken(String JWTtoken) {
-        this.JWTtoken = JWTtoken;
-    }
 }

@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author husche
  */
 @RestController
-@CrossOrigin(origins = "https://demo.scienceroots.com")
+@CrossOrigin
 public class RegistrationController {
 
     @RequestMapping(value = "/users", method = RequestMethod.POST)

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.io.Serializable;
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,12 +22,22 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+/**
+ * https://stackoverflow.com/questions/22256124/cannot-create-a-database-table-named-user-in-postgresql
+ */
+
 @Entity
-@Table(name = "user")
+@Table(name = "scr_user")
 public class ApplicationUser implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
     @JsonProperty("uid")
     private long id;
     
@@ -51,10 +62,10 @@ public class ApplicationUser implements Serializable {
     @PrimaryKeyJoinColumn
     private Location location;
 
-    @Column
+    /**@Column
     @JsonProperty("interests")
     @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
-    private List<Interest> interests;
+    private List<Interest> interests;**/
 
     @Column
     @JsonProperty("skills")
@@ -94,13 +105,13 @@ public class ApplicationUser implements Serializable {
         this.location = location;
     }
 
-    public List<Interest> getInterests() {
+    /**public List<Interest> getInterests() {
         return interests;
     }
 
     public void setInterests(List<Interest> interests) {
         this.interests = interests;
-    }
+    }**/
 
     public String[] getSkills() {
         return skills;

@@ -3,87 +3,78 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package main;
+package com.scienceroot;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.scienceroot.user.ApplicationUser;
+import com.scienceroot.user.ApplicationUserRepository;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.http.ResponseEntity;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.mindrot.jbcrypt.BCrypt;
-import main.security.JWT;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
  * @author husche
  */
 @RestController
-@CrossOrigin
+@RequestMapping("/users")
 public class RegistrationController {
 	
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	public ApplicationUserRepository userRepository;
 	
-	public RegistrationController(@Autowired ApplicationUserRepository userRepository) {
+	public RegistrationController(
+		@Autowired ApplicationUserRepository userRepository,
+		@Autowired BCryptPasswordEncoder bCryptPasswordEncoder
+	) {
 		this.userRepository = userRepository;
+		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 	
 	
-    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @PostMapping(value = "/register")
     public ResponseEntity createUser(@RequestBody ApplicationUser user) throws JsonProcessingException {
-
-        String securePassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
-        
+        	System.out.println(user.getUsername());
         if(this.userRepository.findByUsername(user.getUsername()).isPresent()) {
         		return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
         } else {
+        		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         		this.userRepository.save(user);
-        	
-        		String token = new JWT().createJWT("0", "ScienceRoot", user.getUsername(), 10000);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("authorization", token);
-            String userStr = new ObjectMapper().writeValueAsString(user);
             
-            return new ResponseEntity(userStr, responseHeaders, HttpStatus.CREATED);
+        		String userStr = new ObjectMapper().writeValueAsString(user);
+            
+            return new ResponseEntity(userStr, HttpStatus.CREATED);
         }
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    /**@RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
     	
     		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
     		
     		if(dbUser.isPresent()) {
     			if(!BCrypt.checkpw(user.getPassword(), dbUser.get().getPassword())) {
-    				String token = new JWT().createJWT("0", "ScienceRoot", dbUser.get().getUsername(), 10000);
-    	            HttpHeaders responseHeaders = new HttpHeaders();
-    	            responseHeaders.set("authorization", token);
     	            String userStr = new ObjectMapper().writeValueAsString(user);
     	            
-    	            return new ResponseEntity(userStr, responseHeaders, HttpStatus.CREATED);
+    	            return new ResponseEntity(userStr, HttpStatus.CREATED);
     			} else {
     				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
     			}
     		} else {
     			return new ResponseEntity(HttpStatus.NOT_FOUND);
     		}
-    }
+    }**/
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
     public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {

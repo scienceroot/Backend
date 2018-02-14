@@ -1,4 +1,4 @@
-package main;
+package com.scienceroot.user;
 
 import java.util.Optional;
 

@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package main;
+package com.scienceroot.user;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.scienceroot.Location;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -46,7 +48,6 @@ public class ApplicationUser implements Serializable {
     private String username;
     
     @Column
-    @JsonIgnore
     private String password;
 
     @Column

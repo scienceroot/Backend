@@ -48,10 +48,10 @@
             <artifactId>json</artifactId>
             <version>20170516</version>
         </dependency>
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.3m</version>
+       <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>auth0-spring-security-api</artifactId>
+            <version>1.0.0-rc.3</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -82,6 +82,11 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
             <version>4.11</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-security</artifactId>
+        	<version>1.5.9.RELEASE</version>
         </dependency>
     </dependencies>
     <properties>

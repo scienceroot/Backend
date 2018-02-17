@@ -38,20 +38,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
-			.exceptionHandling().authenticationEntryPoint(restSecurityEntryPoint)
-		.and()
-	        // don't create session
-	        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-	    .and()
-	        .authorizeRequests()
-            		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
-            		.anyRequest().authenticated()
-		.and()
-        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
-        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
-		
-		http.addFilterBefore(corsFilter(), ChannelProcessingFilter.class);
+				.exceptionHandling().authenticationEntryPoint(restSecurityEntryPoint)
+			.and()
+		        // don't create session
+		        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		    .and()
+		        .authorizeRequests()
+	            		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+	            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+	            		.anyRequest().authenticated()
+			.and()
+				.addFilter(this.corsFilter())
+	        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
+	        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		
 		http.headers().cacheControl();
 	}

@@ -2,19 +2,18 @@ package com.scienceroot.config;
 
 import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.scienceroot.security.JWTAuthenticationFilter;
 import com.scienceroot.security.JWTAuthorizationFilter;
@@ -43,10 +42,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 		    .and()
 		        .authorizeRequests()
-	            		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+		        		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 	            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
-	            		.anyRequest().authenticated()
+	            	.anyRequest()
+	            		.authenticated()
 			.and()
+				.addFilterBefore(corsFilter(), ChannelProcessingFilter.class)
 	        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 	        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		
@@ -58,10 +59,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-      final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-      source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
-      return source;
+	private CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 }

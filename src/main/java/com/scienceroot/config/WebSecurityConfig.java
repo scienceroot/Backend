@@ -4,6 +4,7 @@ import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,6 +22,7 @@ import com.scienceroot.security.RestSecurityEntryPoint;
 
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private UserDetailsService userDetailsService;
@@ -42,12 +44,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 		    .and()
 		        .authorizeRequests()
-		        		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 	            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
 	            	.anyRequest()
 	            		.authenticated()
 			.and()
-				.addFilterBefore(corsFilter(), ChannelProcessingFilter.class)
 	        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 	        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		
@@ -57,16 +57,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
-    }
-
-	private CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
     }
 }

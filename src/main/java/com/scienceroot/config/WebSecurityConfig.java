@@ -16,6 +16,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.scienceroot.security.JWTAuthenticationFilter;
+import com.scienceroot.security.JWTAuthorizationFilter;
 import com.scienceroot.security.RestSecurityEntryPoint;
 
 
@@ -36,15 +38,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
-		.exceptionHandling().authenticationEntryPoint(restSecurityEntryPoint).and()
-
-        // don't create session
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-
-        .authorizeRequests()
-            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .antMatchers(HttpMethod.POST, "/users/register").permitAll()
-        .anyRequest().authenticated();
+			.exceptionHandling().authenticationEntryPoint(restSecurityEntryPoint)
+		.and()
+	        // don't create session
+	        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	    .and()
+	        .authorizeRequests()
+            		.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+            		.anyRequest().authenticated()
+		.and()
+        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
+        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		
 		http.headers().cacheControl();
 	}

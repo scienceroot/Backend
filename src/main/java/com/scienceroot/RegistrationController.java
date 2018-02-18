@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -102,6 +103,36 @@ public class RegistrationController {
 			}
 		} else {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@RequestMapping(value = "/token", method = RequestMethod.GET)
+	public ResponseEntity tokenStatus(@RequestHeader(value = "Authorization", required = false) String token) throws JsonProcessingException {
+		Date expirationDate = Jwts.parser()
+                .setSigningKey(SECRET.getBytes())
+                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                .getBody().getExpiration();
+		
+		String user = Jwts.parser()
+                .setSigningKey(SECRET.getBytes())
+                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                .getBody().getSubject();
+		
+		
+		
+		if(expirationDate.after(new Date())) {
+			String newToken = Jwts.builder().setSubject(user)
+					.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
+			
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.header(SecurityConstants.HEADER_STRING, newToken)
+					.header(
+						"Access-Control-Expose-Headers", 
+						SecurityConstants.HEADER_STRING + " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+					.body(null);
+		} else {
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 		}
 	}
 

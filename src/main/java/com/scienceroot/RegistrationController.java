@@ -5,10 +5,22 @@
  */
 package com.scienceroot;
 
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME;
+import static com.scienceroot.security.SecurityConstants.SECRET;
+import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
+
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.Headers;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity.HeadersBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scienceroot.security.SecurityConstants;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserRepository;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 
 /**
@@ -55,8 +71,14 @@ public class RegistrationController {
         		this.userRepository.save(user);
             
         		String userStr = new ObjectMapper().writeValueAsString(user);
-            
-            return new ResponseEntity(userStr, HttpStatus.CREATED);
+        		String token = Jwts.builder()
+                        .setSubject(user.getUsername())
+                        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                        .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                        .compact();
+               
+        		
+        		return ResponseEntity.status(HttpStatus.CREATED).header(SecurityConstants.HEADER_STRING, token).body(userStr);
         }
     }
 

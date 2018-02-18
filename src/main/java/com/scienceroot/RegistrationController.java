@@ -45,7 +45,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  * @author husche
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("")
 @CrossOrigin
 public class RegistrationController {
 
@@ -104,49 +104,6 @@ public class RegistrationController {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
 	}
-
-	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
-	public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
-
-		ApplicationUser user = this.userRepository.findOne(id);
-
-		if (user != null) {
-			String UserStr = new ObjectMapper().writeValueAsString(user);
-			return new ResponseEntity(UserStr, HttpStatus.OK);
-		} else {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
-	public ResponseEntity usersIDedit(@PathVariable("id") long id, @RequestBody ApplicationUser user) {
-		ApplicationUser userToUpdate = this.userRepository.findOne(id);
-
-		if (userToUpdate != null) {
-			this.userRepository.save(user);
-
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		} else {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	/**
-	 * @RequestMapping(value = "/interests", method = RequestMethod.GET) public
-	 *                       ResponseEntity searchInterests(@RequestParam("q")
-	 *                       String q) throws IOException{ Session session =
-	 *                       getSessionFactory().openSession();
-	 *                       session.beginTransaction(); System.out.println(q);
-	 *                       Query query = session.createQuery("from Interest where
-	 *                       name like :name"); query.setParameter("name",
-	 *                       '%'+q+'%'); List interests = query.list(); StringWriter
-	 *                       sw = new StringWriter(); ObjectMapper mapper = new
-	 *                       ObjectMapper(); mapper.writeValue(sw, interests);
-	 *                       return new ResponseEntity(sw.toString(),
-	 *                       HttpStatus.CREATED);
-	 * 
-	 *                       }
-	 **/
 
 	@RequestMapping(value = "/hue")
 	public String hue() {

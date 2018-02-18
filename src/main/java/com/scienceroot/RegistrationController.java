@@ -11,6 +11,7 @@ import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.Headers;
@@ -86,13 +87,14 @@ public class RegistrationController {
         }
     }
 
-    /**@RequestMapping(value = "/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
     	
     		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
     		
     		if(dbUser.isPresent()) {
-    			if(!BCrypt.checkpw(user.getPassword(), dbUser.get().getPassword())) {
+    			
+    			if(!this.bCryptPasswordEncoder.encode(user.getPassword()).equals(dbUser.get().getPassword())) {
     	            String userStr = new ObjectMapper().writeValueAsString(user);
     	            
     	            return new ResponseEntity(userStr, HttpStatus.CREATED);
@@ -102,7 +104,7 @@ public class RegistrationController {
     		} else {
     			return new ResponseEntity(HttpStatus.NOT_FOUND);
     		}
-    }**/
+    }
 
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
     public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {

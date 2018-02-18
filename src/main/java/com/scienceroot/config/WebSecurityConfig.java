@@ -1,6 +1,7 @@
 package com.scienceroot.config;
 
 import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
+import static com.scienceroot.security.SecurityConstants.SIGN_IN_URL;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -45,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		    .and()
 		        .authorizeRequests()
 	            		.antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+	            		.antMatchers(HttpMethod.POST, SIGN_IN_URL).permitAll()
 	            	.anyRequest()
 	            		.authenticated()
 			.and()

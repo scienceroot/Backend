@@ -40,7 +40,6 @@ import com.scienceroot.user.ApplicationUserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-
 /**
  *
  * @author husche
@@ -49,110 +48,105 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @RequestMapping("/users")
 @CrossOrigin
 public class RegistrationController {
-	
+
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	public ApplicationUserRepository userRepository;
-	
-	public RegistrationController(
-		@Autowired ApplicationUserRepository userRepository,
-		@Autowired BCryptPasswordEncoder bCryptPasswordEncoder
-	) {
+
+	public RegistrationController(@Autowired ApplicationUserRepository userRepository,
+			@Autowired BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.userRepository = userRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
-	
-	
-    @PostMapping(value = "/register")
-    public ResponseEntity createUser(@RequestBody ApplicationUser user) throws JsonProcessingException {
-        	System.out.println(user.getUsername());
-        if(this.userRepository.findByUsername(user.getUsername()).isPresent()) {
-        		return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
-        } else {
-        		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        		this.userRepository.save(user);
-            
-        		String userStr = new ObjectMapper().writeValueAsString(user);
-        		String token = Jwts.builder()
-                        .setSubject(user.getUsername())
-                        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                        .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                        .compact();
-               
-        		
-        		return ResponseEntity
-        				.status(HttpStatus.CREATED)
-        				.header(SecurityConstants.HEADER_STRING, token)
-        				.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING + " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
-        				.body(userStr);
-        }
-    }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
-    	
-    		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
-    		
-    		if(dbUser.isPresent()) {
-    			
-    			if(!this.bCryptPasswordEncoder.encode(user.getPassword()).equals(dbUser.get().getPassword())) {
-    	            String userStr = new ObjectMapper().writeValueAsString(user);
-    	            
-    	            return new ResponseEntity(userStr, HttpStatus.CREATED);
-    			} else {
-    				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-    			}
-    		} else {
-    			return new ResponseEntity(HttpStatus.NOT_FOUND);
-    		}
-    }
+	@PostMapping(value = "/register")
+	public ResponseEntity createUser(@RequestBody ApplicationUser user) throws JsonProcessingException {
+		System.out.println(user.getUsername());
+		if (this.userRepository.findByUsername(user.getUsername()).isPresent()) {
+			return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
+		} else {
+			user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+			this.userRepository.save(user);
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
-    public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
-    	
-    		ApplicationUser user = this.userRepository.findOne(id);
-    		
-    		if(user != null) {
-    			String UserStr = new ObjectMapper().writeValueAsString(user);
-            return new ResponseEntity(UserStr, HttpStatus.OK);
-    		} else {
-    			return new ResponseEntity(HttpStatus.NOT_FOUND);
-    		}
-    }
+			String userStr = new ObjectMapper().writeValueAsString(user);
+			String token = Jwts.builder().setSubject(user.getUsername())
+					.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
-    public ResponseEntity usersIDedit(@PathVariable("id") long id, @RequestBody ApplicationUser user) {
-    		ApplicationUser userToUpdate = this.userRepository.findOne(id);
-    		
-    		if(userToUpdate != null) {
-    			this.userRepository.save(user);
+			return ResponseEntity.status(HttpStatus.CREATED).header(SecurityConstants.HEADER_STRING, token)
+					.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
+							+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+					.body(userStr);
+		}
+	}
 
-    			return new ResponseEntity(HttpStatus.NO_CONTENT);
-    		} else {
-    			return new ResponseEntity(HttpStatus.NOT_FOUND);
-    		}
-    }
-    
-    /**@RequestMapping(value = "/interests", method = RequestMethod.GET)
-    public ResponseEntity searchInterests(@RequestParam("q") String q) throws IOException{
-        Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        System.out.println(q);
-        Query query = session.createQuery("from Interest where name like :name");
-        query.setParameter("name", '%'+q+'%');
-        List interests = query.list();
-        StringWriter sw = new StringWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(sw, interests);
-        return new ResponseEntity(sw.toString(), HttpStatus.CREATED);       
-        
-    }**/
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
 
-    @RequestMapping(value = "/hue")
-    public String hue() {
-        this.userRepository.findAll().forEach(user -> System.out.println(user.getId() + " " + user.getUsername() + " " + user.getPassword()));
-        
-       
-        return "hue";
-    }
+		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
+
+		if (dbUser.isPresent()) {
+
+			if (!this.bCryptPasswordEncoder.encode(user.getPassword()).equals(dbUser.get().getPassword())) {
+				String userStr = new ObjectMapper().writeValueAsString(dbUser);
+
+				return new ResponseEntity(userStr, HttpStatus.CREATED);
+			} else {
+				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+			}
+		} else {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+	public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
+
+		ApplicationUser user = this.userRepository.findOne(id);
+
+		if (user != null) {
+			String UserStr = new ObjectMapper().writeValueAsString(user);
+			return new ResponseEntity(UserStr, HttpStatus.OK);
+		} else {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
+	public ResponseEntity usersIDedit(@PathVariable("id") long id, @RequestBody ApplicationUser user) {
+		ApplicationUser userToUpdate = this.userRepository.findOne(id);
+
+		if (userToUpdate != null) {
+			this.userRepository.save(user);
+
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	/**
+	 * @RequestMapping(value = "/interests", method = RequestMethod.GET) public
+	 *                       ResponseEntity searchInterests(@RequestParam("q")
+	 *                       String q) throws IOException{ Session session =
+	 *                       getSessionFactory().openSession();
+	 *                       session.beginTransaction(); System.out.println(q);
+	 *                       Query query = session.createQuery("from Interest where
+	 *                       name like :name"); query.setParameter("name",
+	 *                       '%'+q+'%'); List interests = query.list(); StringWriter
+	 *                       sw = new StringWriter(); ObjectMapper mapper = new
+	 *                       ObjectMapper(); mapper.writeValue(sw, interests);
+	 *                       return new ResponseEntity(sw.toString(),
+	 *                       HttpStatus.CREATED);
+	 * 
+	 *                       }
+	 **/
+
+	@RequestMapping(value = "/hue")
+	public String hue() {
+		this.userRepository.findAll().forEach(
+				user -> System.out.println(user.getId() + " " + user.getUsername() + " " + user.getPassword()));
+
+		return "hue";
+	}
 
 }

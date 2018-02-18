@@ -86,7 +86,7 @@ public class RegistrationController {
 
 		if (dbUser.isPresent()) {
 
-			if (!this.bCryptPasswordEncoder.encode(user.getPassword()).equals(dbUser.get().getPassword())) {
+			if (this.bCryptPasswordEncoder.matches(user.getPassword(), dbUser.get().getPassword())) {
 				String userStr = new ObjectMapper().writeValueAsString(dbUser);
 
 				return new ResponseEntity(userStr, HttpStatus.CREATED);

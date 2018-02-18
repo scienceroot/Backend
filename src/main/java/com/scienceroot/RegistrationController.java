@@ -78,7 +78,11 @@ public class RegistrationController {
                         .compact();
                
         		
-        		return ResponseEntity.status(HttpStatus.CREATED).header(SecurityConstants.HEADER_STRING, token).body(userStr);
+        		return ResponseEntity
+        				.status(HttpStatus.CREATED)
+        				.header(SecurityConstants.HEADER_STRING, token)
+        				.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING + " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+        				.body(userStr);
         }
     }
 

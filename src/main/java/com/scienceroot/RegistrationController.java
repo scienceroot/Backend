@@ -88,8 +88,15 @@ public class RegistrationController {
 
 			if (this.bCryptPasswordEncoder.matches(user.getPassword(), dbUser.get().getPassword())) {
 				String userStr = new ObjectMapper().writeValueAsString(dbUser);
-
-				return new ResponseEntity(userStr, HttpStatus.CREATED);
+				String token = Jwts.builder().setSubject(user.getUsername())
+						.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+						.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
+				
+				return ResponseEntity.status(HttpStatus.CREATED)
+						.header(SecurityConstants.HEADER_STRING, token)
+						.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
+								+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+						.body(userStr);
 			} else {
 				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 			}

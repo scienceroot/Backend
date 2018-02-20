@@ -63,10 +63,9 @@ public class ApplicationUser implements Serializable {
     @PrimaryKeyJoinColumn
     private Location location;
 
-    /**@Column
-    @JsonProperty("interests")
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL)
-    private List<Interest> interests;**/
+    @JsonProperty("jobs")
+    @OneToMany()
+    private List<Job> jobs;
 
     @Column
     @JsonProperty("skills")
@@ -153,5 +152,13 @@ public class ApplicationUser implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public List<Job> getJobs() {
+		return jobs;
+	}
+    
+    public void setJobs(List<Job> jobs) {
+		this.jobs = jobs;
+	}
 
 }

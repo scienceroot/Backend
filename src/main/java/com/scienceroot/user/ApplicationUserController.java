@@ -1,5 +1,8 @@
 package com.scienceroot.user;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scienceroot.industry.IndustryRepository;
 
 @RestController
 @RequestMapping("/users")
@@ -21,9 +25,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ApplicationUserController {
 	
 	public ApplicationUserRepository userRepository;
+	public JobRepository jobRepository;
+	public IndustryRepository industryRepository;
 
-	public ApplicationUserController(@Autowired ApplicationUserRepository userRepository) {
+	public ApplicationUserController(
+		@Autowired ApplicationUserRepository userRepository,
+		@Autowired JobRepository jobRepository,
+		@Autowired IndustryRepository industryRepository
+	) {
 		this.userRepository = userRepository;
+		this.jobRepository = jobRepository;
+		this.industryRepository = industryRepository;
+	}
+	
+	@RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
+	public ResponseEntity addJobToUser(@PathVariable("id") long userId, @RequestBody Job job) {
+		Optional<ApplicationUser> dbUser = this.userRepository.findById(userId);
+		
+		if(dbUser.isPresent()) {
+			job.user = dbUser.get();
+			
+			this.jobRepository.save(job);
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(dbUser.get());
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)

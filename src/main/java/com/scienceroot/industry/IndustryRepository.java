@@ -12,6 +12,8 @@ public interface IndustryRepository extends CrudRepository<Industry, Long>{
 
 	public Optional<Industry> findByName(String name);
 	
+	public Optional<Industry> findById(Long id);
+	
 	@Query("SELECT i FROM Industry i WHERE i.name LIKE %:name%")
 	public Optional<List<Industry>> findByContainsName(@Param("name") String name);
 }

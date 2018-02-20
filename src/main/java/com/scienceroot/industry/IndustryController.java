@@ -1,5 +1,8 @@
 package com.scienceroot.industry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +31,14 @@ public class IndustryController {
 	
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public Industry getByName(@RequestParam(name = "q") String query) {
-		return null;
+	public List<Industry> getByName(@RequestParam(name = "q") String query) {
+		Optional<List<Industry>> industryResults = this.industryRepository.findByContainsName(query);
 		
+		if(industryResults.isPresent()) {
+			return industryResults.get();
+		} else {
+			return new ArrayList<>();
+		}
 	}
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)

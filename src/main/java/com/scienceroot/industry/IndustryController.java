@@ -42,7 +42,7 @@ public class IndustryController {
 	}
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-	public ResponseEntity getByName(@RequestBody Industry industry) throws JsonProcessingException {
+	public ResponseEntity create(@RequestBody Industry industry) throws JsonProcessingException {
 		if(industry.getName() != null) {
 			Optional<Industry> dbIndustry = this.industryRepository.findByName(industry.getName());
 			

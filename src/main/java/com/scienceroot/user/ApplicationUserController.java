@@ -56,11 +56,10 @@ public class ApplicationUserController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
 
-		ApplicationUser user = this.userRepository.findOne(id);
+		Optional<ApplicationUser> user = this.userRepository.findById(id);
 
-		if (user != null) {
-			String UserStr = new ObjectMapper().writeValueAsString(user);
-			return new ResponseEntity(UserStr, HttpStatus.OK);
+		if (user.isPresent()) {			
+			return ResponseEntity.status(HttpStatus.OK).body(user.get());
 		} else {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}

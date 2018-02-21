@@ -76,7 +76,7 @@ public class RegistrationController {
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + token)
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token)
 					.body(userStr);
 		}
 	}
@@ -95,7 +95,7 @@ public class RegistrationController {
 						.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 				
 				return ResponseEntity.status(HttpStatus.CREATED)
-						.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + token)
+						.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token)
 						.body(userStr);
 			} else {
 				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
@@ -125,7 +125,7 @@ public class RegistrationController {
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 			
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + newToken)
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + newToken)
 					.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
 							+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
 					.body(null);

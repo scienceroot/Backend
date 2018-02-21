@@ -11,10 +11,12 @@ import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.Headers;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity.HeadersBuilder;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +49,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 @RestController
 @RequestMapping("")
-@CrossOrigin
+@CrossOrigin()
 public class RegistrationController {
 
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -73,14 +75,13 @@ public class RegistrationController {
 					.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 
-			return ResponseEntity.status(HttpStatus.CREATED).header(SecurityConstants.HEADER_STRING, token)
-					.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
-							+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + token)
 					.body(userStr);
 		}
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	@PostMapping(value = "/login")
 	public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
 
 		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
@@ -94,9 +95,7 @@ public class RegistrationController {
 						.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 				
 				return ResponseEntity.status(HttpStatus.CREATED)
-						.header(SecurityConstants.HEADER_STRING, token)
-						.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
-								+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+						.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + token)
 						.body(userStr);
 			} else {
 				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
@@ -126,10 +125,9 @@ public class RegistrationController {
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 			
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.header(SecurityConstants.HEADER_STRING, newToken)
-					.header(
-						"Access-Control-Expose-Headers", 
-						SecurityConstants.HEADER_STRING + " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + ' ' + newToken)
+					.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
+							+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
 					.body(null);
 		} else {
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);

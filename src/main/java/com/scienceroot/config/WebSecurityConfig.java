@@ -53,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	        		.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 	        		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
 		
-		http.headers().cacheControl();
+		//http.headers().cacheControl();
 	}
 	
 	@Override

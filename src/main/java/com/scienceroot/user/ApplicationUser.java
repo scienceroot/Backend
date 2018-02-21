@@ -48,6 +48,14 @@ public class ApplicationUser implements Serializable {
     private String username;
     
     @Column
+    @JsonProperty("forename")
+    private String forename;
+    
+    @Column
+    @JsonProperty("lastname")
+    private String lastname;
+    
+    @Column
     private String password;
 
     @Column

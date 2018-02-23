@@ -14,13 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class Application {
 
 	@Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-	
-    public static void main(String[] args) {
-        org.apache.log4j.BasicConfigurator.configure();
-        SpringApplication.run(Application.class, args);
-    }
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	public static void main(String[] args) {
+		org.apache.log4j.BasicConfigurator.configure();
+		SpringApplication.run(Application.class, args);
+	}
 
 }

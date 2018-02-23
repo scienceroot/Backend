@@ -48,7 +48,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
  * @author husche
  */
 @RestController
-@RequestMapping("")
+@RequestMapping("/")
 @CrossOrigin()
 public class RegistrationController {
 
@@ -61,9 +61,9 @@ public class RegistrationController {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 
-	@PostMapping(value = "/register")
+	@PostMapping(value = "register")
 	public ResponseEntity createUser(@RequestBody ApplicationUser user) throws JsonProcessingException {
-		System.out.println(user.getUsername());
+
 		if (this.userRepository.findByUsername(user.getUsername()).isPresent()) {
 			return new ResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
 		} else {
@@ -76,59 +76,27 @@ public class RegistrationController {
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
 
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token)
-					.body(userStr);
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token).body(userStr);
 		}
 	}
 
-	@PostMapping(value = "/login")
-	public ResponseEntity login(@RequestBody ApplicationUser user) throws JsonProcessingException {
 
-		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(user.getUsername());
+	@RequestMapping(value = "token", method = RequestMethod.GET)
+	public ResponseEntity tokenStatus(@RequestHeader(value = "Authorization", required = false) String token)
+			throws JsonProcessingException {
+		Date expirationDate = Jwts.parser().setSigningKey(SECRET.getBytes())
+				.parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody().getExpiration();
 
-		if (dbUser.isPresent()) {
+		String user = Jwts.parser().setSigningKey(SECRET.getBytes()).parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+				.getBody().getSubject();
 
-			if (this.bCryptPasswordEncoder.matches(user.getPassword(), dbUser.get().getPassword())) {
-				String userStr = new ObjectMapper().writeValueAsString(dbUser);
-				String token = Jwts.builder().setSubject(user.getUsername())
-						.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-						.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
-				
-				return ResponseEntity.status(HttpStatus.CREATED)
-						.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token)
-						.body(userStr);
-			} else {
-				return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-			}
-		} else {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
-	}
-	
-	@RequestMapping(value = "/token", method = RequestMethod.GET)
-	public ResponseEntity tokenStatus(@RequestHeader(value = "Authorization", required = false) String token) throws JsonProcessingException {
-		Date expirationDate = Jwts.parser()
-                .setSigningKey(SECRET.getBytes())
-                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                .getBody().getExpiration();
-		
-		String user = Jwts.parser()
-                .setSigningKey(SECRET.getBytes())
-                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                .getBody().getSubject();
-		
-		
-		
-		if(expirationDate.after(new Date())) {
+		if (expirationDate.after(new Date())) {
 			String newToken = Jwts.builder().setSubject(user)
 					.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 					.signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
-			
+
 			return ResponseEntity.status(HttpStatus.CREATED)
-					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + newToken)
-					.header("Access-Control-Expose-Headers", SecurityConstants.HEADER_STRING
-							+ " , Cache-Control, Content-Language, Content-Type, Expires, Last-Modified, Pragma")
-					.body(null);
+					.header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + newToken).body(user);
 		} else {
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 		}

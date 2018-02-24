@@ -7,7 +7,7 @@ docker.image('maven:3.5.2-jdk-8-alpine').inside {
 
 
     stage 'build'
-        sh 'mvn clean package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage'
+        sh 'mvn clean package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage -DskipTests'
 }
 
 node {

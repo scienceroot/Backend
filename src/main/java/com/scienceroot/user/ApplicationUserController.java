@@ -68,13 +68,14 @@ public class ApplicationUserController {
 		Optional<ApplicationUser> dbUser = this.userRepository.findById(userId);
 		
 		if(dbUser.isPresent()) {
-			job.user = dbUser.get();
-			
-			this.jobRepository.save(job);
-			
-			return ResponseEntity.status(HttpStatus.CREATED).body(dbUser.get());
+                    job.user = dbUser.get();
+
+                    this.jobRepository.save(job);
+                    
+                    Optional<ApplicationUser> updatedUser = this.userRepository.findById(userId);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser.get());
 		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 	}
 
@@ -82,9 +83,12 @@ public class ApplicationUserController {
 	public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
 
 		Optional<ApplicationUser> user = this.userRepository.findById(id);
-
+                
 		if (user.isPresent()) {			
-			return ResponseEntity.status(HttpStatus.OK).body(user.get());
+                    //List<Job> userJobs = this.jobRepository.findByUserId(user.get().getId());
+                    //user.get().setJobs(userJobs);
+                    
+                    return ResponseEntity.status(HttpStatus.OK).body(user.get());
 		} else {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}

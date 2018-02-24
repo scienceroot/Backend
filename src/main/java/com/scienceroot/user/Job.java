@@ -1,5 +1,6 @@
 package com.scienceroot.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,28 +15,33 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scienceroot.industry.Industry;
 import com.scienceroot.user.ApplicationUser;
+import javax.persistence.FetchType;
+import javax.persistence.SequenceGenerator;
 
 @Entity
 @Table(name = "jobs")
 public class Job {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @SequenceGenerator(name="scr_user_sequence",sequenceName="scr_user_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="scr_user_sequence")
+    @Column(name="id", unique=true, nullable=false)
     @JsonProperty("id")
     public Long id;
 
     @Column
     public String title;
     
-    @JoinColumn
-    @OneToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     public ApplicationUser user;
 
     @Column
     public String employer;
     
-    @Column
-    public String industry;
+    @JoinColumn
+    @OneToOne()
+    public Industry industry;
 
 }

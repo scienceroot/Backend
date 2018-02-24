@@ -33,7 +33,7 @@ CREATE SEQUENCE jobs_id_seq;
 CREATE TABLE jobs (
     id INTEGER DEFAULT NEXTVAL('jobs_id_seq'),
     employer VARCHAR(255),
-    industry VARCHAR(255),
+    industry_id INTEGER,
     title VARCHAR(255),
     user_id INTEGER,
     primary key (id)

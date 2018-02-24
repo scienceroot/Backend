@@ -22,6 +22,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -33,13 +34,14 @@ import javax.persistence.Table;
 public class ApplicationUser implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
+    * 
+    */
+    private static final long serialVersionUID = 1L;
+   
+    @Id
+    @SequenceGenerator(name="scr_user_sequence",sequenceName="scr_user_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="scr_user_sequence")
+    @Column(name="id", unique=true, nullable=false)
     @JsonProperty("uid")
     private long id;
     

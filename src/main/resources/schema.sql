@@ -22,7 +22,6 @@ DROP SEQUENCE IF EXISTS interests_id_seq;
 CREATE SEQUENCE interests_id_seq;
 CREATE TABLE interests (
     id INTEGER DEFAULT NEXTVAL('interests_id_seq'),
-    description VARCHAR(255),
     name VARCHAR(255),
     primary key (id)
 );

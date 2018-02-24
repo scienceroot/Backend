@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.scienceroot;
+package com.scienceroot.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -13,7 +14,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -25,19 +28,20 @@ import javax.persistence.Table;
 public class Interest implements Serializable{
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name="interests_sequence",sequenceName="interests_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="interests_sequence")
+    @Column(name="id", unique=true, nullable=false)
     @JsonProperty("id")
     private long id;
-    
-    //@ManyToOne(fetch = FetchType.LAZY)
     
     @Column
     @JsonProperty("name")
     private String name;
     
-    @Column
-    @JsonProperty("description")
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    public ApplicationUser user;
 
     public long getId() {
         return id;
@@ -54,15 +58,4 @@ public class Interest implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    
-    
 }

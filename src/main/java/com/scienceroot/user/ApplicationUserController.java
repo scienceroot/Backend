@@ -103,20 +103,5 @@ public class ApplicationUserController {
 		}
 	}
 
-	/**
-	 * @RequestMapping(value = "/interests", method = RequestMethod.GET) public
-	 *                       ResponseEntity searchInterests(@RequestParam("q")
-	 *                       String q) throws IOException{ Session session =
-	 *                       getSessionFactory().openSession();
-	 *                       session.beginTransaction(); System.out.println(q);
-	 *                       Query query = session.createQuery("from Interest where
-	 *                       name like :name"); query.setParameter("name",
-	 *                       '%'+q+'%'); List interests = query.list(); StringWriter
-	 *                       sw = new StringWriter(); ObjectMapper mapper = new
-	 *                       ObjectMapper(); mapper.writeValue(sw, interests);
-	 *                       return new ResponseEntity(sw.toString(),
-	 *                       HttpStatus.CREATED);
-	 * 
-	 *                       }
-	 **/
+	
 }

@@ -13,26 +13,29 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scienceroot.industry.Industry;
+import com.scienceroot.user.ApplicationUser;
 
 @Entity
 @Table(name = "jobs")
 public class Job {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     @JsonProperty("id")
-	public Long id;
-	
-	@Column
-	public String title;
-	
-	@JoinColumn
-	@OneToOne()
-	public ApplicationUser user;
-	
-	@JoinColumn
-	@OneToOne()
-	public Industry industry;
+    public Long id;
+
+    @Column
+    public String title;
+    
+    @JoinColumn
+    @OneToOne()
+    public ApplicationUser user;
+
+    @Column
+    public String employer;
+    
+    @Column
+    public String industry;
 
 }

@@ -17,8 +17,8 @@ import com.scienceroot.user.Job;
 @Table(name = "industries")
 public class Industry implements Serializable {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 	
     private String name;

@@ -9,46 +9,29 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.scienceroot.Location;
+import com.scienceroot.interest.Interest;
+import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import java.util.UUID;
 
 /**
  * https://stackoverflow.com/questions/22256124/cannot-create-a-database-table-named-user-in-postgresql
  */
-
 @Entity
 @Table(name = "scr_user")
 public class ApplicationUser implements Serializable {
 
-    /**
-    * 
-    */
     private static final long serialVersionUID = 1L;
    
     @Id
-    @SequenceGenerator(name="scr_user_sequence",sequenceName="scr_user_id_seq", allocationSize=1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="scr_user_sequence")
+    @GeneratedValue(generator = "uuid_users")
+    @GenericGenerator(name = "uuid_users", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name="id", unique=true, nullable=false)
     @JsonProperty("uid")
-    private long id;
-    
-    @Column
-    @JsonProperty("username")
-    private String username;
+    private UUID id;
     
     @Column
     @JsonProperty("forename")
@@ -65,25 +48,65 @@ public class ApplicationUser implements Serializable {
     @JsonProperty("mail")
     private String mail;
 
-    //investor/journal
-    //@Column(columnDefinition = "text[]")
-    //@JsonProperty("roles")
     private String[] roles;
 
     @Column
-    @PrimaryKeyJoinColumn
     private Location location;
 
     @JsonProperty("jobs")
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Job> jobs;
+
+    @JsonProperty("interests")
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "scr_user_to_interest",
+            joinColumns = @JoinColumn(name = "interest_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<Interest> interests;
 
     @Column
     @JsonProperty("skills")
     private String[] skills;
 
-    public void setId(long id) {
+    public ApplicationUser() {
+    }
+
+    public ApplicationUser(String mail, String password) {
+        this.mail = mail;
+        this.password = password;
+        this.location = new Location();
+    }
+
+    @JsonGetter("uid")
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
         this.id = id;
+    }
+
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
+    @JsonSetter("password")
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<Job> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 
     @JsonGetter("mail")
@@ -116,14 +139,6 @@ public class ApplicationUser implements Serializable {
         this.location = location;
     }
 
-    /**public List<Interest> getInterests() {
-        return interests;
-    }
-
-    public void setInterests(List<Interest> interests) {
-        this.interests = interests;
-    }**/
-
     public String[] getSkills() {
         return skills;
     }
@@ -132,44 +147,11 @@ public class ApplicationUser implements Serializable {
         this.skills = skills;
     }
 
-    public ApplicationUser() {
+    public List<Interest> getInterests() {
+        return interests;
     }
 
-    public ApplicationUser(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.location = new Location();
+    public void setInterests(List<Interest> interests) {
+        this.interests = interests;
     }
-
-    @JsonGetter("uid")
-    public long getId() {
-        return id;
-    }
-
-    @JsonGetter("username")
-    public String getUsername() {
-        return username;
-    }
-
-    @JsonSetter("username")
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
-    public List<Job> getJobs() {
-		return jobs;
-	}
-    
-    public void setJobs(List<Job> jobs) {
-		this.jobs = jobs;
-	}
-
 }

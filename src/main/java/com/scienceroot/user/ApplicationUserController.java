@@ -1,111 +1,112 @@
 package com.scienceroot.user;
 
+import com.scienceroot.interest.Interest;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scienceroot.industry.IndustryRepository;
-
-import io.jsonwebtoken.Jwts;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/users")
-@CrossOrigin
 public class ApplicationUserController {
-	
-	public ApplicationUserRepository userRepository;
-	public JobRepository jobRepository;
-	public IndustryRepository industryRepository;
+
+	private ApplicationUserRepository userRepository;
+	private JobRepository jobRepository;
 
 	public ApplicationUserController(
-		@Autowired ApplicationUserRepository userRepository,
-		@Autowired JobRepository jobRepository,
-		@Autowired IndustryRepository industryRepository
+			@Autowired ApplicationUserRepository userRepository,
+			@Autowired JobRepository jobRepository
 	) {
 		this.userRepository = userRepository;
 		this.jobRepository = jobRepository;
-		this.industryRepository = industryRepository;
 	}
-	
+
 	@GetMapping(value = "/me")
-	public ResponseEntity getMe(@RequestHeader(value = "Authorization", required = false) String token) throws JsonProcessingException {
-		String username = Jwts.parser().setSigningKey(SECRET.getBytes())
+	public ApplicationUser getMe(
+			@RequestHeader(value = "Authorization", required = false) String token
+	) {
+
+		String mail = Jwts.parser().setSigningKey(SECRET.getBytes())
 				.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 				.getBody()
 				.getSubject();
-		
-		Optional<ApplicationUser> dbUser = this.userRepository.findByUsername(username);
-		
-		if(dbUser.isPresent()) {
-			String userStr = new ObjectMapper().writeValueAsString(dbUser.get());
-			
-			return ResponseEntity.status(HttpStatus.OK).body(userStr);
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-		}
-	}
-	
-	@RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
-	public ResponseEntity addJobToUser(@PathVariable("id") long userId, @RequestBody Job job) {
-		Optional<ApplicationUser> dbUser = this.userRepository.findById(userId);
-		
-		if(dbUser.isPresent()) {
-                    job.user = dbUser.get();
 
-                    this.jobRepository.save(job);
-                    
-                    Optional<ApplicationUser> updatedUser = this.userRepository.findById(userId);
-                    return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser.get());
-		} else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-		}
+		return this.userRepository
+				.findByMail(mail)
+				.orElseThrow(UserNotFoundException::new);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity usersID(@PathVariable("id") long id) throws JsonParseException, JsonProcessingException {
+	public ApplicationUser getById(
+			@PathVariable("id") UUID id
+	) {
 
-		Optional<ApplicationUser> user = this.userRepository.findById(id);
-                
-		if (user.isPresent()) {			
-                    //List<Job> userJobs = this.jobRepository.findByUserId(user.get().getId());
-                    //user.get().setJobs(userJobs);
-                    
-                    return ResponseEntity.status(HttpStatus.OK).body(user.get());
-		} else {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
+		ApplicationUser user = this.userRepository.findOne(id);
+
+		return Optional.ofNullable(user)
+				.orElseThrow(UserNotFoundException::new);
 	}
 
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity usersIDedit(@PathVariable("id") long id, @RequestBody ApplicationUser user) {
-		ApplicationUser userToUpdate = this.userRepository.findOne(id);
+	public ApplicationUser updateUser(
+			@PathVariable("id") UUID id,
+			@RequestBody ApplicationUser user
+	) {
 
-		if (userToUpdate != null) {
-			this.userRepository.save(user);
+		ApplicationUser userToUpdate = getById(id);
 
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		} else {
-			return new ResponseEntity(HttpStatus.NOT_FOUND);
-		}
+		return Optional.ofNullable(userToUpdate)
+				.map(tmpUser -> tmpUser = user)
+				.map(userRepository::save)
+				.orElseThrow(UserNotFoundException::new);
 	}
 
-	
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
+	public ApplicationUser updateUserJobs(
+			@PathVariable("id") UUID userId,
+			@RequestBody Job job
+	) {
+
+		ApplicationUser dbUser = getById(userId);
+
+		return Optional.ofNullable(dbUser)
+				.map(user -> addJobToUser(user, job))
+				.map(user -> userRepository.save(user))
+				.orElseThrow(UserNotFoundException::new);
+	}
+
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
+	public ApplicationUser updateUserInterests(
+			@PathVariable("id") UUID userId,
+			@RequestBody Interest interest
+	) {
+
+		ApplicationUser dbUser = getById(userId);
+
+		return Optional.ofNullable(dbUser)
+				.map(user -> addInterestToUser(user, interest))
+				.map(user -> userRepository.save(user))
+				.orElseThrow(UserNotFoundException::new);
+	}
+
+	private ApplicationUser addJobToUser(ApplicationUser user, Job job) {
+		job.user = user;
+		jobRepository.save(job);
+		return user;
+	}
+
+	private ApplicationUser addInterestToUser(ApplicationUser user, Interest interest) {
+		user.getInterests().add(interest);
+		return user;
+	}
 }

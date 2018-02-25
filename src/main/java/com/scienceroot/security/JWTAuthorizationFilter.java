@@ -10,15 +10,15 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static com.scienceroot.security.SecurityConstants.HEADER_STRING;
-import static com.scienceroot.security.SecurityConstants.SECRET;
-import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import static com.scienceroot.security.SecurityConstants.*;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+
+    private Logger LOG = Logger.getLogger(JWTAuthorizationFilter.class.getName());
 	
 	public JWTAuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
@@ -28,6 +28,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws IOException, ServletException {
+
         String header = req.getHeader(HEADER_STRING);
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {

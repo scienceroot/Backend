@@ -1,25 +1,22 @@
 package com.scienceroot.industry;
 
-import java.io.Serializable;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.scienceroot.user.Job;
+import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "industries")
 public class Industry implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue(generator = "uuid_industries")
+    @GenericGenerator(name = "uuid_industries", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 	
     private String name;
 	
@@ -31,7 +28,7 @@ public class Industry implements Serializable {
 		this.name = name;
 	}
 
-	public long getId() {
+    public UUID getId() {
 		return id;
 	}
 }

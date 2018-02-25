@@ -1,8 +1,8 @@
 package com.scienceroot.config;
 
-import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
-import static com.scienceroot.security.SecurityConstants.SIGN_IN_URL;
-
+import com.scienceroot.security.JWTAuthenticationFilter;
+import com.scienceroot.security.JWTAuthorizationFilter;
+import com.scienceroot.security.RestSecurityEntryPoint;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -12,14 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
-import com.scienceroot.security.JWTAuthenticationFilter;
-import com.scienceroot.security.JWTAuthorizationFilter;
-import com.scienceroot.security.RestSecurityEntryPoint;
+import static com.scienceroot.security.SecurityConstants.SIGN_IN_URL;
+import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
 
 
 @EnableWebSecurity
@@ -30,7 +25,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private RestSecurityEntryPoint restSecurityEntryPoint;
 
-    public WebSecurityConfig(UserDetailsService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder, RestSecurityEntryPoint restSecurityEntryPoint) {
+    public WebSecurityConfig(UserDetailsService userDetailsService,
+                             BCryptPasswordEncoder bCryptPasswordEncoder,
+                             RestSecurityEntryPoint restSecurityEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.restSecurityEntryPoint = restSecurityEntryPoint;

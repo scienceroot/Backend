@@ -1,10 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.scienceroot.search;
+package com.scienceroot;
 
+import com.scienceroot.config.HibernateUtil;
+import com.scienceroot.search.Arxiv;
+import com.scienceroot.search.Paper;
+import com.scienceroot.search.SearchResult;
+import com.scienceroot.user.ApplicationUser;
+import java.util.List;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,12 +22,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController {
     
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public Paper[] search(@RequestParam("q") String q){
-        System.out.println("test");
+    public SearchResult search(@RequestParam("q") String q){
         Arxiv arxiv = new Arxiv();
         String url = "http://export.arxiv.org/api/query?search_query=ti:" + q;
-        return arxiv.runSearch(url);
-        
+        Paper[] papers = arxiv.runSearch(url);
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Query query = session.createQuery("from scr_user where forename || lastname like ? or lastname || forename like ?");
+        query.setParameter(0, '%'+q+'%');
+        query.setParameter(1, '%'+q+'%');
+        List usersList = query.list();
+        ApplicationUser[] users = new ApplicationUser[usersList.size()];
+        for (int i = 0; i < usersList.size(); i++){
+            users[i] = (ApplicationUser)usersList.get(i);
+        }
+        return new SearchResult(papers, users);
     }
     
 }

@@ -16,8 +16,9 @@ public class ApplicationUserService {
     private JobRepository jobRepository;
 
     @Autowired
-    public ApplicationUserService(ApplicationUserRepository repository) {
+    public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository) {
         this.repository = repository;
+        this.jobRepository = jobRepository;
     }
 
     @Query("SELECT user FROM ApplicationUser user WHERE user.forename or user.lastname like concat('%', :query, '%') ")

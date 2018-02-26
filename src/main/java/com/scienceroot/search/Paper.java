@@ -9,7 +9,7 @@ import java.util.Date;
  *
  * @author husche
  */
-public class Paper {
+public class Paper implements Searchable {
     
     private String id;
     private Date published;
@@ -74,7 +74,13 @@ public class Paper {
     public void setLink(String[] link) {
         this.link = link;
     }
-    
-    
-    
+
+
+    @Override
+    public SearchResult toSearchResult() {
+        SearchResult result = new SearchResult();
+        result.setText(title);
+        result.setLink(link[0]);
+        return result;
+    }
 }

@@ -17,15 +17,13 @@ import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 @RequestMapping("/users")
 public class ApplicationUserController {
 
-	private ApplicationUserRepository userRepository;
-	private JobRepository jobRepository;
+	private ApplicationUserService userService;
 
+	@Autowired
 	public ApplicationUserController(
-			@Autowired ApplicationUserRepository userRepository,
-			@Autowired JobRepository jobRepository
+			ApplicationUserService applicationUserService
 	) {
-		this.userRepository = userRepository;
-		this.jobRepository = jobRepository;
+		this.userService = applicationUserService;
 	}
 
 	@GetMapping(value = "/me")
@@ -38,7 +36,7 @@ public class ApplicationUserController {
 				.getBody()
 				.getSubject();
 
-		return this.userRepository
+		return this.userService
 				.findByMail(mail)
 				.orElseThrow(UserNotFoundException::new);
 	}
@@ -48,7 +46,7 @@ public class ApplicationUserController {
 			@PathVariable("id") UUID id
 	) {
 
-		ApplicationUser user = this.userRepository.findOne(id);
+		ApplicationUser user = this.userService.findOne(id);
 
 		return Optional.ofNullable(user)
 				.orElseThrow(UserNotFoundException::new);
@@ -65,7 +63,7 @@ public class ApplicationUserController {
 
 		return Optional.ofNullable(userToUpdate)
 				.map(tmpUser -> tmpUser = user)
-				.map(userRepository::save)
+				.map(userService::save)
 				.orElseThrow(UserNotFoundException::new);
 	}
 
@@ -79,8 +77,8 @@ public class ApplicationUserController {
 		ApplicationUser dbUser = getById(userId);
 
 		return Optional.ofNullable(dbUser)
-				.map(user -> addJobToUser(user, job))
-				.map(user -> userRepository.save(user))
+				.map(user -> userService.addJobToUser(user, job))
+				.map(user -> userService.save(user))
 				.orElseThrow(UserNotFoundException::new);
 	}
 
@@ -94,19 +92,8 @@ public class ApplicationUserController {
 		ApplicationUser dbUser = getById(userId);
 
 		return Optional.ofNullable(dbUser)
-				.map(user -> addInterestToUser(user, interest))
-				.map(user -> userRepository.save(user))
+				.map(user -> userService.addInterestToUser(user, interest))
+				.map(user -> userService.save(user))
 				.orElseThrow(UserNotFoundException::new);
-	}
-
-	private ApplicationUser addJobToUser(ApplicationUser user, Job job) {
-		job.user = user;
-		jobRepository.save(job);
-		return user;
-	}
-
-	private ApplicationUser addInterestToUser(ApplicationUser user, Interest interest) {
-		user.getInterests().add(interest);
-		return user;
 	}
 }

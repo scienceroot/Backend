@@ -27,6 +27,10 @@ spring:
     password: Password.1
     driver-class-name: org.postgresql.Driver
   jpa:
-    generate-ddl: false
+    generate-ddl: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
+logging:
+  level: error
+  level.root: info
+  level.org.hibernate: info

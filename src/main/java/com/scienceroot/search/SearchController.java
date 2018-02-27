@@ -1,4 +1,4 @@
-package com.scienceroot;
+package com.scienceroot.search;
 
 import com.scienceroot.config.HibernateUtil;
 import com.scienceroot.search.Arxiv;

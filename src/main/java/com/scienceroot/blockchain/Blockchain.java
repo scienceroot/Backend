@@ -23,6 +23,7 @@ import org.web3j.utils.Convert;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.logging.Logger;
 
 /**
  * @author husche
@@ -30,6 +31,8 @@ import java.math.BigInteger;
 @Service
 public class Blockchain {
 
+	private static final String SCR_CHAIN = "https://chain.scienceroots.com";
+	private Logger LOG = Logger.getLogger(Blockchain.class.getName());
 	private ResourceService resourceService;
 
 	@Autowired
@@ -39,7 +42,7 @@ public class Blockchain {
 
 	public BigInteger getFunds(String address) {
 		try {
-			Web3j web3 = Web3j.build(new HttpService("https://chain.scienceroots.com"));
+			Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
 			EthGetBalance balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
 			return balance.getBalance();
 		} catch (IOException ioe) {
@@ -48,20 +51,34 @@ public class Blockchain {
 		}
 	}
 
-	public Boolean sendInitialFunds(String address) {
+	public boolean sendInitialFunds(String address) {
+
+		LOG.info("sending initial funding to '" + address + "'");
+		Resource wallet = this.loadWalletFile();
+
+		LOG.info("calling web3j..");
+		Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
+
 		try {
-			Resource wallet = this.loadWalletFile();
-			Web3j web3 = Web3j.build(new HttpService("https://chain.scienceroots.com"));
+			LOG.info("receiving credentials..");
 			Credentials creds = WalletUtils.loadCredentials("secret", wallet.getFile());
-			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER).sendAsync();
-		} catch (IOException | InterruptedException | CipherException | TransactionException e) {
-			System.out.println(e.toString());
+
+			LOG.info("sending one ether ..");
+			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER)
+					.sendAsync();
+
+		} catch (TransactionException | InterruptedException | CipherException | IOException e) {
+			LOG.severe(e.getMessage());
 			return false;
 		}
+
+		LOG.info("sending initial funding done");
 		return true;
 	}
 
 	protected Resource loadWalletFile() {
+
+		LOG.info("loading wallet file (wallet.dat)..");
 		return resourceService.loadFromResourcesFolder("wallet.dat");
 	}
 

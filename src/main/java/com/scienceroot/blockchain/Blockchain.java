@@ -5,8 +5,10 @@
  */
 package com.scienceroot.blockchain;
 
-import org.springframework.core.io.ClassPathResource;
+import com.scienceroot.config.ResourceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -25,9 +27,14 @@ import java.math.BigInteger;
 /**
  * @author husche
  */
+@Service
 public class Blockchain {
 
-	public Blockchain() {
+	private ResourceService resourceService;
+
+	@Autowired
+	public Blockchain(ResourceService resourceService) {
+		this.resourceService = resourceService;
 	}
 
 	public BigInteger getFunds(String address) {
@@ -55,7 +62,7 @@ public class Blockchain {
 	}
 
 	protected Resource loadWalletFile() {
-		return new ClassPathResource("wallet.dat");
+		return resourceService.loadFromResourcesFolder("wallet.dat");
 	}
 
 }

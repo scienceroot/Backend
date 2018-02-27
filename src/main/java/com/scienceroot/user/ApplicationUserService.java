@@ -13,13 +13,15 @@ import java.util.UUID;
 @Service
 public class ApplicationUserService {
 
+	private Blockchain blockchain;
     private ApplicationUserRepository repository;
     private JobRepository jobRepository;
 
     @Autowired
-    public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository) {
+	public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository, Blockchain blockchain) {
         this.repository = repository;
         this.jobRepository = jobRepository;
+		this.blockchain = blockchain;
     }
 
     @Query("SELECT user FROM ApplicationUser user WHERE user.forename or user.lastname like concat('%', :query, '%') ")
@@ -49,13 +51,12 @@ public class ApplicationUserService {
         user.getInterests().add(interest);
         return user;
     }
-    
-    public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey){
-        if (null == user || "".equals(user.getPublicKey())){
-            Blockchain bc = new Blockchain();
-            bc.sendInitialFunds(publicKey);
-        }
-        user.setPublicKey(publicKey);
-        return user;
-    }
+
+	public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
+		if (null == user || "".equals(user.getPublicKey())) {
+			blockchain.sendInitialFunds(publicKey);
+		}
+		user.setPublicKey(publicKey);
+		return user;
+	}
 }

@@ -27,22 +27,22 @@ import java.util.UUID;
 public class ApplicationUser implements Serializable, Searchable {
 
     private static final long serialVersionUID = 1L;
-   
+
     @Id
     @GeneratedValue(generator = "uuid_users")
     @GenericGenerator(name = "uuid_users", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name="id", unique=true, nullable=false)
+    @Column(name = "id", unique = true, nullable = false)
     @JsonProperty("uid")
     private UUID id;
-    
+
     @Column
     @JsonProperty("forename")
     private String forename;
-    
+
     @Column
     @JsonProperty("lastname")
     private String lastname;
-    
+
     @Column
     private String password;
 
@@ -61,8 +61,8 @@ public class ApplicationUser implements Serializable, Searchable {
 
     @JsonProperty("interests")
     @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
+        CascadeType.PERSIST,
+        CascadeType.MERGE
     })
     @JoinTable(
             name = "scr_user_to_interest",
@@ -75,9 +75,9 @@ public class ApplicationUser implements Serializable, Searchable {
     @JsonProperty("skills")
     private String[] skills;
 
-	@Column
-	@JsonProperty("publicKey")
-	private String publicKey;
+    @Column
+    @JsonProperty("publicKey")
+    private String publicKey;
 
     public ApplicationUser() {
     }
@@ -86,6 +86,7 @@ public class ApplicationUser implements Serializable, Searchable {
         this.mail = mail;
         this.password = password;
         this.location = new Location();
+        this.publicKey = "";
     }
 
     @Override
@@ -184,11 +185,11 @@ public class ApplicationUser implements Serializable, Searchable {
         this.interests = interests;
     }
 
-	public String getPublicKey() {
-		return publicKey;
-	}
+    public String getPublicKey() {
+        return publicKey;
+    }
 
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
-	}
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 }

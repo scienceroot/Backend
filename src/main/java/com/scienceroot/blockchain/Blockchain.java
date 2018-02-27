@@ -5,6 +5,7 @@
  */
 package com.scienceroot.blockchain;
 
+import java.io.IOException;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.web3j.crypto.Credentials;
@@ -17,32 +18,46 @@ import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import org.web3j.crypto.CipherException;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.exceptions.TransactionException;
 
 /**
  * @author husche
  */
 public class Blockchain {
 
-	public Blockchain() {
-	}
+    public Blockchain() {
+    }
 
-	public Boolean sendInitialFunds(String address) {
-		try {
-			Resource wallet = this.loadWalletFile();
-			Web3j web3 = Web3j.build(new HttpService("https://chain.scienceroots.com"));
-			Web3ClientVersion wcv = web3.web3ClientVersion().send();
-			Credentials creds = WalletUtils.loadCredentials("secret", wallet.getFile());
+    public BigInteger getFunds(String address) {
+        try {
+            Web3j web3 = Web3j.build(new HttpService("https://chain.scienceroots.com"));
+            EthGetBalance balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+            return balance.getBalance();
+        } catch (IOException ioe) {
+            System.out.println(ioe.toString());
+            return new BigInteger("-1");
+        }
+    }
 
-			TransactionReceipt tr = Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER).send();
-		} catch (Exception e) {
-			System.out.println(e.toString());
-			return false;
-		}
-		return true;
-	}
+    public Boolean sendInitialFunds(String address) {
+        try {
+            Resource wallet = this.loadWalletFile();
+            Web3j web3 = Web3j.build(new HttpService("https://chain.scienceroots.com"));
+            Credentials creds = WalletUtils.loadCredentials("secret", wallet.getFile());
+            Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER).sendAsync();
+        } catch (IOException | InterruptedException | CipherException | TransactionException e) {
+            System.out.println(e.toString());
+            return false;
+        }
+        return true;
+    }
 
-	protected Resource loadWalletFile() {
-		return new ClassPathResource("wallet.dat");
-	}
+    protected Resource loadWalletFile() {
+        return new ClassPathResource("wallet.dat");
+    }
 
 }

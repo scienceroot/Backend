@@ -26,40 +26,40 @@ public class ApplicationUserController {
 		this.userService = applicationUserService;
 	}
 
-    @GetMapping(value = "/me")
-    public ApplicationUser getMe(
-            @RequestHeader(value = "Authorization", required = false) String token
-    ) {
+	@GetMapping(value = "/me")
+	public ApplicationUser getMe(
+			@RequestHeader(value = "Authorization", required = false) String token
+	) {
 
-        String mail = Jwts.parser().setSigningKey(SECRET.getBytes())
-                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                .getBody()
-                .getSubject();
+		String mail = Jwts.parser().setSigningKey(SECRET.getBytes())
+				.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+				.getBody()
+				.getSubject();
 
 		return this.userService
 				.findByMail(mail)
 				.orElseThrow(UserNotFoundException::new);
 	}
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ApplicationUser getById(
-            @PathVariable("id") UUID id
-    ) {
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ApplicationUser getById(
+			@PathVariable("id") UUID id
+	) {
 
 		ApplicationUser user = this.userService.findOne(id);
 
-        return Optional.ofNullable(user)
-                .orElseThrow(UserNotFoundException::new);
-    }
+		return Optional.ofNullable(user)
+				.orElseThrow(UserNotFoundException::new);
+	}
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ApplicationUser updateUser(
-            @PathVariable("id") UUID id,
-            @RequestBody ApplicationUser user
-    ) {
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+	public ApplicationUser updateUser(
+			@PathVariable("id") UUID id,
+			@RequestBody ApplicationUser user
+	) {
 
-        ApplicationUser userToUpdate = getById(id);
+		ApplicationUser userToUpdate = getById(id);
 
 		return Optional.ofNullable(userToUpdate)
 				.map(tmpUser -> tmpUser = user)
@@ -67,14 +67,14 @@ public class ApplicationUserController {
 				.orElseThrow(UserNotFoundException::new);
 	}
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
-    public ApplicationUser updateUserJobs(
-            @PathVariable("id") UUID userId,
-            @RequestBody Job job
-    ) {
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
+	public ApplicationUser updateUserJobs(
+			@PathVariable("id") UUID userId,
+			@RequestBody Job job
+	) {
 
-        ApplicationUser dbUser = getById(userId);
+		ApplicationUser dbUser = getById(userId);
 
 		return Optional.ofNullable(dbUser)
 				.map(user -> userService.addJobToUser(user, job))
@@ -82,14 +82,14 @@ public class ApplicationUserController {
 				.orElseThrow(UserNotFoundException::new);
 	}
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
-    public ApplicationUser updateUserInterests(
-            @PathVariable("id") UUID userId,
-            @RequestBody Interest interest
-    ) {
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
+	public ApplicationUser updateUserInterests(
+			@PathVariable("id") UUID userId,
+			@RequestBody Interest interest
+	) {
 
-        ApplicationUser dbUser = getById(userId);
+		ApplicationUser dbUser = getById(userId);
 
 		return Optional.ofNullable(dbUser)
 				.map(user -> userService.addInterestToUser(user, interest))

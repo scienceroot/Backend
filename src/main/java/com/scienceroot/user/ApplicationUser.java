@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.scienceroot.interest.Interest;
+import com.scienceroot.search.SearchResult;
+import com.scienceroot.search.Searchable;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -22,7 +24,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "scr_user")
-public class ApplicationUser implements Serializable {
+public class ApplicationUser implements Serializable, Searchable {
 
     private static final long serialVersionUID = 1L;
    
@@ -86,6 +88,13 @@ public class ApplicationUser implements Serializable {
         this.location = new Location();
     }
 
+    @Override
+    public SearchResult toSearchResult() {
+        SearchResult result = new SearchResult();
+        result.setText(lastname + " " + forename);
+        return result;
+    }
+
     @JsonGetter("uid")
     public UUID getId() {
         return id;
@@ -93,6 +102,22 @@ public class ApplicationUser implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getForename() {
+        return forename;
+    }
+
+    public void setForename(String forename) {
+        this.forename = forename;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     @JsonIgnore

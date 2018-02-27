@@ -108,7 +108,7 @@ public class RegistrationController {
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .header(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + newToken)
-                    .body(newToken);
+                    .build();
         } else {
 
             LOG.info("token status expired");

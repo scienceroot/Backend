@@ -5,37 +5,31 @@
  */
 package com.scienceroot.search;
 
-import com.scienceroot.search.Paper;
-import com.scienceroot.user.ApplicationUser;
-
 /**
  *
  * @author husche
  */
 public class SearchResult {
 
-    public SearchResult(Paper[] papers, ApplicationUser[] users){
-        this.papers = papers;
-        this.users = users;
-    }
-    
-    public Paper[] getPapers() {
-        return papers;
+    private String text;
+    private String link;
+
+    public SearchResult() {
     }
 
-    public void setPapers(Paper[] papers) {
-        this.papers = papers;
+    public String getText() {
+        return text;
     }
 
-    public ApplicationUser[] getUsers() {
-        return users;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public void setUsers(ApplicationUser[] users) {
-        this.users = users;
+    public String getLink() {
+        return link;
     }
-    
-    private Paper[] papers;
-    private ApplicationUser[] users;
-    
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 }

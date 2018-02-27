@@ -17,16 +17,14 @@ import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 @RequestMapping("/users")
 public class ApplicationUserController {
 
-    private ApplicationUserRepository userRepository;
-    private JobRepository jobRepository;
+	private ApplicationUserService userService;
 
-    public ApplicationUserController(
-            @Autowired ApplicationUserRepository userRepository,
-            @Autowired JobRepository jobRepository
-    ) {
-        this.userRepository = userRepository;
-        this.jobRepository = jobRepository;
-    }
+	@Autowired
+	public ApplicationUserController(
+			ApplicationUserService applicationUserService
+	) {
+		this.userService = applicationUserService;
+	}
 
     @GetMapping(value = "/me")
     public ApplicationUser getMe(
@@ -38,17 +36,17 @@ public class ApplicationUserController {
                 .getBody()
                 .getSubject();
 
-        return this.userRepository
-                .findByMail(mail)
-                .orElseThrow(UserNotFoundException::new);
-    }
+		return this.userService
+				.findByMail(mail)
+				.orElseThrow(UserNotFoundException::new);
+	}
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ApplicationUser getById(
             @PathVariable("id") UUID id
     ) {
 
-        ApplicationUser user = this.userRepository.findOne(id);
+		ApplicationUser user = this.userService.findOne(id);
 
         return Optional.ofNullable(user)
                 .orElseThrow(UserNotFoundException::new);
@@ -63,11 +61,11 @@ public class ApplicationUserController {
 
         ApplicationUser userToUpdate = getById(id);
 
-        return Optional.ofNullable(userToUpdate)
-                .map(tmpUser -> tmpUser = user)
-                .map(userRepository::save)
-                .orElseThrow(UserNotFoundException::new);
-    }
+		return Optional.ofNullable(userToUpdate)
+				.map(tmpUser -> tmpUser = user)
+				.map(userService::save)
+				.orElseThrow(UserNotFoundException::new);
+	}
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
@@ -78,11 +76,11 @@ public class ApplicationUserController {
 
         ApplicationUser dbUser = getById(userId);
 
-        return Optional.ofNullable(dbUser)
-                .map(user -> addJobToUser(user, job))
-                .map(user -> userRepository.save(user))
-                .orElseThrow(UserNotFoundException::new);
-    }
+		return Optional.ofNullable(dbUser)
+				.map(user -> userService.addJobToUser(user, job))
+				.map(user -> userService.save(user))
+				.orElseThrow(UserNotFoundException::new);
+	}
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
@@ -93,41 +91,9 @@ public class ApplicationUserController {
 
         ApplicationUser dbUser = getById(userId);
 
-        return Optional.ofNullable(dbUser)
-                .map(user -> addInterestToUser(user, interest))
-                .map(user -> userRepository.save(user))
-                .orElseThrow(UserNotFoundException::new);
-    }
-
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
-    public ApplicationUser addPublicKey(
-            @PathVariable("id") UUID userId,
-            @RequestBody String pubkey) {
-
-        ApplicationUser dbUser = getById(userId);
-
-        return Optional.ofNullable(dbUser)
-                .map(user -> addPublicKeyToUser(user, pubkey))
-                .map(user -> userRepository.save(user))
-                .orElseThrow(UserNotFoundException::new);
-
-    }
-
-    private ApplicationUser addJobToUser(ApplicationUser user, Job job) {
-        job.user = user;
-        jobRepository.save(job);
-        return user;
-    }
-
-    private ApplicationUser addInterestToUser(ApplicationUser user, Interest interest) {
-        user.getInterests().add(interest);
-        return user;
-    }
-
-    private ApplicationUser addPublicKeyToUser(ApplicationUser user, String pubkey) {
-        user.setPublicKey(pubkey);
-        
-        return user;
-    }
+		return Optional.ofNullable(dbUser)
+				.map(user -> userService.addInterestToUser(user, interest))
+				.map(user -> userService.save(user))
+				.orElseThrow(UserNotFoundException::new);
+	}
 }

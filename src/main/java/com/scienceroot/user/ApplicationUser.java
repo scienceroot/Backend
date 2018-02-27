@@ -77,7 +77,7 @@ public class ApplicationUser implements Serializable, Searchable {
 
     @Column
     @JsonProperty("publicKey")
-    private String publicKey;
+    private String publicKey = "";
 
     public ApplicationUser() {
     }

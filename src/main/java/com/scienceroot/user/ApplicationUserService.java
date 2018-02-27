@@ -51,7 +51,7 @@ public class ApplicationUserService {
     }
     
     public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey){
-        if ("".equals(user.getPublicKey())){
+        if (null == user || "".equals(user.getPublicKey())){
             Blockchain bc = new Blockchain();
             bc.sendInitialFunds(publicKey);
         }

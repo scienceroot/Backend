@@ -27,37 +27,38 @@ public class SearchController {
         this.applicationUserService = applicationUserService;
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
+	@RequestMapping(value = "/", method = RequestMethod.GET)
     public List<SearchResult> search(
             @RequestParam("q") String q,
             @RequestParam(value = "type", defaultValue = "papers") String type
     ) {
+		List<? extends Searchable> result;
         switch (type) {
-            case "users":
-                return searchUsers(q);
-            default:
-                return searchPapers(q);
+			case "users":
+				result = searchUsers(q);
+				break;
+			default:
+				result = searchPapers(q);
+				break;
         }
+
+		return result.stream()
+				.map(Searchable::toSearchResult)
+				.collect(toList());
     }
 
     @RequestMapping(value = "/search/papers", method = RequestMethod.GET)
-    public List<SearchResult> searchPapers(
+	public List<Paper> searchPapers(
             @RequestParam("q") String q
     ) {
-        return searchService.search(q)
-                .stream()
-                .map(Paper::toSearchResult)
-                .collect(toList());
+		return searchService.search(q);
     }
 
     @RequestMapping(value = "/search/users", method = RequestMethod.GET)
-    public List<SearchResult> searchUsers(
+	public List<ApplicationUser> searchUsers(
             @RequestParam("q") String q
     ) {
-        return applicationUserService.search(q)
-                .stream()
-                .map(ApplicationUser::toSearchResult)
-                .collect(toList());
+		return applicationUserService.search(q);
     }
     
 }

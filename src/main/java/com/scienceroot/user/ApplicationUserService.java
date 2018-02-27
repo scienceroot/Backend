@@ -49,13 +49,13 @@ public class ApplicationUserService {
         user.getInterests().add(interest);
         return user;
     }
-    
-    public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey){
-        if ("".equals(user.getPublicKey())){
-            Blockchain bc = new Blockchain();
-            bc.sendInitialFunds(publicKey);
-        }
-        user.setPublicKey(publicKey);
-        return user;
-    }
+
+	public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
+		if ("".equals(user.getPublicKey())) {
+			Blockchain bc = new Blockchain();
+			bc.sendInitialFunds(publicKey);
+		}
+		user.setPublicKey(publicKey);
+		return user;
+	}
 }

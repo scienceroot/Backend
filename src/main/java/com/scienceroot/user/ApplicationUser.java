@@ -74,6 +74,10 @@ public class ApplicationUser implements Serializable, Searchable {
     @Column
     @JsonProperty("skills")
     private String[] skills;
+    
+    @Column
+    @JsonProperty("publicKey")
+    private String publicKey;
 
     public ApplicationUser() {
     }
@@ -178,5 +182,13 @@ public class ApplicationUser implements Serializable, Searchable {
 
     public void setInterests(List<Interest> interests) {
         this.interests = interests;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }

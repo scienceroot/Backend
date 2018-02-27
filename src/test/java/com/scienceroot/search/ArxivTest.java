@@ -12,34 +12,35 @@ import static com.scienceroot.search.SearchService.URL_ARXIV;
 import static org.junit.Assert.assertNotNull;
 
 /**
- *
  * @author husche
  */
 public class ArxivTest {
 
-    private Arxiv arxiv;
+	private Arxiv arxiv;
 
-    @Before
-    public void setUp() throws Exception {
-        this.arxiv = new Arxiv();
-    }
+	@Before
+	public void setUp() throws Exception {
+		this.arxiv = new Arxiv();
+	}
 
-    @Test
-    public void testRunSearch() {
+	@Test
+	public void testRunSearch() {
 
-        String query = "auto";
-        String url = URL_ARXIV + "?search_query=ti:" + query;
-        Paper[] result = this.arxiv.runSearch(url);
+		String query = "auto";
+		String url = URL_ARXIV + "?search_query=ti:" + query;
+		Paper[] result = this.arxiv.runSearch(url);
 
-        assertNotNull(result);
-        for(Paper pape : result){
-            //assertNotNull(pape.getId());
-            assertNotNull(pape.getTitle());
-            assertNotNull(pape.getPublished());
-            //assertNotNull(pape.getSummary());
-            //assertNotNull(pape.getUpdated());
-        }
+		assertNotNull(result);
+		for (Paper pape : result) {
+			//assertNotNull(pape.getId());
+			assertNotNull(pape.getTitle());
+			assertNotNull(pape.getPublished());
+			//assertNotNull(pape.getSummary());
+			//assertNotNull(pape.getUpdated());
+			assertNotNull(pape.getLink());
+			assertNotNull(pape.getAuthor());
+		}
 
-    }
-    
+	}
+
 }

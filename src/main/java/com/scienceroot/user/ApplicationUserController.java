@@ -96,12 +96,12 @@ public class ApplicationUserController {
 				.map(user -> userService.save(user))
 				.orElseThrow(UserNotFoundException::new);
 	}
-        
-        @ResponseStatus(HttpStatus.CREATED)
+
+	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(value = "/{id}/publickey", method = RequestMethod.POST)
 	public ApplicationUser updateUserPublicKey(
 			@PathVariable("id") UUID userId,
-                        @RequestBody String publicKey
+			@RequestBody String publicKey
 	) {
 
 		ApplicationUser dbUser = getById(userId);

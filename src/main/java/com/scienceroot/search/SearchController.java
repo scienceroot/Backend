@@ -27,7 +27,7 @@ public class SearchController {
         this.applicationUserService = applicationUserService;
     }
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "", method = RequestMethod.GET)
     public List<SearchResult> search(
             @RequestParam("q") String q,
             @RequestParam(value = "type", defaultValue = "papers") String type
@@ -47,14 +47,14 @@ public class SearchController {
 				.collect(toList());
     }
 
-    @RequestMapping(value = "/search/papers", method = RequestMethod.GET)
+	@RequestMapping(value = "/papers", method = RequestMethod.GET)
 	public List<Paper> searchPapers(
             @RequestParam("q") String q
     ) {
 		return searchService.search(q);
     }
 
-    @RequestMapping(value = "/search/users", method = RequestMethod.GET)
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public List<ApplicationUser> searchUsers(
             @RequestParam("q") String q
     ) {

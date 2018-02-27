@@ -8,7 +8,7 @@ import java.util.List;
 @Service
 public class SearchService {
 
-    private static final String URL_ARXIV = "http://export.arxiv.org/api/query";
+    protected static final String URL_ARXIV = "http://export.arxiv.org/api/query";
 
     public List<Paper> search(String query) {
         Arxiv arxiv = new Arxiv();

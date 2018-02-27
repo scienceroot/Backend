@@ -75,9 +75,9 @@ public class ApplicationUser implements Serializable, Searchable {
     @JsonProperty("skills")
     private String[] skills;
 
-	@Column
-	@JsonProperty("publicKey")
-	private String publicKey;
+    @Column
+    @JsonProperty("publicKey")
+    private String publicKey = "";
 
     public ApplicationUser() {
     }

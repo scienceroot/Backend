@@ -3,7 +3,6 @@ package com.scienceroot.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +23,15 @@ public class ResourceService {
 
 		LOG.info("loading file '" + filename + "'");
 
-		if (environment.acceptsProfiles("staging")) {
+		/*if (environment.acceptsProfiles("staging")) {
 			LOG.info("loading file as FileSystemResource '/" + filename + "'");
 			return new FileSystemResource("/" + filename);
 		} else {
 			LOG.info("loading file as ClassPathResource '" + filename + "'");
 			return new ClassPathResource(filename);
-		}
+		}*/
+
+		LOG.info("loading file as ClassPathResource '" + filename + "'");
+		return new ClassPathResource(filename);
 	}
 }

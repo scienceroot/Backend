@@ -23,6 +23,7 @@ import org.web3j.utils.Convert;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -56,14 +57,20 @@ public class Blockchain {
 		LOG.info("sending initial funding to '" + address + "'");
 		Resource wallet = this.loadWalletFile();
 
-		LOG.info("calling web3j..");
+		LOG.info("calling web3j at " + SCR_CHAIN);
 		Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
 
 		try {
-			LOG.info("receiving credentials..");
+			LOG.info("validation of wallet file ..");
+			Objects.requireNonNull(wallet);
+			assert wallet.exists();
+			Objects.requireNonNull(wallet.getFile());
+			LOG.info("validation of wallet file successfully");
+
+			LOG.info("receiving credentials from wallet..");
 			Credentials creds = WalletUtils.loadCredentials("secret", wallet.getFile());
 
-			LOG.info("sending one ether ..");
+			LOG.info("sending one ether to '" + address + "'..");
 			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER)
 					.sendAsync();
 
@@ -78,7 +85,7 @@ public class Blockchain {
 
 	protected Resource loadWalletFile() {
 
-		LOG.info("loading wallet file (wallet.dat)..");
+		LOG.info("loading wallet file..");
 		return resourceService.loadFromResourcesFolder("wallet.dat");
 	}
 

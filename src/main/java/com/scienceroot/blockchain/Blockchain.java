@@ -7,6 +7,7 @@ package com.scienceroot.blockchain;
 
 import com.scienceroot.config.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
@@ -62,11 +63,10 @@ public class Blockchain {
 		Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
 
 		try {
-			LOG.info("loading wallet..");
-			String wallet = this.loadWallet();
+			LOG.info("loading wallet '" + new ClassPathResource("wallet.dat").getPath() + "'");
 
 			LOG.info("receiving credentials from wallet..");
-			Credentials creds = WalletUtils.loadCredentials("secret", wallet);
+			Credentials creds = WalletUtils.loadCredentials("secret", new ClassPathResource("wallet.dat").getPath());
 
 			LOG.info("sending one ether to '" + address + "'..");
 			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER)

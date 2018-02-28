@@ -6,11 +6,10 @@
 package com.scienceroot.blockchain;
 
 import com.scienceroot.config.ResourceService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -22,10 +21,10 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -63,10 +62,11 @@ public class Blockchain {
 		Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
 
 		try {
-			LOG.info("loading wallet '" + new ClassPathResource("wallet.dat").getPath() + "'");
+			LOG.info("loading wallet..");
+			File wallet = this.loadWallet();
 
 			LOG.info("receiving credentials from wallet..");
-			Credentials creds = WalletUtils.loadCredentials("secret", new ClassPathResource("wallet.dat").getPath());
+			Credentials creds = WalletUtils.loadCredentials("secret", wallet);
 
 			LOG.info("sending one ether to '" + address + "'..");
 			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER)
@@ -81,7 +81,7 @@ public class Blockchain {
 		return true;
 	}
 
-	protected String loadWallet() {
+	protected File loadWallet() throws IOException {
 		Resource wallet = this.loadWalletFile();
 
 		LOG.info("validation of wallet file ..");
@@ -89,13 +89,13 @@ public class Blockchain {
 		assert wallet.exists();
 		LOG.info("validation of wallet file successfully");
 
-		try {
-			byte[] walletData = FileCopyUtils.copyToByteArray(wallet.getInputStream());
-			return new String(walletData, StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			LOG.severe(e.getMessage());
-			return "";
-		}
+		File tmp_wallet = File.createTempFile("tmp_wallet", ".dat");
+		LOG.info("created tmp wallet file '" + tmp_wallet.getAbsolutePath() + "'");
+
+		FileUtils.copyInputStreamToFile(wallet.getInputStream(), tmp_wallet);
+		LOG.info("copy of wallet to tmp wallet done");
+
+		return tmp_wallet;
 	}
 
 	protected Resource loadWalletFile() {

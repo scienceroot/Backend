@@ -56,6 +56,8 @@ public class Blockchain {
 
 	public boolean sendInitialFunds(String address) {
 
+		long amount = 100;
+
 		LOG.info("sending initial funding to '" + address + "'");
 
 		LOG.info("calling web3j at " + SCR_CHAIN);
@@ -68,8 +70,8 @@ public class Blockchain {
 			LOG.info("receiving credentials from wallet..");
 			Credentials creds = WalletUtils.loadCredentials("secret", wallet);
 
-			LOG.info("sending one ether to '" + address + "'..");
-			Transfer.sendFunds(web3, creds, address, BigDecimal.ONE, Convert.Unit.ETHER)
+			LOG.info("sending " + amount + " ether to '" + address + "'..");
+			Transfer.sendFunds(web3, creds, address, BigDecimal.valueOf(amount), Convert.Unit.ETHER)
 					.sendAsync();
 
 		} catch (TransactionException | InterruptedException | CipherException | IOException e) {

@@ -96,6 +96,14 @@ public class ApplicationUser implements Serializable, Searchable {
         return result;
     }
 
+	public ApplicationUser update(ApplicationUser updatedUser) {
+		this.setForename(updatedUser.forename);
+		this.setLastname(updatedUser.lastname);
+		this.setLocation(updatedUser.location);
+		this.setMail(updatedUser.mail);
+		return this;
+	}
+
     @JsonGetter("uid")
     public UUID getId() {
         return id;

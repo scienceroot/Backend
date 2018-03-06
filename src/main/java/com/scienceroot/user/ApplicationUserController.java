@@ -62,7 +62,7 @@ public class ApplicationUserController {
 		ApplicationUser userToUpdate = getById(id);
 
 		return Optional.ofNullable(userToUpdate)
-				.map(tmpUser -> tmpUser = user)
+				.map(tmpUser -> tmpUser.update(user))
 				.map(userService::save)
 				.orElseThrow(UserNotFoundException::new);
 	}

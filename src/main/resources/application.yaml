@@ -17,7 +17,7 @@ spring:
 logging:
   level: info
   level.root: info
-  level.org.hibernate: debug
+  level.org.hibernate: error
 ---
 spring:
   profiles: staging

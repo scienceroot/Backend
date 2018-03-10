@@ -173,5 +173,5 @@ public class ApplicationUserController {
                 .map(user -> userService.save(user))
                 .orElseThrow(UserNotFoundException::new);
     }
-
+    
 }

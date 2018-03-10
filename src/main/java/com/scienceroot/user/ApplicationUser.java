@@ -26,12 +26,20 @@ import java.util.UUID;
 @Table(name = "scr_user")
 public class ApplicationUser implements Serializable, Searchable {
 
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
+    }
+
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(generator = "uuid_users")
     @GenericGenerator(name = "uuid_users", strategy = "org.hibernate.id.UUIDGenerator")
-	@Column(name = "id", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     @JsonProperty("uid")
     private UUID id;
 
@@ -61,8 +69,8 @@ public class ApplicationUser implements Serializable, Searchable {
 
     @JsonProperty("interests")
     @ManyToMany(cascade = {
-			CascadeType.PERSIST,
-			CascadeType.MERGE
+        CascadeType.PERSIST,
+        CascadeType.MERGE
     })
     @JoinTable(
             name = "scr_user_to_interest",
@@ -71,13 +79,35 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Interest> interests;
 
-    @Column
-    @JsonProperty("skills")
-    private String[] skills;
+    @ManyToMany(cascade = {
+        CascadeType.PERSIST,
+        CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "scr_user_to_skill",
+            joinColumns = @JoinColumn(name = "skill_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<Skill> skills;
+    
+    @ManyToMany(cascade = {
+        CascadeType.PERSIST,
+        CascadeType.MERGE
+    })
+    @JoinTable(
+            name = "scr_user_to_language",
+            joinColumns = @JoinColumn(name = "language_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<Language> languages;
+    
+    
+    
+    
 
-	@Column
-	@JsonProperty("publicKey")
-	private String publicKey = "";
+    @Column
+    @JsonProperty("publicKey")
+    private String publicKey = "";
 
     public ApplicationUser() {
     }
@@ -86,7 +116,7 @@ public class ApplicationUser implements Serializable, Searchable {
         this.mail = mail;
         this.password = password;
         this.location = new Location();
-		this.publicKey = "";
+        this.publicKey = "";
     }
 
     @Override
@@ -169,11 +199,11 @@ public class ApplicationUser implements Serializable, Searchable {
         this.location = location;
     }
 
-    public String[] getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
-    public void setSkills(String[] skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 
@@ -185,11 +215,11 @@ public class ApplicationUser implements Serializable, Searchable {
         this.interests = interests;
     }
 
-	public String getPublicKey() {
-		return publicKey;
-	}
+    public String getPublicKey() {
+        return publicKey;
+    }
 
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
-	}
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 }

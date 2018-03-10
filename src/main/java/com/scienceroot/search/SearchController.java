@@ -2,6 +2,8 @@ package com.scienceroot.search;
 
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
+import com.scienceroot.user.Language;
+import com.scienceroot.user.Skill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +62,19 @@ public class SearchController {
     ) {
 		return applicationUserService.search(q);
     }
+        
+        @RequestMapping(value = "/skills", method = RequestMethod.GET)
+        public List<Skill> searchSkills(
+        @RequestParam("q") String q){
+            return applicationUserService.searchSkill(q);
+        }
+        
+        @RequestMapping(value = "/languages", method = RequestMethod.GET)
+        public List<Language> searchLanguages(
+        @RequestParam("q") String q){
+            return applicationUserService.searchLanguage(q);
+        }
+        
+        
     
 }

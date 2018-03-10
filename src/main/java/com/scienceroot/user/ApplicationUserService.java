@@ -13,32 +13,47 @@ import java.util.UUID;
 @Service
 public class ApplicationUserService {
 
-	private Blockchain blockchain;
-    private ApplicationUserRepository repository;
+    private Blockchain blockchain;
+    private ApplicationUserRepository userRepository;
     private JobRepository jobRepository;
+    private SkillRepository skillRepository;
+    private LanguageRepository languageRepository;
 
     @Autowired
-	public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository, Blockchain blockchain) {
-        this.repository = repository;
+    public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository, Blockchain blockchain,
+                                    SkillRepository skillRepo, LanguageRepository languageRepository) {
+        this.userRepository = repository;
         this.jobRepository = jobRepository;
-		this.blockchain = blockchain;
+        this.blockchain = blockchain;
+        this.skillRepository = skillRepo;
+        this.languageRepository = languageRepository;
     }
 
     @Query("SELECT user FROM ApplicationUser user WHERE user.forename or user.lastname like concat('%', :query, '%') ")
     public List<ApplicationUser> search(String query) {
-        return repository.search(query);
+        return userRepository.search(query);
+    }
+    
+    @Query("SELECT sk FROM Skill sk WHERE sk.name like concat('%', :query, '%') ")
+    public List<Skill> searchSkill(String query){
+        return skillRepository.search(query);
+    }
+    
+    @Query("SELECT lang FROM Language lang WHERE lang.name like concat('%', :query, '%') ")
+    public List<Language> searchLanguage(String query){
+        return languageRepository.search(query);
     }
 
     public <S extends ApplicationUser> S save(S s) {
-        return repository.save(s);
+        return userRepository.save(s);
     }
 
     public ApplicationUser findOne(UUID uuid) {
-        return repository.findOne(uuid);
+        return userRepository.findOne(uuid);
     }
 
     public Optional<ApplicationUser> findByMail(String mail) {
-        return repository.findByMail(mail);
+        return userRepository.findByMail(mail);
     }
 
     public ApplicationUser addJobToUser(ApplicationUser user, Job job) {
@@ -51,12 +66,35 @@ public class ApplicationUserService {
         user.getInterests().add(interest);
         return user;
     }
+    
+    public ApplicationUser addSkillToUser(ApplicationUser user, Skill skill){
+        user.getSkills().add(skill);
+        return user;
+    }
+    
+    public ApplicationUser addLanguageToUser(ApplicationUser user, Language language){
+        user.getLanguages().add(language);
+        return user;
+    }
+    
+    public ApplicationUser removeSkillFromUser(ApplicationUser user, Skill skill){
+        user.getSkills().remove(skill);
+        return user;
+    }
+    
+    public ApplicationUser removeLanguageFromUser(ApplicationUser user, Language language){
+        user.getLanguages().remove(language);
+        return user;
+    }
 
-	public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
-		if (null == user || "".equals(user.getPublicKey())) {
-			blockchain.sendInitialFunds(publicKey);
-		}
-		user.setPublicKey(publicKey);
-		return user;
-	}
+    public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
+        if (null == user) {
+            return user;
+        }
+        if ("".equals(user.getPublicKey())) {
+            blockchain.sendInitialFunds(publicKey);
+        }
+        user.setPublicKey(publicKey);
+        return user;
+    }
 }

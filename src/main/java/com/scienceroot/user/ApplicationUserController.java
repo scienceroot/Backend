@@ -17,100 +17,161 @@ import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 @RequestMapping("/users")
 public class ApplicationUserController {
 
-	private ApplicationUserService userService;
+    private ApplicationUserService userService;
 
-	@Autowired
-	public ApplicationUserController(
-			ApplicationUserService applicationUserService
-	) {
-		this.userService = applicationUserService;
-	}
+    @Autowired
+    public ApplicationUserController(
+            ApplicationUserService applicationUserService
+    ) {
+        this.userService = applicationUserService;
+    }
 
-	@GetMapping(value = "/me")
-	public ApplicationUser getMe(
-			@RequestHeader(value = "Authorization", required = false) String token
-	) {
+    @GetMapping(value = "/me")
+    public ApplicationUser getMe(
+            @RequestHeader(value = "Authorization", required = false) String token
+    ) {
 
-		String mail = Jwts.parser().setSigningKey(SECRET.getBytes())
-				.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-				.getBody()
-				.getSubject();
+        String mail = Jwts.parser().setSigningKey(SECRET.getBytes())
+                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                .getBody()
+                .getSubject();
 
-		return this.userService
-				.findByMail(mail)
-				.orElseThrow(UserNotFoundException::new);
-	}
+        return this.userService
+                .findByMail(mail)
+                .orElseThrow(UserNotFoundException::new);
+    }
 
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ApplicationUser getById(
-			@PathVariable("id") UUID id
-	) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public ApplicationUser getById(
+            @PathVariable("id") UUID id
+    ) {
 
-		ApplicationUser user = this.userService.findOne(id);
+        ApplicationUser user = this.userService.findOne(id);
 
-		return Optional.ofNullable(user)
-				.orElseThrow(UserNotFoundException::new);
-	}
+        return Optional.ofNullable(user)
+                .orElseThrow(UserNotFoundException::new);
+    }
 
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ApplicationUser updateUser(
-			@PathVariable("id") UUID id,
-			@RequestBody ApplicationUser user
-	) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    public ApplicationUser updateUser(
+            @PathVariable("id") UUID id,
+            @RequestBody ApplicationUser user
+    ) {
 
-		ApplicationUser userToUpdate = getById(id);
+        ApplicationUser userToUpdate = getById(id);
 
-		return Optional.ofNullable(userToUpdate)
-				.map(tmpUser -> tmpUser = user)
-				.map(userService::save)
-				.orElseThrow(UserNotFoundException::new);
-	}
+        return Optional.ofNullable(userToUpdate)
+                .map(tmpUser -> tmpUser = user)
+                .map(userService::save)
+                .orElseThrow(UserNotFoundException::new);
+    }
 
-	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
-	public ApplicationUser updateUserJobs(
-			@PathVariable("id") UUID userId,
-			@RequestBody Job job
-	) {
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
+    public ApplicationUser updateUserJobs(
+            @PathVariable("id") UUID userId,
+            @RequestBody Job job
+    ) {
 
-		ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = getById(userId);
 
-		return Optional.ofNullable(dbUser)
-				.map(user -> userService.addJobToUser(user, job))
-				.map(user -> userService.save(user))
-				.orElseThrow(UserNotFoundException::new);
-	}
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addJobToUser(user, job))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
 
-	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
-	public ApplicationUser updateUserInterests(
-			@PathVariable("id") UUID userId,
-			@RequestBody Interest interest
-	) {
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
+    public ApplicationUser updateUserInterests(
+            @PathVariable("id") UUID userId,
+            @RequestBody Interest interest
+    ) {
 
-		ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = getById(userId);
 
-		return Optional.ofNullable(dbUser)
-				.map(user -> userService.addInterestToUser(user, interest))
-				.map(user -> userService.save(user))
-				.orElseThrow(UserNotFoundException::new);
-	}
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addInterestToUser(user, interest))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/skills", method = RequestMethod.POST)
+    public ApplicationUser updateUserSkill(
+            @PathVariable("id") UUID userId,
+            @RequestBody Skill skill
+    ) {
 
-	@ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping(value = "/{id}/publickey", method = RequestMethod.POST)
-	public ApplicationUser updateUserPublicKey(
-			@PathVariable("id") UUID userId,
-			@RequestBody String publicKey
-	) {
+        ApplicationUser dbUser = getById(userId);
 
-		ApplicationUser dbUser = getById(userId);
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addSkillToUser(user, skill))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/language", method = RequestMethod.POST)
+    public ApplicationUser updateUserLanguage(
+            @PathVariable("id") UUID userId,
+            @RequestBody Language language
+    ) {
 
-		return Optional.ofNullable(dbUser)
-				.map(user -> userService.addPublicKeyToUser(user, publicKey))
-				.map(user -> userService.save(user))
-				.orElseThrow(UserNotFoundException::new);
-	}
-        
-        
+        ApplicationUser dbUser = getById(userId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addLanguageToUser(user, language))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/language", method = RequestMethod.DELETE)
+    public ApplicationUser deleteUserLanguage(
+            @PathVariable("id") UUID userId,
+            @RequestBody Language language
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.removeLanguageFromUser(user, language))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/skill", method = RequestMethod.DELETE)
+    public ApplicationUser deleteUserSkill(
+            @PathVariable("id") UUID userId,
+            @RequestBody Skill skill
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.removeSkillFromUser(user, skill))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/publickey", method = RequestMethod.POST)
+    public ApplicationUser updateUserPublicKey(
+            @PathVariable("id") UUID userId,
+            @RequestBody String publicKey
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addPublicKeyToUser(user, publicKey))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+
 }

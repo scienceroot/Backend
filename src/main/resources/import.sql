@@ -290,7 +290,8 @@ INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now():
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Danish');
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Dari');
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Dholuo');
-INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'DutchEnglish');
+INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Dutch');
+INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'English');
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Esperanto');
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Estonian');
 INSERT INTO scr_languages(id, name) VALUES (uuid_in(md5(random()::text || now()::text)::cstring), 'Éwé');

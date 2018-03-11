@@ -113,7 +113,7 @@ public class ApplicationUserController {
     }
     
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/language", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/languages", method = RequestMethod.POST)
     public ApplicationUser updateUserLanguage(
             @PathVariable("id") UUID userId,
             @RequestBody Language language
@@ -128,7 +128,7 @@ public class ApplicationUserController {
     }
     
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/language", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}/languages", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserLanguage(
             @PathVariable("id") UUID userId,
             @RequestBody Language language
@@ -143,7 +143,7 @@ public class ApplicationUserController {
     }
     
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/skill", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}/skills", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserSkill(
             @PathVariable("id") UUID userId,
             @RequestBody Skill skill

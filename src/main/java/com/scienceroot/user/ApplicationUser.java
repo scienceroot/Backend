@@ -26,14 +26,6 @@ import java.util.UUID;
 @Table(name = "scr_user")
 public class ApplicationUser implements Serializable, Searchable {
 
-    public List<Language> getLanguages() {
-        return languages;
-    }
-
-    public void setLanguages(List<Language> languages) {
-        this.languages = languages;
-    }
-
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -101,14 +93,12 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Language> languages;
     
-    
-    
-    
-
     @Column
     @JsonProperty("publicKey")
     private String publicKey = "";
 
+    
+    
     public ApplicationUser() {
     }
 
@@ -229,5 +219,13 @@ public class ApplicationUser implements Serializable, Searchable {
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+    
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
     }
 }

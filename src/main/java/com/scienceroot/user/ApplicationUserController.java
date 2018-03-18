@@ -174,4 +174,11 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    @RequestMapping(value = "/reset", method = RequestMethod.POST)
+    public void resetPassword(
+            @RequestBody String mail){
+        
+        
+    }
+    
 }

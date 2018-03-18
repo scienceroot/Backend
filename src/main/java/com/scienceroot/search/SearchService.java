@@ -15,4 +15,10 @@ public class SearchService {
         String url = URL_ARXIV + "?search_query=ti:" + query;
         return Arrays.asList(arxiv.runSearch(url));
     }
+    
+    public List<Paper> searchAdvanced(String query){
+        Arxiv arxiv = new Arxiv();
+        String url = URL_ARXIV + "?search_query=" + query;
+        return Arrays.asList(arxiv.runSearch(url));
+    }
 }

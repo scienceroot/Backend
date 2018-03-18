@@ -4,6 +4,7 @@ import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.Language;
 import com.scienceroot.user.Skill;
+import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +56,23 @@ public class SearchController {
     ) {
 		return searchService.search(q);
     }
+        
+        @RequestMapping(value = "papers_advanced", method= RequestMethod.GET)
+        public List<Paper> searchPapersAdvanced(
+        @RequestParam("ti") String title,
+        @RequestParam("au") String author,
+        @RequestParam("abs") String abstractt){
+            List<String> searchVars = new LinkedList<>();
+            if (!"".equals(title))
+                searchVars.add("ti:" + title);
+            if (!"".equals(author))
+                searchVars.add("au:" + author);
+            if (!"".equals(abstractt))
+                searchVars.add("abs:" + abstractt);
+            String query = String.join("+AND+", searchVars);
+            return searchService.searchAdvanced(query);
+            
+        }
 
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public List<ApplicationUser> searchUsers(

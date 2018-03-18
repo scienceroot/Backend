@@ -11,13 +11,19 @@ import java.util.Date;
  */
 public class Paper implements Searchable {
     
+    //roughly based on https://docs.microsoft.com/en-us/azure/cognitive-services/academic-knowledge/paperentityattributes
     private String id;
     private Date published;
     private Date updated;
+    private String DOI;
     private String title;
     private String summary;
+    private String journalName;
     private String[] author;
     private String[] link;
+    private int citationCount;
+    private int citationCountEstimate;
+    
 
     public String getId() {
         return id;
@@ -82,5 +88,37 @@ public class Paper implements Searchable {
         result.setText(title);
         result.setLink(link[0]);
         return result;
+    }
+
+    public String getDOI() {
+        return DOI;
+    }
+
+    public void setDOI(String DOI) {
+        this.DOI = DOI;
+    }
+
+    public String getJournalName() {
+        return journalName;
+    }
+
+    public void setJournalName(String journalName) {
+        this.journalName = journalName;
+    }
+
+    public int getCitationCount() {
+        return citationCount;
+    }
+
+    public void setCitationCount(int citationCount) {
+        this.citationCount = citationCount;
+    }
+
+    public int getCitationCountEstimate() {
+        return citationCountEstimate;
+    }
+
+    public void setCitationCountEstimate(int citationCountEstimate) {
+        this.citationCountEstimate = citationCountEstimate;
     }
 }

@@ -19,7 +19,7 @@ import org.hibernate.annotations.GenericGenerator;
  * @author husche
  */
 @Entity
-@Table(name = "scr_skill")
+@Table(name = "scr_languages")
 public class Language implements Serializable {
     
     @Id

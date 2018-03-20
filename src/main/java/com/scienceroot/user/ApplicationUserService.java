@@ -86,6 +86,11 @@ public class ApplicationUserService {
         user.getLanguages().remove(language);
         return user;
     }
+    
+    public ApplicationUser removeJobFromUser(ApplicationUser user, Job job){
+        user.getJobs().remove(job);
+        return user;
+    }
 
     public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
         if (null == user) {

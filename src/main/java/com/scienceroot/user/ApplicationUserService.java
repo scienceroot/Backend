@@ -100,6 +100,7 @@ public class ApplicationUserService {
     
     public ApplicationUser removeJobFromUser(ApplicationUser user, UUID jobId){
         user.getJobs().removeIf(job -> job.getId().equals(jobId));
+        this.jobRepository.delete(jobId);
         return user;
     }
     

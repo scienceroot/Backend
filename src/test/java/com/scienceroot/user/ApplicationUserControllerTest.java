@@ -42,8 +42,8 @@ public class ApplicationUserControllerTest {
     @Autowired
     private ApplicationUserRepository repository;
     
-    @Autowired
-    private InterestRepository interestRepository;
+    @Autowired private InterestRepository interestRepository;
+    @Autowired private LanguageRepository languageRepository;
 
     private ApplicationUser currentUser;
 
@@ -111,6 +111,28 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.interests[0].name").value(interestToAdd.getName()));
     }
     
+     @Test
+    public void addUserLanguage() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Language languageToAdd = this.getLanguage();
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/languages")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(languageToAdd))
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.languages").isArray())
+            .andExpect(jsonPath("$.languages.length()").value(1))
+            .andExpect(jsonPath("$.languages[0].name").value(languageToAdd.getName()));
+    }
+    
     @Test
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
@@ -143,5 +165,14 @@ public class ApplicationUserControllerTest {
                 .next();
         
         return interestToAdd;
+    }
+    
+    private Language getLanguage() {
+        Language language = this.languageRepository
+                .findAll()
+                .iterator()
+                .next();
+        
+        return language;
     }
 }

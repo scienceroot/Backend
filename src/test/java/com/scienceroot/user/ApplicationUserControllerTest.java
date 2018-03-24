@@ -111,28 +111,6 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.interests[0].name").value(interestToAdd.getName()));
     }
     
-     @Test
-    public void addUserLanguage() throws Exception {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Language languageToAdd = this.getLanguage();
-        
-        this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
-            .perform(post("/users/" + this.currentUser.getId() + "/languages")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(ow.writeValueAsString(languageToAdd))
-            )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
-            .andExpect(status().is(201))
-            .andExpect(jsonPath("$.languages").isArray())
-            .andExpect(jsonPath("$.languages.length()").value(1))
-            .andExpect(jsonPath("$.languages[0].name").value(languageToAdd.getName()));
-    }
-    
     @Test
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
@@ -156,6 +134,53 @@ public class ApplicationUserControllerTest {
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.interests").isArray())
             .andExpect(jsonPath("$.interests.length()").value(0));
+    }
+    
+     @Test
+    public void addUserLanguage() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Language languageToAdd = this.getLanguage();
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/languages")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(languageToAdd))
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.languages").isArray())
+            .andExpect(jsonPath("$.languages.length()").value(1))
+            .andExpect(jsonPath("$.languages[0].name").value(languageToAdd.getName()));
+    }
+    
+    @Test
+    public void removeUserLanguage() throws Exception {
+        Language userLanguage = this.getLanguage();
+        List<Language> userLanguages = new ArrayList();
+               
+        userLanguages.add(userLanguage);
+        
+        this.currentUser.setLanguages(userLanguages);
+        this.repository.save(this.currentUser);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.languages").isArray())
+            .andExpect(jsonPath("$.languages.length()").value(0));
     }
     
     private Interest getInterest() {

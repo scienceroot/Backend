@@ -87,8 +87,8 @@ public class ApplicationUserService {
         return user;
     }
     
-    public ApplicationUser removeLanguageFromUser(ApplicationUser user, Language language){
-        user.getLanguages().remove(language);
+    public ApplicationUser removeLanguageFromUser(ApplicationUser user, UUID languageId){
+        user.getLanguages().removeIf(language -> language.getId().equals(languageId));
         return user;
     }
     
@@ -99,7 +99,6 @@ public class ApplicationUserService {
     
     public ApplicationUser removeInterestFromUser(ApplicationUser user, UUID interestId){
         user.getInterests().removeIf(interest -> interest.getId().equals(interestId));
-        System.out.println(user);
         return user;
     }
 

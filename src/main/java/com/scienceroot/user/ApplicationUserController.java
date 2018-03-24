@@ -128,16 +128,16 @@ public class ApplicationUserController {
     }
     
     @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/languages", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}/languages/{languageId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserLanguage(
             @PathVariable("id") UUID userId,
-            @RequestBody Language language
+            @PathVariable("languageId") UUID languageId
     ) {
 
         ApplicationUser dbUser = getById(userId);
 
         return Optional.ofNullable(dbUser)
-                .map(user -> userService.removeLanguageFromUser(user, language))
+                .map(user -> userService.removeLanguageFromUser(user, languageId))
                 .map(user -> userService.save(user))
                 .orElseThrow(UserNotFoundException::new);
     }

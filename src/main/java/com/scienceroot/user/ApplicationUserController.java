@@ -69,7 +69,7 @@ public class ApplicationUserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
-    public ApplicationUser updateUserJobs(
+    public ApplicationUser addUserJob(
             @PathVariable("id") UUID userId,
             @RequestBody Job job
     ) {
@@ -84,7 +84,7 @@ public class ApplicationUserController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
-    public ApplicationUser updateUserInterests(
+    public ApplicationUser addUserInterest(
             @PathVariable("id") UUID userId,
             @RequestBody Interest interest
     ) {
@@ -99,7 +99,7 @@ public class ApplicationUserController {
     
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/skills", method = RequestMethod.POST)
-    public ApplicationUser updateUserSkill(
+    public ApplicationUser addUserSkill(
             @PathVariable("id") UUID userId,
             @RequestBody Skill skill
     ) {
@@ -114,7 +114,7 @@ public class ApplicationUserController {
     
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/languages", method = RequestMethod.POST)
-    public ApplicationUser updateUserLanguage(
+    public ApplicationUser addUserLanguage(
             @PathVariable("id") UUID userId,
             @RequestBody Language language
     ) {

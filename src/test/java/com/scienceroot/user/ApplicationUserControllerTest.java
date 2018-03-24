@@ -1,5 +1,10 @@
 package com.scienceroot.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.scienceroot.interest.Interest;
+import com.scienceroot.interest.InterestRepository;
+import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,58 +30,85 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource("classpath:test-database.properties")
 public class ApplicationUserControllerTest {
 
-	@Autowired
-	MockMvc mockMvc;
+    @Autowired
+    MockMvc mockMvc;
 
-	@Autowired
-	private ApplicationUserService service;
+    @Autowired
+    private ApplicationUserService service;
 
-	@Autowired
-	private ApplicationUserRepository repository;
+    @Autowired
+    private ApplicationUserRepository repository;
+    
+    @Autowired
+    private InterestRepository interestRepository;
 
-	private ApplicationUser currentUser;
+    private ApplicationUser currentUser;
 
-	@Before
-	public void setUp() throws Exception {
-		this.currentUser = new ApplicationUser();
-		this.currentUser.setLastname("Test");
-		this.currentUser.setForename("Test");
-		this.currentUser = this.service.save(this.currentUser);
-	}
+    @Before
+    public void setUp() throws Exception {
+            this.currentUser = new ApplicationUser();
+            this.currentUser.setLastname("Test");
+            this.currentUser.setForename("Test");
+            this.currentUser = this.service.save(this.currentUser);
+            
+            // just to be sure, you can validate the start settings, defined in setUp()
+            assertThat(this.currentUser, notNullValue());
+            assertThat(this.currentUser.getLastname(), is("Test"));
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		this.repository.deleteAll();
-	}
+    @After
+    public void tearDown() throws Exception {
+            this.repository.deleteAll();
+    }
 
-	@Test
-	public void updateUser() throws Exception {
+    @Test
+    public void updateUser() throws Exception {
 
-		// just to be sure, you can validate the start settings, defined in setUp()
-		assertThat(this.currentUser, notNullValue());
-		assertThat(this.currentUser.getLastname(), is("Test"));
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(put("/users/" + this.currentUser.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{	" +
+                                            "	\"lastname\":\"Test-Lastname\"," +
+                                            "	\"forename\":\"Test-Forename\"" +
+                                            "}"))
 
-		this.mockMvc
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
 
-				// define your request url (PUT of '/users/{uuid}'), content, ...
-				.perform(put("/users/" + this.currentUser.getId())
-						.contentType(MediaType.APPLICATION_JSON)
-						.content("{	" +
-								"	\"lastname\":\"Test-Lastname\"," +
-								"	\"forename\":\"Test-Forename\"" +
-								"}"))
+            // validate the response
+            .andExpect(status().isNoContent())
+            .andExpect(jsonPath("$.lastname").value("Test-Lastname"))
+            .andExpect(jsonPath("$.forename").value("Test-Forename"));
 
-				// debug, prints a shit of info (remove this line, when not needed)
-				.andDo(print())
+        // of course you can validate the state in the backend too
+        this.currentUser = this.repository.findOne(this.currentUser.getId());
+        assertThat(this.currentUser, notNullValue());
+        assertThat(this.currentUser.getLastname(), is("Test-Lastname"));
+    }
+    
+    @Test
+    public void addUserInterest() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Interest interestToAdd = this.interestRepository
+                .findAll()
+                .iterator()
+                .next();
+        
+       
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/interests")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(interestToAdd))
+            )
 
-				// validate the response
-				.andExpect(status().isNoContent())
-				.andExpect(jsonPath("$.lastname").value("Test-Lastname"))
-				.andExpect(jsonPath("$.forename").value("Test-Forename"));
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
 
-		// of course you can validate the state in the backend too
-		this.currentUser = this.repository.findOne(this.currentUser.getId());
-		assertThat(this.currentUser, notNullValue());
-		assertThat(this.currentUser.getLastname(), is("Test-Lastname"));
-	}
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.interests").isArray())
+            .andExpect(jsonPath("$.interests[0].name").value(interestToAdd.getName()));
+    }
 }

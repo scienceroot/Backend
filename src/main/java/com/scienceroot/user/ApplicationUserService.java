@@ -91,6 +91,11 @@ public class ApplicationUserService {
         user.getJobs().remove(job);
         return user;
     }
+    
+    public ApplicationUser removeInterestFromUser(ApplicationUser user, Interest interest){
+        user.getInterests().remove(interest);
+        return user;
+    }
 
     public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
         if (null == user) {

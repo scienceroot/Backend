@@ -143,6 +143,21 @@ public class ApplicationUserController {
     }
     
     @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/interests", method = RequestMethod.DELETE)
+    public ApplicationUser deleteUserInterest(
+            @PathVariable("id") UUID userId,
+            @RequestBody Interest interest
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.removeInterestFromUser(user, interest))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/skills", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserSkill(
             @PathVariable("id") UUID userId,

@@ -89,7 +89,7 @@ public class ApplicationUserController {
     @RequestMapping(value = "/{id}/jobs/{jobId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserJob(
             @PathVariable("id") UUID userId,
-            @PathVariable("jobid") UUID jobId
+            @PathVariable("jobId") UUID jobId
     ) {
 
         ApplicationUser dbUser = getById(userId);

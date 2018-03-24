@@ -9,6 +9,7 @@ import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.interest.InterestRepository;
 import com.scienceroot.user.job.Job;
+import com.scienceroot.user.job.JobRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class ApplicationUserControllerTest {
     @Autowired private InterestRepository interestRepository;
     @Autowired private LanguageRepository languageRepository;
     @Autowired private IndustryRepository industryRepository;
+    @Autowired private JobRepository jobRepository;
 
     private ApplicationUser currentUser;
 
@@ -148,6 +150,29 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
             .andExpect(jsonPath("$.jobs[0].endMonth").isEmpty())
             .andExpect(jsonPath("$.jobs[0].endYear").isEmpty());
+    }
+    
+    @Test
+    public void removeUserJob() throws Exception {
+        Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
+        List<Job> userJobs = new ArrayList();
+               
+        userJobs.add(jobToAdd);
+        
+        this.currentUser.setJobs(userJobs);
+        this.jobRepository.save(jobToAdd);
+        this.repository.save(this.currentUser);
+        
+        this.mockMvc
+            .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            .andDo(print())
+
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.jobs").isArray())
+            .andExpect(jsonPath("$.jobs.length()").value(0));
     }
     
     @Test

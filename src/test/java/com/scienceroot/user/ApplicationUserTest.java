@@ -1,5 +1,6 @@
 package com.scienceroot.user;
 
+import com.scienceroot.user.job.Job;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,5 +1,11 @@
 package com.scienceroot.user;
 
+import com.scienceroot.user.skill.Skill;
+import com.scienceroot.user.skill.SkillRepository;
+import com.scienceroot.user.language.LanguageRepository;
+import com.scienceroot.user.language.Language;
+import com.scienceroot.user.job.Job;
+import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.interest.Interest;
 import org.springframework.beans.factory.annotation.Autowired;

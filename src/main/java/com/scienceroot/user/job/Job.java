@@ -1,4 +1,4 @@
-package com.scienceroot.user;
+package com.scienceroot.user.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
@@ -13,6 +13,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scienceroot.industry.Industry;
+import com.scienceroot.user.ApplicationUser;
 import javax.persistence.FetchType;
 import javax.persistence.SequenceGenerator;
 

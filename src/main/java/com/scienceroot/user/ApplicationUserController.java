@@ -1,5 +1,8 @@
 package com.scienceroot.user;
 
+import com.scienceroot.user.skill.Skill;
+import com.scienceroot.user.language.Language;
+import com.scienceroot.user.job.Job;
 import com.scienceroot.interest.Interest;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;

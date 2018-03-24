@@ -1,4 +1,4 @@
-package com.scienceroot.user;
+package com.scienceroot.user.job;
 
 import org.springframework.data.repository.CrudRepository;
 

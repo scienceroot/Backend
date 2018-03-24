@@ -3,11 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.scienceroot.user;
+package com.scienceroot.user.language;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.scienceroot.search.SearchResult;
-import com.scienceroot.search.Searchable;
 import java.io.Serializable;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -22,8 +19,8 @@ import org.hibernate.annotations.GenericGenerator;
  * @author husche
  */
 @Entity
-@Table(name = "scr_skill")
-public class Skill implements Serializable {
+@Table(name = "scr_languages")
+public class Language implements Serializable {
     
     @Id
     @GeneratedValue(generator = "uuid_users")
@@ -34,7 +31,7 @@ public class Skill implements Serializable {
     @Column(name = "name")
     private String name;
     
-    public Skill(){
+    public Language(){
         
     }
     

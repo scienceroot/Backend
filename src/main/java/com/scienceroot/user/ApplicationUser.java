@@ -5,6 +5,9 @@
  */
 package com.scienceroot.user;
 
+import com.scienceroot.user.skill.Skill;
+import com.scienceroot.user.language.Language;
+import com.scienceroot.user.job.Job;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -2,8 +2,8 @@ package com.scienceroot.search;
 
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
-import com.scienceroot.user.Language;
-import com.scienceroot.user.Skill;
+import com.scienceroot.user.language.Language;
+import com.scienceroot.user.skill.Skill;
 import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

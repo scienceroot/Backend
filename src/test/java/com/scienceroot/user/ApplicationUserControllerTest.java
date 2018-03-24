@@ -1,5 +1,7 @@
 package com.scienceroot.user;
 
+import com.scienceroot.user.language.Language;
+import com.scienceroot.user.language.LanguageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.scienceroot.interest.Interest;

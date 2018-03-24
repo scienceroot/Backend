@@ -1,5 +1,6 @@
-package com.scienceroot.user;
+package com.scienceroot.user.skill;
 
+import com.scienceroot.user.job.Job;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

@@ -1,4 +1,7 @@
 # Backend
+
+[![Build Status](https://jenkins.scienceroots.com/buildStatus/icon?job=Scienceroot/Backend/master)](https://jenkins.scienceroots.com/job/Scienceroot/job/Backend/job/master/)
+
 Basics of the backend based on java with spring
 
 Requires h2database http://www.h2database.com/html/main.html running as a service

@@ -59,7 +59,7 @@ public class ApplicationUser implements Serializable, Searchable {
     private Location location;
 
     @JsonProperty("jobs")
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Job> jobs;
 
     @JsonProperty("interests")

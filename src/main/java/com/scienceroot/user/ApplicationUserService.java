@@ -98,8 +98,8 @@ public class ApplicationUserService {
         return user;
     }
     
-    public ApplicationUser removeJobFromUser(ApplicationUser user, Job job){
-        user.getJobs().remove(job);
+    public ApplicationUser removeJobFromUser(ApplicationUser user, UUID jobId){
+        user.getJobs().removeIf(job -> job.getId().equals(jobId));
         return user;
     }
     

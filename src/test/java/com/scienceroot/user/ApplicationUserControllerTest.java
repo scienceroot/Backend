@@ -4,8 +4,11 @@ import com.scienceroot.user.language.Language;
 import com.scienceroot.user.language.LanguageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.scienceroot.industry.Industry;
+import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.interest.InterestRepository;
+import com.scienceroot.user.job.Job;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +49,7 @@ public class ApplicationUserControllerTest {
     
     @Autowired private InterestRepository interestRepository;
     @Autowired private LanguageRepository languageRepository;
+    @Autowired private IndustryRepository industryRepository;
 
     private ApplicationUser currentUser;
 
@@ -90,6 +94,60 @@ public class ApplicationUserControllerTest {
         this.currentUser = this.repository.findOne(this.currentUser.getId());
         assertThat(this.currentUser, notNullValue());
         assertThat(this.currentUser.getLastname(), is("Test-Lastname"));
+    }
+    
+    @Test
+    public void addUserJob() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Job jobToAdd = new Job("CEO", 1, 2017, 1, 2018, this.currentUser, "Scienceroot", this.getIndustry());
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/jobs")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(jobToAdd))
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.jobs").isArray())
+            .andExpect(jsonPath("$.jobs.length()").value(1))
+            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.title))
+            .andExpect(jsonPath("$.jobs[0].employer").value(jobToAdd.employer))
+            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.startMonth))
+            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
+            .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.endMonth))
+            .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.endYear));
+    }
+    
+    @Test
+    public void addActiveUserJob() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/jobs")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(jobToAdd))
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.jobs").isArray())
+            .andExpect(jsonPath("$.jobs.length()").value(1))
+            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.title))
+            .andExpect(jsonPath("$.jobs[0].employer").value(jobToAdd.employer))
+            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.startMonth))
+            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
+            .andExpect(jsonPath("$.jobs[0].endMonth").isEmpty())
+            .andExpect(jsonPath("$.jobs[0].endYear").isEmpty());
     }
     
     @Test
@@ -138,7 +196,7 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.interests.length()").value(0));
     }
     
-     @Test
+    @Test
     public void addUserLanguage() throws Exception {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         Language languageToAdd = this.getLanguage();
@@ -192,6 +250,16 @@ public class ApplicationUserControllerTest {
                 .next();
         
         return interestToAdd;
+    }
+    
+    
+    private Industry getIndustry() {
+        Industry industry = this.industryRepository
+                .findAll()
+                .iterator()
+                .next();
+        
+        return industry;
     }
     
     private Language getLanguage() {

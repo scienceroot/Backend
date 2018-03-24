@@ -20,8 +20,13 @@ public class ApplicationUserService {
     private LanguageRepository languageRepository;
 
     @Autowired
-    public ApplicationUserService(ApplicationUserRepository repository, JobRepository jobRepository, Blockchain blockchain,
-                                    SkillRepository skillRepo, LanguageRepository languageRepository) {
+    public ApplicationUserService(
+            ApplicationUserRepository repository, 
+            JobRepository jobRepository, 
+            Blockchain blockchain,
+            SkillRepository skillRepo, 
+            LanguageRepository languageRepository
+    ) {
         this.userRepository = repository;
         this.jobRepository = jobRepository;
         this.blockchain = blockchain;
@@ -92,8 +97,9 @@ public class ApplicationUserService {
         return user;
     }
     
-    public ApplicationUser removeInterestFromUser(ApplicationUser user, Interest interest){
-        user.getInterests().remove(interest);
+    public ApplicationUser removeInterestFromUser(ApplicationUser user, UUID interestId){
+        user.getInterests().removeIf(interest -> interest.getId().equals(interestId));
+        System.out.println(user);
         return user;
     }
 

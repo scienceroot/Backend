@@ -14,6 +14,7 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 
     @Query("SELECT user " +
             "FROM ApplicationUser user " +
-            "WHERE user.forename like concat('%', :query, '%') or user.lastname like concat('%', :query, '%') ")
+            "WHERE lower(user.forename) like lower(concat('%', :query, '%')) or lower(user.lastname) like lower(concat('%', :query, '%')) "
+            + "or lower(concat(' ', user.firstname, ' ', user.lastname, ' ')) like lower(concat('%', :query, '%'))")
     List<ApplicationUser> search(@Param("query") String query);
 }

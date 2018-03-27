@@ -40,17 +40,17 @@ public class ApplicationUserService {
         this.languageRepository = languageRepository;
     }
 
-    @Query("SELECT user FROM ApplicationUser user WHERE user.forename or user.lastname like concat('%', :query, '%') ")
+    @Query("SELECT user FROM ApplicationUser user WHERE lower(user.forename) or lower(user.lastname) like lower(concat('%', :query, '%')) ")
     public List<ApplicationUser> search(String query) {
         return userRepository.search(query);
     }
     
-    @Query("SELECT sk FROM Skill sk WHERE sk.name like concat('%', :query, '%') ")
+    @Query("SELECT sk FROM Skill sk WHERE lower(sk.name) like lower(concat('%', :query, '%')) ")
     public List<Skill> searchSkill(String query){
         return skillRepository.search(query);
     }
     
-    @Query("SELECT lang FROM Language lang WHERE lang.name like concat('%', :query, '%') ")
+    @Query("SELECT lang FROM Language lang WHERE lower(lang.name) like lower(concat('%', :query, '%')) ")
     public List<Language> searchLanguage(String query){
         return languageRepository.search(query);
     }

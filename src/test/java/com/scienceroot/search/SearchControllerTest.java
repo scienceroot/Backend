@@ -10,6 +10,7 @@ import com.scienceroot.user.ApplicationUserRepository;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.language.Language;
 import com.scienceroot.user.skill.Skill;
+import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -68,7 +69,7 @@ public class SearchControllerTest {
      * Test of search method, of class SearchController.
      */
     @Test
-    public void testSearch() {
+    public void testSearch() throws IOException {
         System.out.println("search");
         String q = "";
         String type = "";
@@ -93,6 +94,14 @@ public class SearchControllerTest {
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
+    }
+    
+    @Test
+    public void testSearchpreprints() throws Exception {
+        this.mockMvc.perform(get("/search/preprints")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("q", "Car"))
+                .andDo(print());
     }
 
     /**

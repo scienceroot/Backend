@@ -1,9 +1,12 @@
 package com.scienceroot.search;
 
+import com.scienceroot.search.preprint.Preprint;
+import com.scienceroot.search.preprint.PreprintService;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.language.Language;
 import com.scienceroot.user.skill.Skill;
+import java.io.IOException;
 import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,24 +25,33 @@ import static java.util.stream.Collectors.toList;
 public class SearchController {
 
     private SearchService searchService;
+    private PreprintService preprintService;
     private ApplicationUserService applicationUserService;
 
     @Autowired
-    public SearchController(SearchService searchService, ApplicationUserService applicationUserService) {
+    public SearchController(
+            SearchService searchService, 
+            ApplicationUserService applicationUserService,
+            PreprintService preprintService
+    ) {
         this.searchService = searchService;
         this.applicationUserService = applicationUserService;
+        this.preprintService = preprintService;
     }
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
     public List<SearchResult> search(
             @RequestParam("q") String q,
             @RequestParam(value = "type", defaultValue = "papers") String type
-    ) {
+    ) throws IOException {
 		List<? extends Searchable> result;
         switch (type) {
 			case "users":
 				result = searchUsers(q);
 				break;
+                        case "perprints":
+                                result = this.searchPreprints(q);
+                                break;
 			default:
 				result = searchPapers(q);
 				break;
@@ -50,11 +62,18 @@ public class SearchController {
 				.collect(toList());
     }
 
-	@RequestMapping(value = "/papers", method = RequestMethod.GET)
-	public List<Paper> searchPapers(
+    @RequestMapping(value = "/papers", method = RequestMethod.GET)
+    public List<Paper> searchPapers(
             @RequestParam("q") String q
     ) {
 		return searchService.search(q);
+    }
+    
+    @RequestMapping(value = "/preprints", method = RequestMethod.GET)
+    public List<Preprint> searchPreprints(
+            @RequestParam("q") String q
+    ) throws IOException {
+		return this.preprintService.search(q);
     }
         
         @RequestMapping(value = "papers_advanced", method= RequestMethod.GET)

@@ -24,7 +24,7 @@ public class Preprint implements Searchable {
 
     public Preprint(JsonNode json) {
         this.title = json.get("title").asText();
-        this.title = json.get("description").asText();
+        this.description = json.get("description").asText();
         
         this.authors = new LinkedList<>();
         for (final JsonNode author: json.get("contributors")) {

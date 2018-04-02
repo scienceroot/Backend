@@ -62,15 +62,16 @@ public class SearchController {
         @RequestParam("ti") String title,
         @RequestParam("au") String author,
         @RequestParam("abs") String abstractt){
-            List<String> searchVars = new LinkedList<>();
+            //
+            SearchParameters params = new SearchParameters();
             if (!"".equals(title))
-                searchVars.add("ti:" + title);
+                params.setTitle(title);
             if (!"".equals(author))
-                searchVars.add("au:" + author);
+                params.setAuthor(author);
             if (!"".equals(abstractt))
-                searchVars.add("abs:" + abstractt);
-            String query = String.join("+AND+", searchVars);
-            return searchService.searchAdvanced(query);
+                params.setAbstract(abstractt);
+    
+            return searchService.searchAdvanced(params);
             
         }
 

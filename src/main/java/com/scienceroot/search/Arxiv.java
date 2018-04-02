@@ -21,13 +21,32 @@ import java.util.List;
  * @author husche
  */
 public class Arxiv {
+    
+    private SearchParameters fieldNames;
 
     public Arxiv() {
-
+        fieldNames = new SearchParameters();
+        fieldNames.setTitle("ti:");
+        fieldNames.setAuthor("au:");
+        fieldNames.setAbstract("abs:");
+        
+    }
+    
+    public String createQueryString(SearchParameters params){
+        //I'm 100% certain there's a better way to do this
+        List<String> searchVars = new LinkedList<>();
+        if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle()))
+            searchVars.add(fieldNames.getTitle() + params.getTitle());
+        if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor()))
+            searchVars.add(fieldNames.getAuthor() + params.getAuthor());
+        if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract()))
+            searchVars.add(fieldNames.getAbstract() + params.getAbstract());
+        String query = String.join("+AND+", searchVars);
+        return query;
     }
 
-    public Paper[] runSearch(String url) {
-        LinkedList<Paper> papers = new LinkedList<Paper>();
+    public List<Paper> runSearch(String url) {
+        LinkedList<Paper> papers = new LinkedList<>();
         try {
             URL feedUrl = new URL(url);
             SyndFeedInput input = new SyndFeedInput();
@@ -55,9 +74,7 @@ public class Arxiv {
             }
         } catch (Exception e) {
         }
-        Paper[] papersArray = new Paper[papers.size()];
-        papersArray = papers.toArray(papersArray);
-        return papersArray;
+        return papers;
     }
 
 }

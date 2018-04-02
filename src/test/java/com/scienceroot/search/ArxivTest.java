@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.scienceroot.search.SearchService.URL_ARXIV;
+import java.util.List;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -28,7 +29,7 @@ public class ArxivTest {
 
 		String query = "auto";
 		String url = URL_ARXIV + "?search_query=ti:" + query;
-		Paper[] result = this.arxiv.runSearch(url);
+		List<Paper> result = this.arxiv.runSearch(url);
 
 		assertNotNull(result);
 		for (Paper pape : result) {

@@ -18,10 +18,13 @@ public class SearchService {
         String url = URL_ARXIV + "?search_query=ti:" + query;
         Plos plos = new Plos();
         String url2 = URL_PLOS + "?q=everything:" + query + "&wt=json";
+        CrossRef cr = new CrossRef();
+        String urlxr = URL_CROSSREF + "?query=" + query;
         
         List<Paper> retList = new ArrayList<>();
         retList.addAll(arxiv.runSearch(url));
         retList.addAll(plos.runSearch(url2));
+        retList.addAll(cr.runSearch(urlxr));
         return retList;
     }
     

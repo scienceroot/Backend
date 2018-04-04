@@ -49,7 +49,7 @@ public class SearchServiceTest {
         SearchService instance = new SearchService();
         List<Paper> expResult = null;
         List<Paper> result = instance.search(query);
-        assertEquals(result.size(), 20);
+        assertEquals(result.size(), 40);
         
         //assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.

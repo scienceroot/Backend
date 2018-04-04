@@ -31,7 +31,7 @@ public class SearchParameters {
     public void setAbstract(String abst) {
         searchProperties.put("abstract", abst);
     }
-
+    
     public String getTitle() {
         return searchProperties.containsKey("title") ? (String)searchProperties.get("title") : "";
     }
@@ -43,5 +43,5 @@ public class SearchParameters {
     public String getAbstract(){
         return searchProperties.containsKey("abstract") ? (String)searchProperties.get("abstract") : "";
     }
-
+    
 }

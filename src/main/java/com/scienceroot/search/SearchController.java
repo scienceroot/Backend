@@ -81,7 +81,7 @@ public class SearchController {
         @RequestParam("ti") String title,
         @RequestParam("au") String author,
         @RequestParam("abs") String abstractt){
-            //
+            
             SearchParameters params = new SearchParameters();
             if (!"".equals(title))
                 params.setTitle(title);

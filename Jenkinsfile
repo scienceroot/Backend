@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 node {
-    stage 'Build source' {
+    stage('Build source') {
         docker.withRegistry('https://docker.scienceroots.com', 'docker-registry') {
             docker.image('maven:3.5.2-jdk-8-alpine').inside {
                 checkout scm

@@ -13,7 +13,7 @@ docker.image('maven:3.5.2-jdk-8-alpine').inside {
 node {
     stage 'Build Docker Image'
     docker.withRegistry('https://docker.scienceroots.com', 'docker-registry') {
-        sh "docker build --tag=docker.scienceroots.com/scienceroot:${env.BRANCH_NAME} ."
-        sh "docker push docker.scienceroots.com/scienceroot:${env.BRANCH_NAME}"
+        def image = docker.build(docker.scienceroots.com/scienceroot:${env.BRANCH_NAME});
+        image.push();
     }
 }

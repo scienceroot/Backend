@@ -13,5 +13,5 @@ docker.image('maven:3.5.2-jdk-8-alpine').inside {
 node {
     stage 'Build Docker Image'
         sh "docker build --tag=docker.scienceroots.com/scienceroot:${env.BRANCH_NAME} ."
-        sh "docker tag docker.scienceroots.com/scienceroot:${env.BRANCH_NAME} ."
+        sh "docker push docker.scienceroots.com/scienceroot:${env.BRANCH_NAME}"
 }

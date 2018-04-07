@@ -7,10 +7,10 @@ node {
                 checkout scm
 
                 sh 'mvn clean package org.springframework.boot:spring-boot-maven-plugin:1.5.9.RELEASE:repackage -DskipTests'
-
-                def image = docker.build("docker.scienceroots.com/scienceroot:${env.BRANCH_NAME}")
-                image.push()
             }
+
+            def image = docker.build("docker.scienceroots.com/scienceroot:${env.BRANCH_NAME}")
+            image.push()
         }
     }
 }

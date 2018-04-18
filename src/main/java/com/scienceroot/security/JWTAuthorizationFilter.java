@@ -15,19 +15,21 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static com.scienceroot.security.SecurityConstants.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private Logger LOG = Logger.getLogger(JWTAuthorizationFilter.class.getName());
-	
-	public JWTAuthorizationFilter(AuthenticationManager authManager) {
+
+    public JWTAuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain) throws IOException, ServletException {
+            HttpServletResponse res,
+            FilterChain chain) throws IOException, ServletException {
 
         String header = req.getHeader(HEADER_STRING);
 
@@ -45,15 +47,19 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-            // parse the token.
-            String user = Jwts.parser()
-                    .setSigningKey(SECRET.getBytes())
-                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                    .getBody()
-                    .getSubject();
+            try {
+                // parse the token.
+                String user = Jwts.parser()
+                        .setSigningKey(SECRET.getBytes())
+                        .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                        .getBody()
+                        .getSubject();
 
-            if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                if (user != null) {
+                    return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                }
+            } catch (SignatureException| ExpiredJwtException ee) {
+                return null;
             }
             return null;
         }

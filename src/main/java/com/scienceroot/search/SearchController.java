@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import org.springframework.cache.annotation.Cacheable;
 
 /**
  *
@@ -30,7 +31,7 @@ public class SearchController {
 
     @Autowired
     public SearchController(
-            SearchService searchService, 
+            SearchService searchService,
             ApplicationUserService applicationUserService,
             PreprintService preprintService
     ) {
@@ -39,80 +40,84 @@ public class SearchController {
         this.preprintService = preprintService;
     }
 
-	@RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public List<SearchResult> search(
             @RequestParam("q") String q,
             @RequestParam(value = "type", defaultValue = "papers") String type
     ) throws IOException {
-		List<? extends Searchable> result;
+        List<? extends Searchable> result;
         switch (type) {
-			case "users":
-				result = searchUsers(q);
-				break;
-                        case "perprints":
-                                result = this.searchPreprints(q);
-                                break;
-			default:
-				result = searchPapers(q);
-				break;
+            case "users":
+                result = searchUsers(q);
+                break;
+            case "perprints":
+                result = this.searchPreprints(q);
+                break;
+            default:
+                result = searchPapers(q);
+                break;
         }
 
-		return result.stream()
-				.map(Searchable::toSearchResult)
-				.collect(toList());
+        return result.stream()
+                .map(Searchable::toSearchResult)
+                .collect(toList());
     }
 
+    @Cacheable("simpleSearch")
     @RequestMapping(value = "/papers", method = RequestMethod.GET)
     public List<Paper> searchPapers(
             @RequestParam("q") String q
     ) {
-		return searchService.search(q);
+        return searchService.search(q);
     }
-    
+
+    @Cacheable("preprints")
     @RequestMapping(value = "/preprints", method = RequestMethod.GET)
     public List<Preprint> searchPreprints(
             @RequestParam("q") String q
     ) throws IOException {
-		return this.preprintService.search(q);
+        return this.preprintService.search(q);
     }
-        
-        @RequestMapping(value = "papers_advanced", method= RequestMethod.GET)
-        public List<Paper> searchPapersAdvanced(
-        @RequestParam("ti") String title,
-        @RequestParam("au") String author,
-        @RequestParam("abs") String abstractt){
-            
-            SearchParameters params = new SearchParameters();
-            if (!"".equals(title))
-                params.setTitle(title);
-            if (!"".equals(author))
-                params.setAuthor(author);
-            if (!"".equals(abstractt))
-                params.setAbstract(abstractt);
-    
-            return searchService.searchAdvanced(params);
-            
+
+    @Cacheable("advancedSearch")
+    @RequestMapping(value = "papers_advanced", method = RequestMethod.GET)
+    public List<Paper> searchPapersAdvanced(
+            @RequestParam("ti") String title,
+            @RequestParam("au") String author,
+            @RequestParam("abs") String abstractt) {
+
+        SearchParameters params = new SearchParameters();
+        if (!"".equals(title)) {
+            params.setTitle(title);
+        }
+        if (!"".equals(author)) {
+            params.setAuthor(author);
+        }
+        if (!"".equals(abstractt)) {
+            params.setAbstract(abstractt);
         }
 
-	@RequestMapping(value = "/users", method = RequestMethod.GET)
-	public List<ApplicationUser> searchUsers(
+        return searchService.searchAdvanced(params);
+
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    public List<ApplicationUser> searchUsers(
             @RequestParam("q") String q
     ) {
-		return applicationUserService.search(q);
+        return applicationUserService.search(q);
     }
-        
-        @RequestMapping(value = "/skills", method = RequestMethod.GET)
-        public List<Skill> searchSkills(
-        @RequestParam("q") String q){
-            return applicationUserService.searchSkill(q);
-        }
-        
-        @RequestMapping(value = "/languages", method = RequestMethod.GET)
-        public List<Language> searchLanguages(
-        @RequestParam("q") String q){
-            return applicationUserService.searchLanguage(q);
-        }
-        
-        
-    
+
+    @RequestMapping(value = "/skills", method = RequestMethod.GET)
+    public List<Skill> searchSkills(
+            @RequestParam("q") String q) {
+        return applicationUserService.searchSkill(q);
+    }
+
+    @RequestMapping(value = "/languages", method = RequestMethod.GET)
+    public List<Language> searchLanguages(
+            @RequestParam("q") String q) {
+        return applicationUserService.searchLanguage(q);
+    }
+
 }

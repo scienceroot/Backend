@@ -84,7 +84,7 @@ public class ApplicationUser implements Serializable, Searchable {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<Skill> skills;
-    
+
     @ManyToMany(cascade = {
         CascadeType.PERSIST,
         CascadeType.MERGE
@@ -95,13 +95,14 @@ public class ApplicationUser implements Serializable, Searchable {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<Language> languages;
-    
+
     @Column
     @JsonProperty("publicKey")
     private String publicKey = "";
 
-    
-    
+    @Embedded
+    private UserContact contact;
+
     public ApplicationUser() {
     }
 
@@ -110,6 +111,7 @@ public class ApplicationUser implements Serializable, Searchable {
         this.password = password;
         this.location = new Location();
         this.publicKey = "";
+        this.contact = new UserContact();
     }
 
     @Override
@@ -119,13 +121,13 @@ public class ApplicationUser implements Serializable, Searchable {
         return result;
     }
 
-	public ApplicationUser update(ApplicationUser updatedUser) {
-		this.setForename(updatedUser.forename);
-		this.setLastname(updatedUser.lastname);
-		this.setLocation(updatedUser.location);
-		this.setMail(updatedUser.mail);
-		return this;
-	}
+    public ApplicationUser update(ApplicationUser updatedUser) {
+        this.setForename(updatedUser.forename);
+        this.setLastname(updatedUser.lastname);
+        this.setLocation(updatedUser.location);
+        this.setMail(updatedUser.mail);
+        return this;
+    }
 
     @JsonGetter("uid")
     public UUID getId() {
@@ -223,12 +225,20 @@ public class ApplicationUser implements Serializable, Searchable {
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
-    
+
     public List<Language> getLanguages() {
         return languages;
     }
 
     public void setLanguages(List<Language> languages) {
         this.languages = languages;
+    }
+
+    public UserContact getContact() {
+        return contact;
+    }
+
+    public void setContact(UserContact contact) {
+        this.contact = contact;
     }
 }

@@ -197,6 +197,30 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
+    public void addUserContact() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        UserContact contact = new UserContact();
+        contact.setPhone("1234");
+        contact.setSkype("testskype");
+               
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/contact")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(contact))
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.contact.phone").value(contact.getPhone()))
+            .andExpect(jsonPath("$.contact.skype").value(contact.getSkype()));
+    }
+    
+    @Test
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
         List<Interest> userInterests = new ArrayList();

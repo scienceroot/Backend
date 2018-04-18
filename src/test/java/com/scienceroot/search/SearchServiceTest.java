@@ -13,11 +13,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.springframework.cache.annotation.EnableCaching;
 
 /**
  *
  * @author husche
  */
+
+@EnableCaching
 public class SearchServiceTest {
     
     public SearchServiceTest() {
@@ -70,13 +73,27 @@ public class SearchServiceTest {
         
         List<Paper> result = instance.searchAdvanced(mp);
         assertEquals(result.size(), 40);
-        for (int i = 0; i < result.size(); i++){
-            System.out.println(result.get(i).getTitle());
-        }
         //List<Paper> result = instance.searchAdvanced(query);
         //assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         //fail("The test case is a prototype.");
+    }
+    
+    @Test
+    public void testSearchCache(){
+        System.out.println("search cache");
+        String query = "DNA";
+        
+        long currTime = System.currentTimeMillis();
+        System.out.println(currTime);
+        SearchService instance = new SearchService();
+        List<Paper> expResult = null;
+        List<Paper> result = instance.search(query);
+        assertEquals(result.size(), 40);
+        System.out.println(System.currentTimeMillis());
+        result = instance.search(query);
+        assertEquals(result.size(), 40);
+        System.out.println(System.currentTimeMillis());
     }
     
 }

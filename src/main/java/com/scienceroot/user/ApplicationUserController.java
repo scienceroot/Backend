@@ -190,7 +190,17 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
-    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/contact", method = RequestMethod.POST)
+    public ApplicationUser updateUserContact(@PathVariable("id") UUID userId,
+            @RequestBody UserContact contact){
+        
+        ApplicationUser dbUser = getById(userId);
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.addContactToUser(user, contact))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/publickey", method = RequestMethod.POST)

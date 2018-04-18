@@ -110,13 +110,15 @@ public class ApplicationUserService {
     }
 
     public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
-        if (null == user) {
-            return user;
-        }
         if ("".equals(user.getPublicKey())) {
             blockchain.sendInitialFunds(publicKey);
         }
         user.setPublicKey(publicKey);
+        return user;
+    }
+    
+    public ApplicationUser addContactToUser(ApplicationUser user, UserContact contact){
+        user.setContact(contact);
         return user;
     }
 }

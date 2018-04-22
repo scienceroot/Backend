@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import org.springframework.cache.annotation.Cacheable;
 
 /**
  *
@@ -63,7 +62,6 @@ public class SearchController {
                 .collect(toList());
     }
 
-    @Cacheable("simpleSearch")
     @RequestMapping(value = "/papers", method = RequestMethod.GET)
     public List<Paper> searchPapers(
             @RequestParam("q") String q
@@ -71,7 +69,6 @@ public class SearchController {
         return searchService.search(q);
     }
 
-    @Cacheable("preprints")
     @RequestMapping(value = "/preprints", method = RequestMethod.GET)
     public List<Preprint> searchPreprints(
             @RequestParam("q") String q
@@ -79,7 +76,6 @@ public class SearchController {
         return this.preprintService.search(q);
     }
 
-    @Cacheable("advancedSearch")
     @RequestMapping(value = "papers_advanced", method = RequestMethod.GET)
     public List<Paper> searchPapersAdvanced(
             @RequestParam("ti") String title,

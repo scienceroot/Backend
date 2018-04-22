@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.search.SearchResult;
 import com.scienceroot.search.Searchable;
+import com.scienceroot.post.Post;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -114,6 +115,13 @@ public class ApplicationUser implements Serializable, Searchable {
 
     @Embedded
     private UserContact contact;
+    
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "creator",
+            orphanRemoval = true
+    )
+    private List<Post> posts;
 
     public ApplicationUser() {
     }
@@ -274,5 +282,20 @@ public class ApplicationUser implements Serializable, Searchable {
     @JsonIgnore
     public List<ApplicationUser> getFollowedBy() {
         return followedBy;
+    }
+
+    /**
+     * @return the posts
+     */
+    @JsonIgnore
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    /**
+     * @param posts the posts to set
+     */
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 }

@@ -75,6 +75,15 @@ public class ApplicationUserService {
         
         return user;
     }
+    
+    public ApplicationUser unfollowUser(ApplicationUser user, ApplicationUser toUnfollow) {
+        List<ApplicationUser> following = user.getFollows();
+        following.remove(toUnfollow);
+      
+        user.setFollows(following);
+        
+        return user;
+    }
 
     public ApplicationUser addJobToUser(ApplicationUser user, Job job) {
         job.user = user;

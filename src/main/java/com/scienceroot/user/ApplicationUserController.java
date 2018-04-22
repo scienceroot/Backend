@@ -87,6 +87,22 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/unfollow/{toUnfollowId}", method = RequestMethod.DELETE)
+    public ApplicationUser unfollowUser(
+            @PathVariable("id") UUID userId,
+            @PathVariable("toUnfollowId") UUID toUnfollowId
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+        ApplicationUser toUnfollowUser = getById(toUnfollowId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.unfollowUser(user, toUnfollowUser))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
     public List<ApplicationUser> getUserFollowedBy(

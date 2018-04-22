@@ -152,6 +152,33 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
+    public void unfollowUser () throws Exception {
+        ApplicationUser following = new ApplicationUser();
+        following.setLastname("Test2");
+        following.setForename("Test2");
+        following = this.service.save(following);
+        
+        List<ApplicationUser> follows = new LinkedList<>();
+        follows.add(following);
+        this.currentUser.setFollows(follows);
+        this.service.save(this.currentUser);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(delete("/users/" + this.currentUser.getId() + "/unfollow/" + following.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.follows").isArray())
+            .andExpect(jsonPath("$.follows.length()").value(0));
+    }
+    
+    @Test
     public void getEmptyFollowedBy () throws Exception { 
         this.mockMvc
             // define your request url (PUT of '/users/{uuid}'), content, ...

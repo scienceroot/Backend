@@ -47,32 +47,22 @@ public class RegistrationController {
     public ResponseEntity<ApplicationUser> registerUser(
             @RequestBody ApplicationUser user
     ) {
-
-        LOG.info("register user");
-
         Optional<ApplicationUser> dbUser = userRepository.findByMail(user.getMail());
 
         if (dbUser.isPresent()) {
-            LOG.info("user already exists");
             throw new IllegalStateException("user already exists");
         }
 
         String password = user.getPassword();
-        LOG.info("register user with password " + password);
         String passwordHashed = bCryptPasswordEncoder.encode(password);
-        LOG.info("register user with hashed password " + passwordHashed);
         user.setPassword(passwordHashed);
 
         user = this.userRepository.save(user);
-
-        LOG.info("user saved");
 
         String token = Jwts.builder()
                 .setSubject(user.getMail())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
                 .signWith(SignatureAlgorithm.HS512, SECRET.getBytes()).compact();
-
-        LOG.info("token created");
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

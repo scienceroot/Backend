@@ -7,7 +7,6 @@ package com.scienceroot.search;
 
 import com.rometools.rome.feed.synd.SyndEntry;
 import java.net.URL;
-import java.io.InputStreamReader;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndLink;
 import com.rometools.rome.feed.synd.SyndPerson;
@@ -21,26 +20,29 @@ import java.util.List;
  * @author husche
  */
 public class Arxiv {
-    
-    private SearchParameters fieldNames;
+
+    private final SearchParameters fieldNames;
 
     public Arxiv() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("ti:");
         fieldNames.setAuthor("au:");
         fieldNames.setAbstract("abs:");
-        
+
     }
-    
-    public String createQueryString(SearchParameters params){
+
+    public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
-        if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle()))
+        if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
             searchVars.add(fieldNames.getTitle() + params.getTitle());
-        if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor()))
+        }
+        if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + params.getAuthor());
-        if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract()))
+        }
+        if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + params.getAbstract());
+        }
         String query = String.join("+AND+", searchVars);
         return query;
     }
@@ -52,25 +54,30 @@ public class Arxiv {
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedUrl));
             //System.out.println(feed);
-            
-            for (SyndEntry curEntry : feed.getEntries()){
+
+            for (SyndEntry curEntry : feed.getEntries()) {
                 Paper curPaper = new Paper();
                 List<SyndPerson> authors = curEntry.getAuthors();
                 List<SyndLink> links = curEntry.getLinks();
                 String[] authorsArray = new String[authors.size()];
                 String[] linkArray = new String[links.size()];
-                for (int i = 0; i < authors.size(); i++){
+                for (int i = 0; i < authors.size(); i++) {
                     authorsArray[i] = authors.get(i).getName();
                 }
-                for (int i = 0; i < links.size(); i++){
+                for (int i = 0; i < links.size(); i++) {
                     linkArray[i] = links.get(i).getHref();
+                    if ("doi".equals(links.get(i).getTitle()) && linkArray[i].contains("http://dx.doi.org/")) {
+                        //arxiv also sends arxiv:doi with the doi, but SyndFeed doesn't
+                        //seem to parse this
+                        curPaper.setDOI(linkArray[i].substring("http://dx.doi.org/".length()));
+                    }
                 }
                 curPaper.setAuthor(authorsArray);
                 curPaper.setTitle(curEntry.getTitle());
                 curPaper.setPublished(curEntry.getPublishedDate());
                 curPaper.setUpdated(curEntry.getUpdatedDate());
                 curPaper.setLink(linkArray);
-                papers.add(curPaper);                
+                papers.add(curPaper);
             }
         } catch (Exception e) {
         }

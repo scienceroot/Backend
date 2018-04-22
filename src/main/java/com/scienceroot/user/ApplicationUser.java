@@ -96,13 +96,17 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Language> languages;
     
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany()
     @JoinTable(name = "follows",
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "follows_id"))
     private List<ApplicationUser> follows;
     
-    
+    @ManyToMany()
+    @JoinTable(name = "follows",
+                joinColumns = @JoinColumn(name = "follows_id"),
+                inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<ApplicationUser> followedBy;
 
     @Column
     @JsonProperty("publicKey")
@@ -262,5 +266,13 @@ public class ApplicationUser implements Serializable, Searchable {
      */
     public void setFollows(List<ApplicationUser> follows) {
         this.follows = follows;
+    }
+
+    /**
+     * @return the followedBy
+     */
+    @JsonIgnore
+    public List<ApplicationUser> getFollowedBy() {
+        return followedBy;
     }
 }

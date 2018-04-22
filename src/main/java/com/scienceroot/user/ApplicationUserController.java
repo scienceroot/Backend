@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -86,19 +87,15 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
-    public ApplicationUser addUserJob(
-            @PathVariable("id") UUID userId,
-            @RequestBody Job job
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
+    public List<ApplicationUser> getUserFollowedBy(
+            @PathVariable("id") UUID userId
     ) {
 
         ApplicationUser dbUser = getById(userId);
 
-        return Optional.ofNullable(dbUser)
-                .map(user -> userService.addJobToUser(user, job))
-                .map(user -> userService.save(user))
-                .orElseThrow(UserNotFoundException::new);
+        return dbUser.getFollowedBy();
     }
     
     @ResponseStatus(HttpStatus.CREATED)

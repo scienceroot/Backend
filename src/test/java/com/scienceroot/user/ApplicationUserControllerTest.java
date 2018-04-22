@@ -11,6 +11,7 @@ import com.scienceroot.interest.InterestRepository;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -147,6 +149,53 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.follows.length()").value(1))
             .andExpect(jsonPath("$.follows[0].lastname").value(toFollow.getLastname()))
             .andExpect(jsonPath("$.follows[0].forename").value(toFollow.getForename()));
+    }
+    
+    @Test
+    public void getEmptyFollowedBy () throws Exception { 
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+    
+    @Test
+    public void getFollowedBy () throws Exception {
+        ApplicationUser follower = new ApplicationUser();
+        List<ApplicationUser> follows = new LinkedList<>();
+        
+        follows.add(this.currentUser);
+        
+        follower.setLastname("Test2");
+        follower.setForename("Test2");
+        follower.setFollows(follows);
+        
+        follower = this.service.save(follower);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].lastname").value(follower.getLastname()))
+            .andExpect(jsonPath("$[0].forename").value(follower.getForename()));
     }
     
     @Test

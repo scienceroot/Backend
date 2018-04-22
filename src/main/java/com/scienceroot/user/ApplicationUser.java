@@ -95,6 +95,14 @@ public class ApplicationUser implements Serializable, Searchable {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<Language> languages;
+    
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "follows",
+                joinColumns = @JoinColumn(name = "user_id"),
+                inverseJoinColumns = @JoinColumn(name = "follows_id"))
+    private List<ApplicationUser> follows;
+    
+    
 
     @Column
     @JsonProperty("publicKey")
@@ -163,7 +171,7 @@ public class ApplicationUser implements Serializable, Searchable {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
     public List<Job> getJobs() {
         return jobs;
     }
@@ -240,5 +248,19 @@ public class ApplicationUser implements Serializable, Searchable {
 
     public void setContact(UserContact contact) {
         this.contact = contact;
+    }
+
+    /**
+     * @return the follows
+     */
+    public List<ApplicationUser> getFollows() {
+        return follows;
+    }
+
+    /**
+     * @param follows the follows to set
+     */
+    public void setFollows(List<ApplicationUser> follows) {
+        this.follows = follows;
     }
 }

@@ -69,7 +69,23 @@ public class ApplicationUserController {
                 .map(userService::save)
                 .orElseThrow(UserNotFoundException::new);
     }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/follow/{toFollowId}", method = RequestMethod.POST)
+    public ApplicationUser followUser(
+            @PathVariable("id") UUID userId,
+            @PathVariable("toFollowId") UUID toFollowId
+    ) {
 
+        ApplicationUser dbUser = getById(userId);
+        ApplicationUser toFollowUser = getById(toFollowId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.followUser(user, toFollowUser))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
     public ApplicationUser addUserJob(

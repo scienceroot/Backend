@@ -66,6 +66,15 @@ public class ApplicationUserService {
     public Optional<ApplicationUser> findByMail(String mail) {
         return userRepository.findByMail(mail);
     }
+    
+    public ApplicationUser followUser(ApplicationUser user, ApplicationUser toFollow) {
+        List<ApplicationUser> following = user.getFollows();
+        
+        following.add(toFollow);
+        user.setFollows(following);
+        
+        return user;
+    }
 
     public ApplicationUser addJobToUser(ApplicationUser user, Job job) {
         job.user = user;

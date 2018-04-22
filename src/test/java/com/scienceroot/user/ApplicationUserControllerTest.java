@@ -12,7 +12,6 @@ import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,6 +122,31 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
             .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.endMonth))
             .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.endYear));
+    }
+    
+    
+    @Test
+    public void followUser () throws Exception {
+        ApplicationUser toFollow = new ApplicationUser();
+        toFollow.setLastname("Test2");
+        toFollow.setForename("Test2");
+        toFollow = this.service.save(toFollow);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/follow/" + toFollow.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.follows").isArray())
+            .andExpect(jsonPath("$.follows.length()").value(1))
+            .andExpect(jsonPath("$.follows[0].lastname").value(toFollow.getLastname()))
+            .andExpect(jsonPath("$.follows[0].forename").value(toFollow.getForename()));
     }
     
     @Test

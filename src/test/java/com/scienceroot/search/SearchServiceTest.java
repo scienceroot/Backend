@@ -84,6 +84,16 @@ public class SearchServiceTest {
         System.out.println("search cache");
         String query = "DNA";
         
+        long currTime = System.currentTimeMillis();
+        System.out.println(currTime);
+        SearchService instance = new SearchService();
+        List<Paper> expResult = null;
+        List<Paper> result = instance.search(query);
+        assertEquals(result.size(), 40);
+        System.out.println(System.currentTimeMillis());
+        result = instance.search(query);
+        assertEquals(result.size(), 40);
+        System.out.println(System.currentTimeMillis());
     }
     
 }

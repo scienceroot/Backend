@@ -255,11 +255,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserJob() throws Exception {
         Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
-        List<Job> userJobs = new ArrayList();
-               
-        userJobs.add(jobToAdd);
         
-        this.currentUser.setJobs(userJobs);
+        this.currentUser.addJob(jobToAdd);
         this.jobRepository.save(jobToAdd);
         this.repository.save(this.currentUser);
         
@@ -323,11 +320,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
-        List<Interest> userInterests = new ArrayList();
-               
-        userInterests.add(userInterest);
         
-        this.currentUser.setInterests(userInterests);
+        this.currentUser.addInterest(userInterest);
         this.repository.save(this.currentUser);
         
         this.mockMvc

@@ -20,6 +20,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,14 +61,11 @@ public class ApplicationUser implements Serializable, Searchable {
     private Location location;
 
     @JsonProperty("jobs")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Job> jobs;
 
     @JsonProperty("interests")
-    @ManyToMany(cascade = {
-        CascadeType.PERSIST,
-        CascadeType.MERGE
-    })
+    @ManyToMany
     @JoinTable(
             name = "scr_user_to_interest",
             joinColumns = @JoinColumn(name = "interest_id"),
@@ -124,14 +122,20 @@ public class ApplicationUser implements Serializable, Searchable {
     private List<Post> posts;
 
     public ApplicationUser() {
+        this.interests = new ArrayList<>();
+        this.languages = new ArrayList<>();
+        this.follows = new ArrayList<>();
+        this.jobs = new ArrayList<>();
+        this.posts = new ArrayList<>();
+        this.skills = new ArrayList<>();
     }
 
     public ApplicationUser(String mail, String password) {
         this.mail = mail;
         this.password = password;
         this.location = new Location();
-        this.publicKey = "";
         this.contact = new UserContact();
+        this.interests = new ArrayList<>();
     }
 
     @Override
@@ -187,9 +191,9 @@ public class ApplicationUser implements Serializable, Searchable {
     public List<Job> getJobs() {
         return jobs;
     }
-
-    public void setJobs(List<Job> jobs) {
-        this.jobs = jobs;
+    
+    public void addJob(Job job) {
+        this.jobs.add(job);
     }
 
     @JsonGetter("mail")
@@ -234,8 +238,12 @@ public class ApplicationUser implements Serializable, Searchable {
         return interests;
     }
 
-    public void setInterests(List<Interest> interests) {
-        this.interests = interests;
+    public void addInterest(Interest interest) {
+        this.interests.add(interest);
+    }
+    
+    public void removeInterest(Interest interest) {
+        this.interests.remove(interest);
     }
 
     public String getPublicKey() {

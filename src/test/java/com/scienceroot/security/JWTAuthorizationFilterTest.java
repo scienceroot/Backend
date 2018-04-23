@@ -19,12 +19,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.springframework.security.core.userdetails.User;
 
 /**
  *
  * @author husche
  */
+@Ignore
 public class JWTAuthorizationFilterTest {
     
     public JWTAuthorizationFilterTest() {

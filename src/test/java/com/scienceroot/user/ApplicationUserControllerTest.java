@@ -61,6 +61,7 @@ public class ApplicationUserControllerTest {
             this.currentUser = new ApplicationUser();
             this.currentUser.setLastname("Test");
             this.currentUser.setForename("Test");
+            this.currentUser.setMail("test@test.de");
             this.currentUser = this.service.save(this.currentUser);
             
             // just to be sure, you can validate the start settings, defined in setUp()
@@ -75,28 +76,28 @@ public class ApplicationUserControllerTest {
 
     @Test
     public void updateUser() throws Exception {
-
+        
         this.mockMvc
             // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(put("/users/" + this.currentUser.getId())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{	" +
-                                            "	\"lastname\":\"Test-Lastname\"," +
-                                            "	\"forename\":\"Test-Forename\"" +
-                                            "}"))
+                            .content("{\"lastname\":\"Test-Updated\"}"))
 
             // debug, prints a shit of info (remove this line, when not needed)
             .andDo(print())
 
             // validate the response
             .andExpect(status().isNoContent())
-            .andExpect(jsonPath("$.lastname").value("Test-Lastname"))
-            .andExpect(jsonPath("$.forename").value("Test-Forename"));
+            .andExpect(jsonPath("$.lastname").value("Test-Updated"))
+            .andExpect(jsonPath("$.forename").value("Test"))
+            .andExpect(jsonPath("$.mail").value("test@test.de"))
+            .andReturn();
 
         // of course you can validate the state in the backend too
-        this.currentUser = this.repository.findOne(this.currentUser.getId());
-        assertThat(this.currentUser, notNullValue());
-        assertThat(this.currentUser.getLastname(), is("Test-Lastname"));
+        ApplicationUser updatedUser = this.repository.findOne(this.currentUser.getId());
+        assertThat(updatedUser, notNullValue());
+        assertThat(updatedUser.getLastname(), is("Test-Updated"));
+        assertThat(updatedUser.getForename(), is("Test"));
     }
     
     @Test

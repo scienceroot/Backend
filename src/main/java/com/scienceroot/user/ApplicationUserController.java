@@ -62,12 +62,11 @@ public class ApplicationUserController {
             @PathVariable("id") UUID id,
             @RequestBody ApplicationUser user
     ) {
-
-        ApplicationUser userToUpdate = getById(id);
-
-        return Optional.ofNullable(userToUpdate)
-                .map(tmpUser -> tmpUser = user)
-                .map(userService::save)
+        ApplicationUser dbUser = this.userService.findOne(id);
+        
+        return Optional.ofNullable(dbUser)
+                .map(oldUser -> oldUser.update(user))
+                .map(tmpUser -> this.userService.save(tmpUser))
                 .orElseThrow(UserNotFoundException::new);
     }
     

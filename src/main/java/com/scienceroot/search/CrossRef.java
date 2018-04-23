@@ -8,7 +8,9 @@ package com.scienceroot.search;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -21,6 +23,9 @@ import java.util.List;
  */
 public class CrossRef {
 
+    /**
+     *
+     */
     public CrossRef() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("query.title=");
@@ -29,6 +34,11 @@ public class CrossRef {
 
     private final SearchParameters fieldNames;
 
+    /**
+     *
+     * @param params
+     * @return
+     */
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
@@ -42,6 +52,11 @@ public class CrossRef {
         return query;
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     public List<Paper> runSearch(String url) {
         LinkedList<Paper> papers = new LinkedList<>();
         try {
@@ -66,7 +81,7 @@ public class CrossRef {
                 curPaper.setDOI(currObj.get("DOI").getAsString());
                 papers.add(curPaper);
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.toString());
             System.out.println(e.getMessage());
         }

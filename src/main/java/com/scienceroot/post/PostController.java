@@ -27,6 +27,10 @@ public class PostController {
     
     private final PostService postService;
     
+    /**
+     *
+     * @param postService
+     */
     @Autowired
     public PostController(
             PostService postService
@@ -34,6 +38,11 @@ public class PostController {
         this.postService = postService;
     }
     
+    /**
+     *
+     * @param toCreate
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Post create(
@@ -42,6 +51,11 @@ public class PostController {
         return this.postService.save(toCreate);
     }
 
+    /**
+     *
+     * @param userId
+     * @return
+     */
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/user/{userId}", method = RequestMethod.GET)
     public List<Post> byUser(

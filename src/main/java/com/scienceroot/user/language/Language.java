@@ -31,22 +31,41 @@ public class Language implements Serializable {
     @Column(name = "name")
     private String name;
     
+    /**
+     *
+     */
     public Language(){
         
     }
     
+    /**
+     *
+     * @return
+     */
     public String getName(){
         return name;
     }
     
+    /**
+     *
+     * @param name
+     */
     public void setName(String name){
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }

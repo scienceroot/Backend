@@ -14,21 +14,40 @@ public class SearchResult {
     private String text;
     private String link;
 
+    /**
+     *
+     */
     public SearchResult() {
     }
 
+    /**
+     *
+     * @return
+     */
     public String getText() {
         return text;
     }
 
+    /**
+     *
+     * @param text
+     */
     public void setText(String text) {
         this.text = text;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getLink() {
         return link;
     }
 
+    /**
+     *
+     * @param link
+     */
     public void setLink(String link) {
         this.link = link;
     }

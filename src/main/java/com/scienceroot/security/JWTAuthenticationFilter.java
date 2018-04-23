@@ -21,14 +21,29 @@ import java.util.Date;
 
 import static com.scienceroot.security.SecurityConstants.*;
 
+/**
+ *
+ * @author husche
+ */
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
 	private AuthenticationManager authenticationManager;
 
+    /**
+     *
+     * @param authenticationManager
+     */
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     *
+     * @param req
+     * @param res
+     * @return
+     * @throws AuthenticationException
+     */
     @Override
     public Authentication attemptAuthentication(
     		HttpServletRequest req,
@@ -49,6 +64,15 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
+    /**
+     *
+     * @param req
+     * @param res
+     * @param chain
+     * @param auth
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,

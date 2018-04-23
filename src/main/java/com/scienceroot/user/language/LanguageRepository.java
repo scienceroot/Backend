@@ -15,8 +15,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+/**
+ *
+ * @author husche
+ */
 public interface LanguageRepository extends CrudRepository<Language, Long>{
     
+    /**
+     *
+     * @param query
+     * @return
+     */
     @Query("SELECT lang " +
             "FROM Language lang " +
             "WHERE lang.name like concat('%', :query, '%')")

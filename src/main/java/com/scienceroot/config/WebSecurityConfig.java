@@ -16,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import static com.scienceroot.security.SecurityConstants.SIGN_IN_URL;
 import static com.scienceroot.security.SecurityConstants.SIGN_UP_URL;
 
-
+/**
+ *
+ * @author husche
+ */
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -25,6 +28,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private RestSecurityEntryPoint restSecurityEntryPoint;
 
+    /**
+     *
+     * @param userDetailsService
+     * @param bCryptPasswordEncoder
+     * @param restSecurityEntryPoint
+     */
     public WebSecurityConfig(UserDetailsService userDetailsService,
                              BCryptPasswordEncoder bCryptPasswordEncoder,
                              RestSecurityEntryPoint restSecurityEntryPoint) {
@@ -33,7 +42,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.restSecurityEntryPoint = restSecurityEntryPoint;
     }
 	
-	@Override
+    /**
+     *
+     * @param http
+     * @throws Exception
+     */
+    @Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 				.exceptionHandling().authenticationEntryPoint(restSecurityEntryPoint)
@@ -53,7 +67,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		//http.headers().cacheControl();
 	}
 	
-	@Override
+    /**
+     *
+     * @param auth
+     * @throws Exception
+     */
+    @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }

@@ -34,6 +34,11 @@ public class RegistrationController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private ApplicationUserRepository userRepository;
 
+    /**
+     *
+     * @param userRepository
+     * @param bCryptPasswordEncoder
+     */
     public RegistrationController(
             @Autowired ApplicationUserRepository userRepository,
             @Autowired BCryptPasswordEncoder bCryptPasswordEncoder) {
@@ -42,6 +47,11 @@ public class RegistrationController {
         this.LOG.warning("RegistrationController#init");
     }
 
+    /**
+     *
+     * @param user
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "register")
     public ResponseEntity<ApplicationUser> registerUser(
@@ -70,7 +80,11 @@ public class RegistrationController {
                 .body(user);
     }
 
-
+    /**
+     *
+     * @param token
+     * @return
+     */
     @RequestMapping(value = "token", method = RequestMethod.GET)
     public ResponseEntity tokenStatus(
             @RequestHeader(value = "Authorization", required = false) String token

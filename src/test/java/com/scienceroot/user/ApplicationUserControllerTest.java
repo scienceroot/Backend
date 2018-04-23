@@ -119,12 +119,12 @@ public class ApplicationUserControllerTest {
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(1))
-            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.title))
+            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.getTitle()))
             .andExpect(jsonPath("$.jobs[0].employer").value(jobToAdd.employer))
-            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.startMonth))
-            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
-            .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.endMonth))
-            .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.endYear));
+            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.getStartMonth()))
+            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.getStartYear()))
+            .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.getEndMonth()))
+            .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.getEndYear()));
     }
     
     
@@ -245,10 +245,10 @@ public class ApplicationUserControllerTest {
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(1))
-            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.title))
+            .andExpect(jsonPath("$.jobs[0].title").value(jobToAdd.getTitle()))
             .andExpect(jsonPath("$.jobs[0].employer").value(jobToAdd.employer))
-            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.startMonth))
-            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
+            .andExpect(jsonPath("$.jobs[0].startMonth").value(jobToAdd.getStartMonth()))
+            .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.getStartYear()))
             .andExpect(jsonPath("$.jobs[0].endMonth").isEmpty())
             .andExpect(jsonPath("$.jobs[0].endYear").isEmpty());
     }

@@ -42,46 +42,89 @@ public class Location implements Serializable{
     @JsonProperty("country")
     private String country;
 
+    /**
+     *
+     */
     public Location() {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEmployer() {
         return employer;
     }
 
+    /**
+     *
+     * @param employer
+     */
     public void setEmployer(String employer) {
         this.employer = employer;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getZip() {
         return zip;
     }
 
+    /**
+     *
+     * @param zip
+     */
     public void setZip(String zip) {
         this.zip = zip;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCity() {
         return city;
     }
 
+    /**
+     *
+     * @param city
+     */
     public void setCity(String city) {
         this.city = city;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCountry() {
         return country;
     }
 
+    /**
+     *
+     * @param country
+     */
     public void setCountry(String country) {
         this.country = country;
     }

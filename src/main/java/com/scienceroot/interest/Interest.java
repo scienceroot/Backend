@@ -23,6 +23,9 @@ import java.util.UUID;
 @Table(name="interests")
 public class Interest implements Serializable{
 
+    /**
+     *
+     */
     @ManyToMany(mappedBy = "interests")
     @JsonIgnore
     public List<ApplicationUser> user;
@@ -36,18 +39,34 @@ public class Interest implements Serializable{
     @JsonProperty("id")
     private UUID id;
 
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }

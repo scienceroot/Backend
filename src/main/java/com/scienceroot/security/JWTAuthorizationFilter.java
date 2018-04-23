@@ -18,14 +18,30 @@ import static com.scienceroot.security.SecurityConstants.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
+/**
+ *
+ * @author husche
+ */
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private Logger LOG = Logger.getLogger(JWTAuthorizationFilter.class.getName());
 
+    /**
+     *
+     * @param authManager
+     */
     public JWTAuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
     }
 
+    /**
+     *
+     * @param req
+     * @param res
+     * @param chain
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest req,
             HttpServletResponse res,

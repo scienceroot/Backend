@@ -23,6 +23,9 @@ import java.util.List;
  */
 public class Plos {
 
+    /**
+     *
+     */
     public Plos() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("title:");
@@ -32,6 +35,11 @@ public class Plos {
 
     private final SearchParameters fieldNames;
 
+    /**
+     *
+     * @param params
+     * @return
+     */
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
@@ -48,6 +56,11 @@ public class Plos {
         return query;
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     public List<Paper> runSearch(String url) {
         LinkedList<Paper> papers = new LinkedList<>();
         try {

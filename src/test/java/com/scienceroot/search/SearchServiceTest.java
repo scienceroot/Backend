@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.springframework.cache.annotation.EnableCaching;
 
 /**
@@ -47,9 +48,8 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearch() {
-        String query = "DNA";
+        String query = "electron microscope";
         SearchService instance = new SearchService();
-        List<Paper> expResult = null;
         List<Paper> result = instance.search(query);
         assertEquals(result.size(), 40);
         
@@ -64,25 +64,20 @@ public class SearchServiceTest {
     @Test
     public void testSearchAdvanced() {
         SearchService instance = new SearchService();
-        List<Paper> expResult = null;
         SearchParameters mp = new SearchParameters();
-        mp.setTitle("electrons");
+        mp.setTitle("electron microscope");
         mp.setAbstract("analysis");
         
         List<Paper> result = instance.searchAdvanced(mp);
-        assertEquals(result.size(), 40);
-        //List<Paper> result = instance.searchAdvanced(query);
-        //assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        assertEquals(result.size(), 30);
     }
     
     @Test
+    @Ignore
     public void testSearchCache(){
         String query = "DNA";
 
         SearchService instance = new SearchService();
-        List<Paper> expResult = null;
         List<Paper> result = instance.search(query);
         assertEquals(result.size(), 40);
         result = instance.search(query);

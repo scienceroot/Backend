@@ -5,7 +5,6 @@
  */
 package com.scienceroot.blockchain;
 
-import com.scienceroot.config.ResourceService;
 import com.wavesplatform.wavesj.Node;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.PublicKeyAccount;
@@ -21,14 +20,20 @@ import java.util.logging.Logger;
 @Service
 public class Blockchain {
 
-    private static final String SCR_CHAIN = "https://chain.scienceroots.com";
-    private Logger LOG = Logger.getLogger(Blockchain.class.getName());
-    private ResourceService resourceService;
+    private static final Logger LOG = Logger.getLogger(Blockchain.class.getName());
 
+    /**
+     *
+     */
     @Autowired
-    public Blockchain(ResourceService resourceService) {
-        this.resourceService = resourceService;
+    public Blockchain() {
     }
+
+    /**
+     *
+     * @param publicKey
+     * @return
+     */
     public boolean sendInitialFunds(String publicKey) {
 
         String genesisAccountSeed = "scienceroot";

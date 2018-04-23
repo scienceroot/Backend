@@ -24,65 +24,124 @@ public class Paper implements Searchable {
     private int citationCount;
     private int citationCountEstimate;
     private Boolean isOa;
-    private String OaLink;
+    private String oaLink;
 
+    /**
+     *
+     * @return
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getPublished() {
-        return published;
+        return new Date(published.getTime());
     }
 
+    /**
+     *
+     * @param published
+     */
     public void setPublished(Date published) {
-        this.published = published;
+        this.published = new Date(published.getTime());
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getUpdated() {
-        return updated;
+        return new Date(updated.getTime());
     }
 
+    /**
+     *
+     * @param updated
+     */
     public void setUpdated(Date updated) {
-        this.updated = updated;
+        this.updated = new Date(updated.getTime());
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     *
+     * @param title
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSummary() {
         return summary;
     }
 
+    /**
+     *
+     * @param summary
+     */
     public void setSummary(String summary) {
         this.summary = summary;
     }
 
+    /**
+     *
+     * @return
+     */
     public String[] getAuthor() {
         return author;
     }
 
+    /**
+     *
+     * @param author
+     */
     public void setAuthor(String[] author) {
         this.author = author;
     }
 
+    /**
+     *
+     * @return
+     */
     public String[] getLink() {
         return link;
     }
 
+    /**
+     *
+     * @param link
+     */
     public void setLink(String[] link) {
         this.link = link;
     }
 
-
+    /**
+     *
+     * @return
+     */
     @Override
     public SearchResult toSearchResult() {
         SearchResult result = new SearchResult();
@@ -91,51 +150,99 @@ public class Paper implements Searchable {
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDOI() {
         return DOI;
     }
 
+    /**
+     *
+     * @param DOI
+     */
     public void setDOI(String DOI) {
         this.DOI = DOI;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getJournalName() {
         return journalName;
     }
 
+    /**
+     *
+     * @param journalName
+     */
     public void setJournalName(String journalName) {
         this.journalName = journalName;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getCitationCount() {
         return citationCount;
     }
 
+    /**
+     *
+     * @param citationCount
+     */
     public void setCitationCount(int citationCount) {
         this.citationCount = citationCount;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getCitationCountEstimate() {
         return citationCountEstimate;
     }
 
+    /**
+     *
+     * @param citationCountEstimate
+     */
     public void setCitationCountEstimate(int citationCountEstimate) {
         this.citationCountEstimate = citationCountEstimate;
     }
 
+    /**
+     *
+     * @return
+     */
     public Boolean getIsOa() {
         return isOa;
     }
 
+    /**
+     *
+     * @param isOa
+     */
     public void setIsOa(Boolean isOa) {
         this.isOa = isOa;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOaLink() {
-        return OaLink;
+        return oaLink;
     }
 
+    /**
+     *
+     * @param OaLink
+     */
     public void setOaLink(String OaLink) {
-        this.OaLink = OaLink;
+        this.oaLink = OaLink;
     }
 }

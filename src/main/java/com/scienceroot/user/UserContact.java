@@ -6,13 +6,8 @@
 package com.scienceroot.user;
 
 import java.io.Serializable;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.MapsId;
-import javax.persistence.Table;
 
 /**
  *
@@ -32,29 +27,56 @@ public class UserContact implements Serializable{
     @Column(name = "twitter")
     private String twitter;
     
+    /**
+     *
+     */
     public UserContact(){
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSkype() {
         return skype;
     }
 
+    /**
+     *
+     * @param skype
+     */
     public void setSkype(String skype) {
         this.skype = skype;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getPhone() {
         return phone;
     }
 
+    /**
+     *
+     * @param phone
+     */
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTwitter() {
         return twitter;
     }
 
+    /**
+     *
+     * @param twitter
+     */
     public void setTwitter(String twitter) {
         this.twitter = twitter;
     }

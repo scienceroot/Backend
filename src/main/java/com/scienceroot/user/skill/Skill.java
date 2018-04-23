@@ -5,9 +5,6 @@
  */
 package com.scienceroot.user.skill;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.scienceroot.search.SearchResult;
-import com.scienceroot.search.Searchable;
 import java.io.Serializable;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -34,22 +31,41 @@ public class Skill implements Serializable {
     @Column(name = "name")
     private String name;
     
+    /**
+     *
+     */
     public Skill(){
         
     }
     
+    /**
+     *
+     * @return
+     */
     public String getName(){
         return name;
     }
     
+    /**
+     *
+     * @param name
+     */
     public void setName(String name){
         this.name = name;
     }
 
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }

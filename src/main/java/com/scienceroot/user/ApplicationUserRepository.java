@@ -8,10 +8,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ *
+ * @author husche
+ */
 public interface ApplicationUserRepository extends CrudRepository<ApplicationUser, UUID> {
 
+    /**
+     *
+     * @param mail
+     * @return
+     */
     Optional<ApplicationUser> findByMail(String mail);
 
+    /**
+     *
+     * @param query
+     * @return
+     */
     @Query("SELECT user " +
             "FROM ApplicationUser user " +
             "WHERE lower(user.forename) like lower(concat('%', :query, '%')) or lower(user.lastname) like lower(concat('%', :query, '%')) "

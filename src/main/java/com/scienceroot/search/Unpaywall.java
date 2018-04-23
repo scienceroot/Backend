@@ -23,21 +23,40 @@ public class Unpaywall implements Serializable{
 
     private String url;
 
+    /**
+     *
+     */
     public Unpaywall() {
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDoi() {
         return doi;
     }
 
+    /**
+     *
+     * @param doi
+     */
     public void setDoi(String doi) {
         this.doi = doi;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     *
+     * @param url
+     */
     public void setUrl(String url) {
         this.url = url;
     }

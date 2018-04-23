@@ -19,6 +19,11 @@ public class PostService {
     
     private final ApplicationUserService userService;
     
+    /**
+     *
+     * @param postRepository
+     * @param userService
+     */
     @Autowired
     public PostService(
             PostRepository postRepository,
@@ -28,10 +33,21 @@ public class PostService {
         this.userService = userService;
     }
     
+    /**
+     *
+     * @param <S>
+     * @param s
+     * @return
+     */
     public <S extends Post> S save(S s) {
         return this.postRepository.save(s);
     }
     
+    /**
+     *
+     * @param creatorId
+     * @return
+     */
     public List<Post> getByUser(UUID creatorId) {
         ApplicationUser dbUser = this.userService.findOne(creatorId);
         

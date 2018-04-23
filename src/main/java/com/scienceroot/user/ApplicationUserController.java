@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -61,15 +62,57 @@ public class ApplicationUserController {
             @PathVariable("id") UUID id,
             @RequestBody ApplicationUser user
     ) {
-
-        ApplicationUser userToUpdate = getById(id);
-
-        return Optional.ofNullable(userToUpdate)
-                .map(tmpUser -> tmpUser = user)
-                .map(userService::save)
+        ApplicationUser dbUser = this.userService.findOne(id);
+        
+        return Optional.ofNullable(dbUser)
+                .map(oldUser -> oldUser.update(user))
+                .map(tmpUser -> this.userService.save(tmpUser))
                 .orElseThrow(UserNotFoundException::new);
     }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/follow/{toFollowId}", method = RequestMethod.POST)
+    public ApplicationUser followUser(
+            @PathVariable("id") UUID userId,
+            @PathVariable("toFollowId") UUID toFollowId
+    ) {
 
+        ApplicationUser dbUser = getById(userId);
+        ApplicationUser toFollowUser = getById(toFollowId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.followUser(user, toFollowUser))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(value = "/{id}/unfollow/{toUnfollowId}", method = RequestMethod.DELETE)
+    public ApplicationUser unfollowUser(
+            @PathVariable("id") UUID userId,
+            @PathVariable("toUnfollowId") UUID toUnfollowId
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+        ApplicationUser toUnfollowUser = getById(toUnfollowId);
+
+        return Optional.ofNullable(dbUser)
+                .map(user -> userService.unfollowUser(user, toUnfollowUser))
+                .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
+    public List<ApplicationUser> getUserFollowedBy(
+            @PathVariable("id") UUID userId
+    ) {
+
+        ApplicationUser dbUser = getById(userId);
+
+        return dbUser.getFollowedBy();
+    }
+    
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
     public ApplicationUser addUserJob(

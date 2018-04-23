@@ -47,7 +47,6 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearch() {
-        System.out.println("search");
         String query = "DNA";
         SearchService instance = new SearchService();
         List<Paper> expResult = null;
@@ -64,7 +63,6 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearchAdvanced() {
-        System.out.println("searchAdvanced");
         SearchService instance = new SearchService();
         List<Paper> expResult = null;
         SearchParameters mp = new SearchParameters();
@@ -81,19 +79,14 @@ public class SearchServiceTest {
     
     @Test
     public void testSearchCache(){
-        System.out.println("search cache");
         String query = "DNA";
-        
-        long currTime = System.currentTimeMillis();
-        System.out.println(currTime);
+
         SearchService instance = new SearchService();
         List<Paper> expResult = null;
         List<Paper> result = instance.search(query);
         assertEquals(result.size(), 40);
-        System.out.println(System.currentTimeMillis());
         result = instance.search(query);
         assertEquals(result.size(), 40);
-        System.out.println(System.currentTimeMillis());
     }
     
 }

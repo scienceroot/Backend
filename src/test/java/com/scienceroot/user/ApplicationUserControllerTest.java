@@ -11,8 +11,8 @@ import com.scienceroot.interest.InterestRepository;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,6 +61,7 @@ public class ApplicationUserControllerTest {
             this.currentUser = new ApplicationUser();
             this.currentUser.setLastname("Test");
             this.currentUser.setForename("Test");
+            this.currentUser.setMail("test@test.de");
             this.currentUser = this.service.save(this.currentUser);
             
             // just to be sure, you can validate the start settings, defined in setUp()
@@ -74,28 +76,28 @@ public class ApplicationUserControllerTest {
 
     @Test
     public void updateUser() throws Exception {
-
+        
         this.mockMvc
             // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(put("/users/" + this.currentUser.getId())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{	" +
-                                            "	\"lastname\":\"Test-Lastname\"," +
-                                            "	\"forename\":\"Test-Forename\"" +
-                                            "}"))
+                            .content("{\"lastname\":\"Test-Updated\"}"))
 
             // debug, prints a shit of info (remove this line, when not needed)
             .andDo(print())
 
             // validate the response
             .andExpect(status().isNoContent())
-            .andExpect(jsonPath("$.lastname").value("Test-Lastname"))
-            .andExpect(jsonPath("$.forename").value("Test-Forename"));
+            .andExpect(jsonPath("$.lastname").value("Test-Updated"))
+            .andExpect(jsonPath("$.forename").value("Test"))
+            .andExpect(jsonPath("$.mail").value("test@test.de"))
+            .andReturn();
 
         // of course you can validate the state in the backend too
-        this.currentUser = this.repository.findOne(this.currentUser.getId());
-        assertThat(this.currentUser, notNullValue());
-        assertThat(this.currentUser.getLastname(), is("Test-Lastname"));
+        ApplicationUser updatedUser = this.repository.findOne(this.currentUser.getId());
+        assertThat(updatedUser, notNullValue());
+        assertThat(updatedUser.getLastname(), is("Test-Updated"));
+        assertThat(updatedUser.getForename(), is("Test"));
     }
     
     @Test
@@ -123,6 +125,105 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.startYear))
             .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.endMonth))
             .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.endYear));
+    }
+    
+    
+    @Test
+    public void followUser () throws Exception {
+        ApplicationUser toFollow = new ApplicationUser();
+        toFollow.setLastname("Test2");
+        toFollow.setForename("Test2");
+        toFollow = this.service.save(toFollow);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/follow/" + toFollow.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.follows").isArray())
+            .andExpect(jsonPath("$.follows.length()").value(1))
+            .andExpect(jsonPath("$.follows[0].lastname").value(toFollow.getLastname()))
+            .andExpect(jsonPath("$.follows[0].forename").value(toFollow.getForename()));
+    }
+    
+    @Test
+    public void unfollowUser () throws Exception {
+        ApplicationUser following = new ApplicationUser();
+        following.setLastname("Test2");
+        following.setForename("Test2");
+        following = this.service.save(following);
+        
+        List<ApplicationUser> follows = new LinkedList<>();
+        follows.add(following);
+        this.currentUser.setFollows(follows);
+        this.service.save(this.currentUser);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(delete("/users/" + this.currentUser.getId() + "/unfollow/" + following.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.follows").isArray())
+            .andExpect(jsonPath("$.follows.length()").value(0));
+    }
+    
+    @Test
+    public void getEmptyFollowedBy () throws Exception { 
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+    
+    @Test
+    public void getFollowedBy () throws Exception {
+        ApplicationUser follower = new ApplicationUser();
+        List<ApplicationUser> follows = new LinkedList<>();
+        
+        follows.add(this.currentUser);
+        
+        follower.setLastname("Test2");
+        follower.setForename("Test2");
+        follower.setFollows(follows);
+        
+        follower = this.service.save(follower);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+
+            // debug, prints a shit of info (remove this line, when not needed)
+            .andDo(print())
+
+            // validate the response
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].lastname").value(follower.getLastname()))
+            .andExpect(jsonPath("$[0].forename").value(follower.getForename()));
     }
     
     @Test
@@ -155,11 +256,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserJob() throws Exception {
         Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
-        List<Job> userJobs = new ArrayList();
-               
-        userJobs.add(jobToAdd);
         
-        this.currentUser.setJobs(userJobs);
+        this.currentUser.addJob(jobToAdd);
         this.jobRepository.save(jobToAdd);
         this.repository.save(this.currentUser);
         
@@ -223,11 +321,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
-        List<Interest> userInterests = new ArrayList();
-               
-        userInterests.add(userInterest);
         
-        this.currentUser.setInterests(userInterests);
+        this.currentUser.addInterest(userInterest);
         this.repository.save(this.currentUser);
         
         this.mockMvc

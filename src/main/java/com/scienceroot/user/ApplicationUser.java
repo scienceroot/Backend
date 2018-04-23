@@ -15,21 +15,57 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.search.SearchResult;
 import com.scienceroot.search.Searchable;
+import com.scienceroot.post.Post;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * https://stackoverflow.com/questions/22256124/cannot-create-a-database-table-named-user-in-postgresql
  */
-@Entity
+@Entity()
 @Table(name = "scr_user")
 public class ApplicationUser implements Serializable, Searchable {
 
     private static final long serialVersionUID = 1L;
+    
+    /**
+     * Update the {@code attribute} with {@code updateAttribute}, if not null.
+     *
+     * @param attribute original attribute
+     * @param updatedAttribute  updated attribute
+     * @param <T>   type of {@code attribute} and {@code updateAttribute}
+     * @return  original attribute or updated attribute if not {@code null}.
+     */
+    public static <T> T updateAttribute(T attribute, T updatedAttribute) {
+        return updateAttribute(attribute, updatedAttribute, false);
+
+    }
+
+    /**
+     * Update the {@code attribute} with {@code updateAttribute}, if not null.
+     *
+     * @param attribute original attribute
+     * @param updatedAttribute  updated attribute
+     * @param overrideWithNull if true, then accept null in updateAttribute and override
+     *                         attribute with it.
+     * @param <T>   type of {@code attribute} and {@code updateAttribute}
+     * @return  original attribute or updated attribute if not {@code null}.
+     */
+    public static <T> T updateAttribute(T attribute, T updatedAttribute, boolean overrideWithNull) {
+
+        if (updatedAttribute == null && !overrideWithNull) {
+            return attribute;
+        } else {
+            return updatedAttribute;
+        }
+    }
 
     @Id
     @GeneratedValue(generator = "uuid_users")
@@ -59,14 +95,11 @@ public class ApplicationUser implements Serializable, Searchable {
     private Location location;
 
     @JsonProperty("jobs")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Job> jobs;
 
     @JsonProperty("interests")
-    @ManyToMany(cascade = {
-        CascadeType.PERSIST,
-        CascadeType.MERGE
-    })
+    @ManyToMany
     @JoinTable(
             name = "scr_user_to_interest",
             joinColumns = @JoinColumn(name = "interest_id"),
@@ -95,6 +128,18 @@ public class ApplicationUser implements Serializable, Searchable {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<Language> languages;
+    
+    @ManyToMany()
+    @JoinTable(name = "follows",
+                joinColumns = @JoinColumn(name = "user_id"),
+                inverseJoinColumns = @JoinColumn(name = "follows_id"))
+    private List<ApplicationUser> follows;
+    
+    @ManyToMany()
+    @JoinTable(name = "follows",
+                joinColumns = @JoinColumn(name = "follows_id"),
+                inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<ApplicationUser> followedBy;
 
     @Column
     @JsonProperty("publicKey")
@@ -102,16 +147,29 @@ public class ApplicationUser implements Serializable, Searchable {
 
     @Embedded
     private UserContact contact;
+    
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "creator",
+            orphanRemoval = true
+    )
+    private List<Post> posts;
 
     public ApplicationUser() {
+        this.interests = new ArrayList<>();
+        this.languages = new ArrayList<>();
+        this.follows = new ArrayList<>();
+        this.jobs = new ArrayList<>();
+        this.posts = new ArrayList<>();
+        this.skills = new ArrayList<>();
     }
 
     public ApplicationUser(String mail, String password) {
         this.mail = mail;
         this.password = password;
         this.location = new Location();
-        this.publicKey = "";
         this.contact = new UserContact();
+        this.interests = new ArrayList<>();
     }
 
     @Override
@@ -122,10 +180,16 @@ public class ApplicationUser implements Serializable, Searchable {
     }
 
     public ApplicationUser update(ApplicationUser updatedUser) {
-        this.setForename(updatedUser.forename);
+        
+        this.setForename(updateAttribute(this.forename, updatedUser.forename));
+        this.setLastname(updateAttribute(this.lastname, updatedUser.lastname));
+        
+        /*
         this.setLastname(updatedUser.lastname);
         this.setLocation(updatedUser.location);
         this.setMail(updatedUser.mail);
+        */
+        
         return this;
     }
 
@@ -163,13 +227,13 @@ public class ApplicationUser implements Serializable, Searchable {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
     public List<Job> getJobs() {
         return jobs;
     }
-
-    public void setJobs(List<Job> jobs) {
-        this.jobs = jobs;
+    
+    public void addJob(Job job) {
+        this.jobs.add(job);
     }
 
     @JsonGetter("mail")
@@ -214,8 +278,12 @@ public class ApplicationUser implements Serializable, Searchable {
         return interests;
     }
 
-    public void setInterests(List<Interest> interests) {
-        this.interests = interests;
+    public void addInterest(Interest interest) {
+        this.interests.add(interest);
+    }
+    
+    public void removeInterest(Interest interest) {
+        this.interests.remove(interest);
     }
 
     public String getPublicKey() {
@@ -241,4 +309,124 @@ public class ApplicationUser implements Serializable, Searchable {
     public void setContact(UserContact contact) {
         this.contact = contact;
     }
+
+    /**
+     * @return the follows
+     */
+    public List<ApplicationUser> getFollows() {
+        return follows;
+    }
+
+    /**
+     * @param follows the follows to set
+     */
+    public void setFollows(List<ApplicationUser> follows) {
+        this.follows = follows;
+    }
+
+    /**
+     * @return the followedBy
+     */
+    @JsonIgnore
+    public List<ApplicationUser> getFollowedBy() {
+        return followedBy;
+    }
+
+    /**
+     * @return the posts
+     */
+    @JsonIgnore
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    /**
+     * @param posts the posts to set
+     */
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 47 * hash + Objects.hashCode(this.id);
+        hash = 47 * hash + Objects.hashCode(this.forename);
+        hash = 47 * hash + Objects.hashCode(this.lastname);
+        hash = 47 * hash + Objects.hashCode(this.mail);
+        hash = 47 * hash + Arrays.deepHashCode(this.roles);
+        hash = 47 * hash + Objects.hashCode(this.location);
+        hash = 47 * hash + Objects.hashCode(this.jobs);
+        hash = 47 * hash + Objects.hashCode(this.interests);
+        hash = 47 * hash + Objects.hashCode(this.skills);
+        hash = 47 * hash + Objects.hashCode(this.languages);
+        hash = 47 * hash + Objects.hashCode(this.follows);
+        hash = 47 * hash + Objects.hashCode(this.followedBy);
+        hash = 47 * hash + Objects.hashCode(this.publicKey);
+        hash = 47 * hash + Objects.hashCode(this.contact);
+        hash = 47 * hash + Objects.hashCode(this.posts);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApplicationUser other = (ApplicationUser) obj;
+        if (!Objects.equals(this.forename, other.forename)) {
+            return false;
+        }
+        if (!Objects.equals(this.lastname, other.lastname)) {
+            return false;
+        }
+        if (!Objects.equals(this.mail, other.mail)) {
+            return false;
+        }
+        if (!Objects.equals(this.publicKey, other.publicKey)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Arrays.deepEquals(this.roles, other.roles)) {
+            return false;
+        }
+        if (!Objects.equals(this.location, other.location)) {
+            return false;
+        }
+        if (!Objects.equals(this.jobs, other.jobs)) {
+            return false;
+        }
+        if (!Objects.equals(this.interests, other.interests)) {
+            return false;
+        }
+        if (!Objects.equals(this.skills, other.skills)) {
+            return false;
+        }
+        if (!Objects.equals(this.languages, other.languages)) {
+            return false;
+        }
+        if (!Objects.equals(this.follows, other.follows)) {
+            return false;
+        }
+        if (!Objects.equals(this.followedBy, other.followedBy)) {
+            return false;
+        }
+        if (!Objects.equals(this.contact, other.contact)) {
+            return false;
+        }
+        if (!Objects.equals(this.posts, other.posts)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

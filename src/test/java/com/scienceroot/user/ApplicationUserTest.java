@@ -15,39 +15,44 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
-@DataJpaTest
+@SpringBootTest
 @RunWith(SpringRunner.class)
-@PropertySource("test-database.properties")
+@TestPropertySource("classpath:test-database.properties")
 public class ApplicationUserTest {
 
+    
     @Autowired
-    private TestEntityManager entityManager;
+    private ApplicationUserService userService;
+    
     private ApplicationUser currentUser;
+
+    
+    public ApplicationUserTest() {
+        
+    }
 
     @Before
     public void setUp() throws Exception {
         this.currentUser = new ApplicationUser();
         this.currentUser.setLastname("Test");
         this.currentUser.setForename("Test");
-        this.currentUser = this.entityManager.persistAndFlush(this.currentUser);
+        this.currentUser = this.userService.save(this.currentUser);
     }
 
     @Test
     public void saveJob() {
-        assertNull(this.currentUser.getJobs());
-
+        assertEquals(0, this.currentUser.getJobs().size());
+            
         Job job = new Job();
         job.employer = "Scienceroot";
         job.title = "Tester";
         job.user = this.currentUser;
-        job = this.entityManager.persistAndFlush(job);
-
-        List<Job> jobs = new ArrayList<>(1);
-        jobs.add(job);
-
-        this.currentUser.setJobs(jobs);
-        this.currentUser = this.entityManager.persistAndFlush(this.currentUser);
+        
+        this.userService.addJobToUser(this.currentUser, job);
+        this.currentUser = this.userService.save(this.currentUser);
 
         assertEquals(1, this.currentUser.getJobs().size());
     }

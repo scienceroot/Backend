@@ -31,7 +31,6 @@ public class JWTTest extends TestCase {
         // TODO review the generated test code and remove the default call to fail.
         /**JWT jwt = new JWT();
         String generatedJWT = jwt.createJWT("1", "ich", "hue", 100000);
-        System.out.println(generatedJWT);
         assert (jwt.isValidJWT(generatedJWT));**/
 
     }

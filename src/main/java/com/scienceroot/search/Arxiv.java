@@ -53,7 +53,6 @@ public class Arxiv {
             URL feedUrl = new URL(url);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedUrl));
-            //System.out.println(feed);
 
             for (SyndEntry curEntry : feed.getEntries()) {
                 Paper curPaper = new Paper();

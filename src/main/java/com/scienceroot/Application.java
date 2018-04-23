@@ -22,5 +22,4 @@ public class Application {
 		org.apache.log4j.BasicConfigurator.configure();
 		SpringApplication.run(Application.class, args);
 	}
-
 }

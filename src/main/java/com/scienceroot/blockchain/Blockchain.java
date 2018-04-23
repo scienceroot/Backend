@@ -6,6 +6,9 @@
 package com.scienceroot.blockchain;
 
 import com.scienceroot.config.ResourceService;
+import com.wavesplatform.wavesj.Node;
+import com.wavesplatform.wavesj.PrivateKeyAccount;
+import com.wavesplatform.wavesj.PublicKeyAccount;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -25,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -34,76 +38,32 @@ import java.util.logging.Logger;
 @Service
 public class Blockchain {
 
-	private static final String SCR_CHAIN = "https://chain.scienceroots.com";
-	private Logger LOG = Logger.getLogger(Blockchain.class.getName());
-	private ResourceService resourceService;
+    private static final String SCR_CHAIN = "https://chain.scienceroots.com";
+    private Logger LOG = Logger.getLogger(Blockchain.class.getName());
+    private ResourceService resourceService;
 
-	@Autowired
-	public Blockchain(ResourceService resourceService) {
-		this.resourceService = resourceService;
-	}
+    @Autowired
+    public Blockchain(ResourceService resourceService) {
+        this.resourceService = resourceService;
+    }
+    public boolean sendInitialFunds(String address) {
 
-	public BigInteger getFunds(String address) {
-		try {
-			Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
-			EthGetBalance balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
-			return balance.getBalance();
-		} catch (IOException ioe) {
-			System.out.println(ioe.toString());
-			return new BigInteger("-1");
-		}
-	}
+        String genesisAccountSeed = "scienceroot";
+        String nodeAddress = "https://scienceblock.org";
+        PrivateKeyAccount genesisAcc = PrivateKeyAccount.fromSeed(genesisAccountSeed, 0, 'D');
+        long amount = 1000000;
 
-	public boolean sendInitialFunds(String address) {
+        try {
+            PublicKeyAccount pka = new PublicKeyAccount(address, 'D');
+            Node node = new Node(nodeAddress);
+            node.transfer(genesisAcc, pka.getAddress(), amount, 100000, "initial funds");
+        } catch (URISyntaxException | IOException e) {
+            LOG.severe(e.getMessage());
+            return false;
+        }
 
-		long amount = 100;
-
-		LOG.info("sending initial funding to '" + address + "'");
-
-		LOG.info("calling web3j at " + SCR_CHAIN);
-		Web3j web3 = Web3j.build(new HttpService(SCR_CHAIN));
-
-		try {
-			LOG.info("loading wallet..");
-			File wallet = this.loadWallet();
-
-			LOG.info("receiving credentials from wallet..");
-			Credentials creds = WalletUtils.loadCredentials("secret", wallet);
-
-			LOG.info("sending " + amount + " ether to '" + address + "'..");
-			Transfer.sendFunds(web3, creds, address, BigDecimal.valueOf(amount), Convert.Unit.ETHER)
-					.sendAsync();
-
-		} catch (TransactionException | InterruptedException | CipherException | IOException e) {
-			LOG.severe(e.getMessage());
-			return false;
-		}
-
-		LOG.info("sending initial funding done");
-		return true;
-	}
-
-	protected File loadWallet() throws IOException {
-		Resource wallet = this.loadWalletFile();
-
-		LOG.info("validation of wallet file ..");
-		Objects.requireNonNull(wallet);
-		assert wallet.exists();
-		LOG.info("validation of wallet file successfully");
-
-		File tmp_wallet = File.createTempFile("tmp_wallet", ".dat");
-		LOG.info("created tmp wallet file '" + tmp_wallet.getAbsolutePath() + "'");
-
-		FileUtils.copyInputStreamToFile(wallet.getInputStream(), tmp_wallet);
-		LOG.info("copy of wallet to tmp wallet done");
-
-		return tmp_wallet;
-	}
-
-	protected Resource loadWalletFile() {
-
-		LOG.info("loading wallet file..");
-		return resourceService.loadFromResourcesFolder("wallet.dat");
-	}
+        LOG.info("sending initial funding done");
+        return true;
+    }
 
 }

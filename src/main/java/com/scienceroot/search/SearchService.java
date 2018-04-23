@@ -2,8 +2,6 @@ package com.scienceroot.search;
 
 import java.util.ArrayList;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -15,10 +13,10 @@ public class SearchService {
 
     public List<Paper> search(String query) {
         Arxiv arxiv = new Arxiv();
-        String url = URL_ARXIV + "?search_query=ti:" + query;
         Plos plos = new Plos();
-        String url2 = URL_PLOS + "?q=everything:" + query + "&wt=json";
         CrossRef cr = new CrossRef();
+        String url = URL_ARXIV + "?search_query=ti:" + query;
+        String url2 = URL_PLOS + "?q=everything:" + query + "&wt=json";
         String urlxr = URL_CROSSREF + "?query=" + query;
         
         List<Paper> retList = new ArrayList<>();

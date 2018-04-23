@@ -11,7 +11,9 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.URLConnection;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class Plos {
         fieldNames.setAbstract("abstract:");
     }
 
-    private SearchParameters fieldNames;
+    private final SearchParameters fieldNames;
 
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
@@ -47,7 +49,7 @@ public class Plos {
     }
 
     public List<Paper> runSearch(String url) {
-        LinkedList<Paper> papers = new LinkedList<Paper>();
+        LinkedList<Paper> papers = new LinkedList<>();
         try {
             StringBuilder content = new StringBuilder();
             URL feedUrl = new URL(url);
@@ -82,7 +84,7 @@ public class Plos {
                 //curPaper.setLink(linkArray);
                 papers.add(curPaper);
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.toString());
             System.out.println(e.getMessage());
         }

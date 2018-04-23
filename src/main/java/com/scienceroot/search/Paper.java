@@ -23,7 +23,8 @@ public class Paper implements Searchable {
     private String[] link;
     private int citationCount;
     private int citationCountEstimate;
-    
+    private Boolean isOa;
+    private String OaLink;
 
     public String getId() {
         return id;
@@ -120,5 +121,21 @@ public class Paper implements Searchable {
 
     public void setCitationCountEstimate(int citationCountEstimate) {
         this.citationCountEstimate = citationCountEstimate;
+    }
+
+    public Boolean getIsOa() {
+        return isOa;
+    }
+
+    public void setIsOa(Boolean isOa) {
+        this.isOa = isOa;
+    }
+
+    public String getOaLink() {
+        return OaLink;
+    }
+
+    public void setOaLink(String OaLink) {
+        this.OaLink = OaLink;
     }
 }

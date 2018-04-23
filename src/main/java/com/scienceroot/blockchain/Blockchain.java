@@ -9,27 +9,10 @@ import com.scienceroot.config.ResourceService;
 import com.wavesplatform.wavesj.Node;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.PublicKeyAccount;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.CipherException;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.WalletUtils;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.exceptions.TransactionException;
-import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.Transfer;
-import org.web3j.utils.Convert;
-
-import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -46,7 +29,7 @@ public class Blockchain {
     public Blockchain(ResourceService resourceService) {
         this.resourceService = resourceService;
     }
-    public boolean sendInitialFunds(String address) {
+    public boolean sendInitialFunds(String publicKey) {
 
         String genesisAccountSeed = "scienceroot";
         String nodeAddress = "https://scienceblock.org";
@@ -54,7 +37,7 @@ public class Blockchain {
         long amount = 1000000;
 
         try {
-            PublicKeyAccount pka = new PublicKeyAccount(address, 'D');
+            PublicKeyAccount pka = new PublicKeyAccount(publicKey, 'D');
             Node node = new Node(nodeAddress);
             node.transfer(genesisAcc, pka.getAddress(), amount, 100000, "initial funds");
         } catch (URISyntaxException | IOException e) {

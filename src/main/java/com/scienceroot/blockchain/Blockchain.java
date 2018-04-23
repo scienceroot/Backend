@@ -49,7 +49,6 @@ public class Blockchain {
 			EthGetBalance balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
 			return balance.getBalance();
 		} catch (IOException ioe) {
-			System.out.println(ioe.toString());
 			return new BigInteger("-1");
 		}
 	}

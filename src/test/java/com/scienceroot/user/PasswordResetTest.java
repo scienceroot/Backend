@@ -42,7 +42,6 @@ public class PasswordResetTest {
      */
     @Test
     public void testSendPasswordMail() {
-        System.out.println("sendPasswordMail");
         String mail = "frederik.huschebeck@gmail.com";
         PasswordReset instance = new PasswordReset();
         assertTrue(instance.sendPasswordMail(mail));

@@ -51,16 +51,13 @@ public class JWTAuthorizationFilterTest {
      */
     @Test
     public void testDoFilterInternal() throws Exception {
-        System.out.println("doFilterInternal");
-        
         String token = Jwts.builder()
                 .setSubject("Ping")
                 .setExpiration(new Date(System.currentTimeMillis()))// + EXPIRATION_TIME_IN_MILLIS
                 .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
                 .compact();
-        System.out.println(token);
 
-//HttpServletRequest req = null;
+        //HttpServletRequest req = null;
         //HttpServletResponse res = null;
         //FilterChain chain = null;
         //JWTAuthorizationFilter instance = null;

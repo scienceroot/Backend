@@ -70,7 +70,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearch() throws IOException {
-        System.out.println("search");
         String q = "";
         String type = "";
         SearchController instance = null;
@@ -86,7 +85,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchPapers() {
-        System.out.println("searchPapers");
         String q = "";
         SearchController instance = null;
         List<Paper> expResult = null;
@@ -109,7 +107,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchPapersAdvanced() throws Exception {
-        System.out.println("searchPapersAdvanced");
         String title = "checkerboard";
         String author = "del_maestro";
         String abstractt = "";
@@ -126,7 +123,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchUsers() {
-        System.out.println("searchUsers");
         String q = "";
         SearchController instance = null;
         List<ApplicationUser> expResult = null;
@@ -141,7 +137,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchSkills() {
-        System.out.println("searchSkills");
         String q = "";
         SearchController instance = null;
         List<Skill> expResult = null;
@@ -156,7 +151,6 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchLanguages() {
-        System.out.println("searchLanguages");
         String q = "";
         SearchController instance = null;
         List<Language> expResult = null;

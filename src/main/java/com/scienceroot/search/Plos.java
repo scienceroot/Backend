@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class Plos extends Search {
 
+    protected static final String URL_PLOS = "http://api.plos.org/search";
+
     /**
      *
      */
@@ -38,7 +40,7 @@ public class Plos extends Search {
      * @param params
      */
     @Override
-    public String createQueryString(SearchParameters params) {
+    public void createAdvancedUrl(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
         if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
@@ -50,8 +52,17 @@ public class Plos extends Search {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + "\"" + params.getAbstract() + "\"");
         }
-        return String.join("%20AND%20", searchVars).concat("&wt=json");
+        this.url = URL_PLOS + "?q=" + String.join("%20AND%20", searchVars).concat("&wt=json");
 
+    }
+    
+    /**
+     *
+     * @param query
+     */
+    @Override
+    public void createSimpleUrl(String query){
+        this.url = URL_PLOS + "?q=everything:" + query + "&wt=json";
     }
 
     /**

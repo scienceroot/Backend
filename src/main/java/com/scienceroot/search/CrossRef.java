@@ -23,6 +23,9 @@ import java.util.List;
  */
 public class CrossRef extends Search {
 
+    
+    protected static final String URL_CROSSREF = "https://api.crossref.org/works";
+    //URL_CROSSREF + "?query=" + query;
     /**
      *
      */
@@ -35,9 +38,10 @@ public class CrossRef extends Search {
 
     /**
      * @param params
+     * @return 
      */
     @Override
-    public String createQueryString(SearchParameters params) {
+    public void createAdvancedUrl(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
         if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
@@ -46,7 +50,12 @@ public class CrossRef extends Search {
         if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + params.getAuthor().replace(' ', '+'));
         }
-        return String.join("&", searchVars);
+        this.url = URL_CROSSREF + "?" + String.join("&", searchVars);
+    }
+    
+    @Override
+    public void createSimpleUrl(String query){
+        this.url = URL_CROSSREF + "?query=" + query;
     }
 
     /**

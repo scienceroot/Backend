@@ -22,6 +22,9 @@ import java.util.List;
  */
 public class Arxiv extends Search {
 
+    
+    protected static final String URL_ARXIV = "http://export.arxiv.org/api/query";
+    
     /**
      *
      */
@@ -38,7 +41,7 @@ public class Arxiv extends Search {
      * @param params
      */
     @Override
-    public String createQueryString(SearchParameters params) {
+    public void createAdvancedUrl(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
 
         List<String> searchVars = new LinkedList<>();
@@ -51,7 +54,12 @@ public class Arxiv extends Search {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + params.getAbstract());
         }
-        return String.join("+AND+", searchVars);
+        this.url = URL_ARXIV + "?search_query=" + String.join("+AND+", searchVars);
+    }
+    
+    @Override
+    public void createSimpleUrl(String query){
+        this.url = URL_ARXIV + "?search_query=all:" + query;
     }
 
     /**

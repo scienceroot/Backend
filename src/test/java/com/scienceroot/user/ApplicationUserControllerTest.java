@@ -87,16 +87,10 @@ public class ApplicationUserControllerTest {
     public void updateUser() throws Exception {
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(put("/users/" + this.currentUser.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", this.jwt)
                             .content("{\"lastname\":\"Test-Updated\"}"))
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().isNoContent())
             .andExpect(jsonPath("$.lastname").value("Test-Updated"))
             .andExpect(jsonPath("$.forename").value("Test"))
@@ -112,15 +106,13 @@ public class ApplicationUserControllerTest {
     
     @Test
     public void updateUserNotAllowed() throws Exception {
-        String wrongJwt = this.createJwt("unallowed@unallowed.com");
+        String wrongJwt = this.createForbiddenJwt();
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(put("/users/" + this.currentUser.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", wrongJwt)
                             .content("{\"lastname\":\"Test-Updated\"}"))
-            .andDo(print())
             .andExpect(status().isForbidden())
             .andReturn();
     }
@@ -131,16 +123,10 @@ public class ApplicationUserControllerTest {
         Job jobToAdd = new Job("CEO", 1, 2017, 1, 2018, this.currentUser, "Scienceroot", this.getIndustry());
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/jobs")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(jobToAdd))
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(1))
@@ -161,15 +147,9 @@ public class ApplicationUserControllerTest {
         toFollow = this.service.save(toFollow);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/follow/" + toFollow.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.follows").isArray())
             .andExpect(jsonPath("$.follows.length()").value(1))
@@ -190,15 +170,9 @@ public class ApplicationUserControllerTest {
         this.service.save(this.currentUser);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(delete("/users/" + this.currentUser.getId() + "/unfollow/" + following.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.follows").isArray())
             .andExpect(jsonPath("$.follows.length()").value(0));
@@ -207,15 +181,9 @@ public class ApplicationUserControllerTest {
     @Test
     public void getEmptyFollowedBy () throws Exception { 
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(200))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(0));
@@ -235,15 +203,9 @@ public class ApplicationUserControllerTest {
         follower = this.service.save(follower);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(200))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1))
@@ -257,16 +219,10 @@ public class ApplicationUserControllerTest {
         Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/jobs")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(jobToAdd))
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(1))
@@ -290,9 +246,6 @@ public class ApplicationUserControllerTest {
             .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
                             .contentType(MediaType.APPLICATION_JSON)
             )
-
-            .andDo(print())
-
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(0));
@@ -309,11 +262,6 @@ public class ApplicationUserControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(interestToAdd))
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.interests").isArray())
             .andExpect(jsonPath("$.interests[0].name").value(interestToAdd.getName()));
@@ -333,11 +281,6 @@ public class ApplicationUserControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(contact))
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.contact.phone").value(contact.getPhone()))
             .andExpect(jsonPath("$.contact.skype").value(contact.getSkype()));
@@ -355,11 +298,6 @@ public class ApplicationUserControllerTest {
             .perform(delete("/users/" + this.currentUser.getId() + "/interests/" + userInterest.getId())
                             .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.interests").isArray())
             .andExpect(jsonPath("$.interests.length()").value(0));
@@ -376,11 +314,6 @@ public class ApplicationUserControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(languageToAdd))
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.languages").isArray())
             .andExpect(jsonPath("$.languages.length()").value(1))
@@ -402,11 +335,6 @@ public class ApplicationUserControllerTest {
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
                             .contentType(MediaType.APPLICATION_JSON)
             )
-
-            // debug, prints a shit of info (remove this line, when not needed)
-            .andDo(print())
-
-            // validate the response
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.languages").isArray())
             .andExpect(jsonPath("$.languages.length()").value(0));
@@ -438,6 +366,10 @@ public class ApplicationUserControllerTest {
                 .next();
         
         return language;
+    }
+    
+    private String createForbiddenJwt() {
+        return this.createJwt("forbidden@forbidden.com");
     }
     
     private String createJwt(String mail) {

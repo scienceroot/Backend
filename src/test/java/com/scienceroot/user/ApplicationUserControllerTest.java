@@ -105,7 +105,7 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
-    public void updateUserNotAllowed() throws Exception {
+    public void updateUserForbidden() throws Exception {
         String wrongJwt = this.createForbiddenJwt();
         
         this.mockMvc
@@ -136,6 +136,21 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.jobs[0].startYear").value(jobToAdd.getStartYear()))
             .andExpect(jsonPath("$.jobs[0].endMonth").value(jobToAdd.getEndMonth()))
             .andExpect(jsonPath("$.jobs[0].endYear").value(jobToAdd.getEndYear()));
+    }
+    
+    @Test
+    public void addUserJobForbidden() throws Exception {
+        String wrongJwt = this.createForbiddenJwt();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Job jobToAdd = new Job("CEO", 1, 2017, 1, 2018, this.currentUser, "Scienceroot", this.getIndustry());
+        
+        this.mockMvc
+            .perform(post("/users/" + this.currentUser.getId() + "/jobs")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", wrongJwt)
+                            .content(ow.writeValueAsString(jobToAdd))
+            )
+            .andExpect(status().isForbidden());
     }
     
     

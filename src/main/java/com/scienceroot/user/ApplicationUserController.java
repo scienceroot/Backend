@@ -77,6 +77,7 @@ public class ApplicationUserController {
 
     /**
      *
+     * @param token
      * @param id
      * @param user
      * @return
@@ -163,6 +164,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param job
      * @return
@@ -170,11 +172,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
     public ApplicationUser addUserJob(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @RequestBody Job job
     ) {
-
-        ApplicationUser dbUser = getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        ApplicationUser dbUser = this.userService.findOne(userId);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.addJobToUser(user, job))

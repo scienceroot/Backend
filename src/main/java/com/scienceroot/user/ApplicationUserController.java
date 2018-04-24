@@ -68,7 +68,6 @@ public class ApplicationUserController {
     public ApplicationUser getById(
             @PathVariable("id") UUID id
     ) {
-
         ApplicationUser user = this.userService.findOne(id);
 
         return Optional.ofNullable(user)
@@ -90,7 +89,7 @@ public class ApplicationUserController {
             @RequestBody ApplicationUser user
     ) {
         String tokenUserMail = this.getJwtUserMail(token);
-        ApplicationUser dbUser = this.userService.findOne(id);
+        ApplicationUser dbUser = this.getById(id);
         
         if(!tokenUserMail.equals(dbUser.getMail())) {
             throw new ActionForbiddenException();
@@ -111,12 +110,17 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/follow/{toFollowId}", method = RequestMethod.POST)
     public ApplicationUser followUser(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @PathVariable("toFollowId") UUID toFollowId
     ) {
-
-        ApplicationUser dbUser = getById(userId);
         ApplicationUser toFollowUser = getById(toFollowId);
+        ApplicationUser dbUser = this.getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.followUser(user, toFollowUser))
@@ -126,6 +130,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param toUnfollowId
      * @return
@@ -133,12 +138,17 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/unfollow/{toUnfollowId}", method = RequestMethod.DELETE)
     public ApplicationUser unfollowUser(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @PathVariable("toUnfollowId") UUID toUnfollowId
     ) {
-
-        ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = this.getById(userId);
         ApplicationUser toUnfollowUser = getById(toUnfollowId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.unfollowUser(user, toUnfollowUser))
@@ -156,8 +166,7 @@ public class ApplicationUserController {
     public List<ApplicationUser> getUserFollowedBy(
             @PathVariable("id") UUID userId
     ) {
-
-        ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = this.getById(userId);
 
         return dbUser.getFollowedBy();
     }
@@ -177,7 +186,7 @@ public class ApplicationUserController {
             @RequestBody Job job
     ) {
         String tokenUserMail = this.getJwtUserMail(token);
-        ApplicationUser dbUser = this.userService.findOne(userId);
+        ApplicationUser dbUser = this.getById(userId);
         
         if(!tokenUserMail.equals(dbUser.getMail())) {
             throw new ActionForbiddenException();
@@ -191,6 +200,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param jobId
      * @return
@@ -198,11 +208,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs/{jobId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserJob(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @PathVariable("jobId") UUID jobId
     ) {
-
-        ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = this.getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.removeJobFromUser(user, jobId))
@@ -212,6 +227,7 @@ public class ApplicationUserController {
 
     /**
      *
+     * @param token
      * @param userId
      * @param interest
      * @return
@@ -219,11 +235,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
     public ApplicationUser addUserInterest(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @RequestBody Interest interest
     ) {
-
-        ApplicationUser dbUser = getById(userId);
+        ApplicationUser dbUser = this.getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.addInterestToUser(user, interest))
@@ -338,16 +359,25 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param contact
      * @return
      */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/contact", method = RequestMethod.POST)
-    public ApplicationUser updateUserContact(@PathVariable("id") UUID userId,
-            @RequestBody UserContact contact){
+    public ApplicationUser updateUserContact(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") UUID userId,
+            @RequestBody UserContact contact
+    ){
+        String tokenUserMail = this.getJwtUserMail(token);
+        ApplicationUser dbUser = this.getById(userId);
         
-        ApplicationUser dbUser = getById(userId);
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
+        
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.addContactToUser(user, contact))
                 .map(user -> userService.save(user))

@@ -126,6 +126,7 @@ public class ApplicationUserControllerTest {
             .perform(post("/users/" + this.currentUser.getId() + "/jobs")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(jobToAdd))
+                            .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
@@ -155,7 +156,7 @@ public class ApplicationUserControllerTest {
     
     
     @Test
-    public void followUser () throws Exception {
+    public void followUser() throws Exception {
         ApplicationUser toFollow = new ApplicationUser();
         toFollow.setLastname("Test2");
         toFollow.setForename("Test2");
@@ -163,7 +164,8 @@ public class ApplicationUserControllerTest {
         
         this.mockMvc
             .perform(post("/users/" + this.currentUser.getId() + "/follow/" + toFollow.getId())
-                .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.follows").isArray())
@@ -173,13 +175,32 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
-    public void unfollowUser () throws Exception {
+    public void followUserForbidden() throws Exception {
+        String wrongJwt = this.createForbiddenJwt();
+        ApplicationUser toFollow = new ApplicationUser();
+        toFollow.setLastname("Test2");
+        toFollow.setForename("Test2");
+        toFollow = this.service.save(toFollow);
+        
+        this.mockMvc
+            .perform(post("/users/" + this.currentUser.getId() + "/follow/" + toFollow.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", wrongJwt)
+            )
+            .andExpect(status().isForbidden());
+    }
+    
+    @Test
+    public void unfollowUserForbidden() throws Exception {
         ApplicationUser following = new ApplicationUser();
+        List<ApplicationUser> follows = new LinkedList<>();
+        String wrongJwt = this.createForbiddenJwt();
+        
         following.setLastname("Test2");
         following.setForename("Test2");
         following = this.service.save(following);
         
-        List<ApplicationUser> follows = new LinkedList<>();
+        
         follows.add(following);
         this.currentUser.setFollows(follows);
         this.service.save(this.currentUser);
@@ -187,10 +208,9 @@ public class ApplicationUserControllerTest {
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/unfollow/" + following.getId())
                 .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", wrongJwt)
             )
-            .andExpect(status().is(201))
-            .andExpect(jsonPath("$.follows").isArray())
-            .andExpect(jsonPath("$.follows.length()").value(0));
+            .andExpect(status().isForbidden());
     }
     
     @Test
@@ -237,6 +257,7 @@ public class ApplicationUserControllerTest {
             .perform(post("/users/" + this.currentUser.getId() + "/jobs")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(jobToAdd))
+                            .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
@@ -260,10 +281,28 @@ public class ApplicationUserControllerTest {
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.jobs").isArray())
             .andExpect(jsonPath("$.jobs.length()").value(0));
+    }
+    
+    @Test
+    public void removeUserJobForbidden() throws Exception {
+        Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
+        String wrongJwt = this.createForbiddenJwt();
+        
+        this.currentUser.addJob(jobToAdd);
+        this.jobRepository.save(jobToAdd);
+        this.repository.save(this.currentUser);
+        
+        this.mockMvc
+            .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", wrongJwt)  
+            )
+            .andExpect(status().isForbidden());
     }
     
     @Test
@@ -276,10 +315,27 @@ public class ApplicationUserControllerTest {
             .perform(post("/users/" + this.currentUser.getId() + "/interests")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(interestToAdd))
+                            .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.interests").isArray())
             .andExpect(jsonPath("$.interests[0].name").value(interestToAdd.getName()));
+    }
+    
+    @Test
+    public void addUserInterestForbidden() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Interest interestToAdd = this.getInterest();
+        String wrongJwt = this.createForbiddenJwt();
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/interests")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(interestToAdd))
+                            .header("Authorization", wrongJwt)
+            )
+            .andExpect(status().isForbidden());
     }
     
     @Test
@@ -295,10 +351,29 @@ public class ApplicationUserControllerTest {
             .perform(post("/users/" + this.currentUser.getId() + "/contact")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(contact))
+                            .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.contact.phone").value(contact.getPhone()))
             .andExpect(jsonPath("$.contact.skype").value(contact.getSkype()));
+    }
+    
+    @Test
+    public void addUserContactForbidden() throws Exception {
+        String wrongJwt = this.createForbiddenJwt();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        UserContact contact = new UserContact();
+        contact.setPhone("1234");
+        contact.setSkype("testskype");
+               
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/contact")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(contact))
+                            .header("Authorization", wrongJwt)
+            )
+            .andExpect(status().isForbidden());
     }
     
     @Test

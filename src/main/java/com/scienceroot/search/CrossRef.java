@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author husche
  */
-public class CrossRef {
+public class CrossRef extends Search {
 
     /**
      *
@@ -32,13 +32,11 @@ public class CrossRef {
         fieldNames.setAuthor("query.author=");
     }
 
-    private final SearchParameters fieldNames;
 
     /**
-     *
      * @param params
-     * @return
      */
+    @Override
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
@@ -48,20 +46,19 @@ public class CrossRef {
         if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + params.getAuthor().replace(' ', '+'));
         }
-        String query = String.join("&", searchVars);
-        return query;
+        return String.join("&", searchVars);
     }
 
     /**
      *
-     * @param url
      * @return
      */
-    public List<Paper> runSearch(String url) {
+    @Override
+    public List<Paper> runSearch() {
         LinkedList<Paper> papers = new LinkedList<>();
         try {
             StringBuilder content = new StringBuilder();
-            URL feedUrl = new URL(url);
+            URL feedUrl = new URL(this.url);
             URLConnection conn = feedUrl.openConnection();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;

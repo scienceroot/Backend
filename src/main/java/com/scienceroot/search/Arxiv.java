@@ -20,9 +20,7 @@ import java.util.List;
  *
  * @author husche
  */
-public class Arxiv {
-
-    private final SearchParameters fieldNames;
+public class Arxiv extends Search {
 
     /**
      *
@@ -38,11 +36,11 @@ public class Arxiv {
     /**
      *
      * @param params
-     * @return
      */
+    @Override
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
-        
+
         List<String> searchVars = new LinkedList<>();
         if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
             searchVars.add(fieldNames.getTitle() + params.getTitle());
@@ -53,19 +51,18 @@ public class Arxiv {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + params.getAbstract());
         }
-        String query = String.join("+AND+", searchVars);
-        return query;
+        return String.join("+AND+", searchVars);
     }
 
     /**
      *
-     * @param url
      * @return
      */
-    public List<Paper> runSearch(String url) {
+    @Override
+    public List<Paper> runSearch() {
         LinkedList<Paper> papers = new LinkedList<>();
         try {
-            URL feedUrl = new URL(url);
+            URL feedUrl = new URL(this.url);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedUrl));
 
@@ -91,6 +88,7 @@ public class Arxiv {
                 curPaper.setPublished(curEntry.getPublishedDate());
                 curPaper.setUpdated(curEntry.getUpdatedDate());
                 curPaper.setLink(linkArray);
+                curPaper.setSummary(curEntry.getDescription().getValue());
                 return curPaper;
             }).forEachOrdered((curPaper) -> {
                 papers.add(curPaper);

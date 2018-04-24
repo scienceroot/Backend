@@ -1,8 +1,10 @@
 package com.scienceroot.search;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -26,14 +28,18 @@ public class SearchService {
         CrossRef cr = new CrossRef();
         //TODO: dirty hack for now
         query = query.replaceAll(" ", "%20");
-        String arxivUrl = URL_ARXIV + "?search_query=ti:" + query;
+        String arxivUrl = URL_ARXIV + "?search_query=all:" + query;
         String plosUrl = URL_PLOS + "?q=everything:" + query + "&wt=json";
         String crossrefUrl = URL_CROSSREF + "?query=" + query;
         
+        arxiv.setUrl(arxivUrl);
+        plos.setUrl(plosUrl);
+        cr.setUrl(crossrefUrl);
+        
         List<Paper> retList = new ArrayList<>();
-        retList.addAll(arxiv.runSearch(arxivUrl));
-        retList.addAll(plos.runSearch(plosUrl));
-        retList.addAll(cr.runSearch(crossrefUrl));
+        retList.addAll(arxiv.runSearch());
+        retList.addAll(plos.runSearch());
+        retList.addAll(cr.runSearch());
         return retList;
     }
     
@@ -48,15 +54,18 @@ public class SearchService {
         CrossRef cr = new CrossRef();
         //TODO: dirty hack for now
         searchParams.correctParameters();
-        String arxivurl = URL_ARXIV + "?search_query=" + arxiv.createQueryString(searchParams);
-        String plosurl = URL_PLOS + "?q=" + plos.createQueryString(searchParams);
-        String crossurl = URL_CROSSREF + "?" + cr.createQueryString(searchParams);
-        List<Paper> retList = new ArrayList<>();
-        retList.addAll(arxiv.runSearch(arxivurl));
-        retList.addAll(plos.runSearch(plosurl));
-        retList.addAll(cr.runSearch(crossurl));
-
-        return retList;
+        String arxivUrl = URL_ARXIV + "?search_query=" + arxiv.createQueryString(searchParams);
+        String plosUrl = URL_PLOS + "?q=" + plos.createQueryString(searchParams);
+        String crossrefUrl = URL_CROSSREF + "?" + cr.createQueryString(searchParams);
+        
+        arxiv.setUrl(arxivUrl);
+        plos.setUrl(plosUrl);
+        cr.setUrl(crossrefUrl);
+        List<Search> searchList = Arrays.asList(arxiv, plos, cr);
+        List<Paper> retlist = new ArrayList();
+        searchList.parallelStream().map(Search::runSearch).forEachOrdered(v -> retlist.addAll(v));
+        
+        return retlist;
     }
     
 }

@@ -10,17 +10,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+/**
+ *
+ * @author husche
+ */
 @SpringBootApplication
 public class Application {
 
-	@Bean
+    /**
+     *
+     * @return
+     */
+    @Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-	public static void main(String[] args) {
+    /**
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
 		org.apache.log4j.BasicConfigurator.configure();
 		SpringApplication.run(Application.class, args);
 	}
-
 }

@@ -17,6 +17,10 @@ import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 import java.util.List;
 
+/**
+ *
+ * @author husche
+ */
 @CrossOrigin
 @RestController
 @RequestMapping("/users")
@@ -24,6 +28,10 @@ public class ApplicationUserController {
 
     private final ApplicationUserService userService;
 
+    /**
+     *
+     * @param applicationUserService
+     */
     @Autowired
     public ApplicationUserController(
             ApplicationUserService applicationUserService
@@ -31,6 +39,11 @@ public class ApplicationUserController {
         this.userService = applicationUserService;
     }
 
+    /**
+     *
+     * @param token
+     * @return
+     */
     @GetMapping(value = "/me")
     public ApplicationUser getMe(
             @RequestHeader(value = "Authorization", required = false) String token
@@ -46,6 +59,11 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public ApplicationUser getById(
             @PathVariable("id") UUID id
@@ -57,6 +75,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    /**
+     *
+     * @param id
+     * @param user
+     * @return
+     */
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ApplicationUser updateUser(
@@ -77,6 +101,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param toFollowId
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/follow/{toFollowId}", method = RequestMethod.POST)
     public ApplicationUser followUser(
@@ -93,6 +123,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param toUnfollowId
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/unfollow/{toUnfollowId}", method = RequestMethod.DELETE)
     public ApplicationUser unfollowUser(
@@ -109,6 +145,11 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @return
+     */
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
     public List<ApplicationUser> getUserFollowedBy(
@@ -120,6 +161,12 @@ public class ApplicationUserController {
         return dbUser.getFollowedBy();
     }
     
+    /**
+     *
+     * @param userId
+     * @param job
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs", method = RequestMethod.POST)
     public ApplicationUser addUserJob(
@@ -135,6 +182,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param jobId
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/jobs/{jobId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserJob(
@@ -150,6 +203,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    /**
+     *
+     * @param userId
+     * @param interest
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/interests", method = RequestMethod.POST)
     public ApplicationUser addUserInterest(
@@ -165,6 +224,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param skill
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/skills", method = RequestMethod.POST)
     public ApplicationUser addUserSkill(
@@ -180,6 +245,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param language
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/languages", method = RequestMethod.POST)
     public ApplicationUser addUserLanguage(
@@ -195,6 +266,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param languageId
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/languages/{languageId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserLanguage(
@@ -210,6 +287,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param interestId
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/interests/{interestId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserInterest(
@@ -225,6 +308,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param skill
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/skills", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserSkill(
@@ -240,6 +329,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param userId
+     * @param contact
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/contact", method = RequestMethod.POST)
     public ApplicationUser updateUserContact(@PathVariable("id") UUID userId,
@@ -252,6 +347,12 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    /**
+     *
+     * @param userId
+     * @param publicKey
+     * @return
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/publickey", method = RequestMethod.POST)
     public ApplicationUser updateUserPublicKey(
@@ -267,6 +368,10 @@ public class ApplicationUserController {
                 .orElseThrow(UserNotFoundException::new);
     }
     
+    /**
+     *
+     * @param mail
+     */
     @RequestMapping(value = "/reset", method = RequestMethod.POST)
     public void resetPassword(
             @RequestBody String mail){

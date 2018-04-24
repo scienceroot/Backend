@@ -17,5 +17,10 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface PostRepository extends CrudRepository<Post, UUID> {
 
+    /**
+     *
+     * @param creator
+     * @return
+     */
     public List<Post> findByCreator(ApplicationUser creator);    
 }

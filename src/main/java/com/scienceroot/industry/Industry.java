@@ -9,6 +9,10 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ *
+ * @author husche
+ */
 @Entity
 @Table(name = "industries")
 public class Industry implements Serializable {
@@ -20,14 +24,26 @@ public class Industry implements Serializable {
 	
     private String name;
 	
-	public String getName() {
+    /**
+     *
+     * @return
+     */
+    public String getName() {
 		return name;
 	}
 	
-	public void setName(String name) {
+    /**
+     *
+     * @param name
+     */
+    public void setName(String name) {
 		this.name = name;
 	}
 
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
 		return id;
 	}

@@ -5,13 +5,14 @@
  */
 package com.scienceroot.search;
 
-import com.rometools.rome.feed.synd.SyndEntry;
 import java.net.URL;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.feed.synd.SyndLink;
 import com.rometools.rome.feed.synd.SyndPerson;
+import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,10 +20,11 @@ import java.util.List;
  *
  * @author husche
  */
-public class Arxiv {
+public class Arxiv extends Search {
 
-    private final SearchParameters fieldNames;
-
+    /**
+     *
+     */
     public Arxiv() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("ti:");
@@ -31,8 +33,14 @@ public class Arxiv {
 
     }
 
+    /**
+     *
+     * @param params
+     */
+    @Override
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
+
         List<String> searchVars = new LinkedList<>();
         if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
             searchVars.add(fieldNames.getTitle() + params.getTitle());
@@ -43,18 +51,22 @@ public class Arxiv {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + params.getAbstract());
         }
-        String query = String.join("+AND+", searchVars);
-        return query;
+        return String.join("+AND+", searchVars);
     }
 
-    public List<Paper> runSearch(String url) {
+    /**
+     *
+     * @return
+     */
+    @Override
+    public List<Paper> runSearch() {
         LinkedList<Paper> papers = new LinkedList<>();
         try {
-            URL feedUrl = new URL(url);
+            URL feedUrl = new URL(this.url);
             SyndFeedInput input = new SyndFeedInput();
             SyndFeed feed = input.build(new XmlReader(feedUrl));
 
-            for (SyndEntry curEntry : feed.getEntries()) {
+            feed.getEntries().stream().map((curEntry) -> {
                 Paper curPaper = new Paper();
                 List<SyndPerson> authors = curEntry.getAuthors();
                 List<SyndLink> links = curEntry.getLinks();
@@ -76,9 +88,12 @@ public class Arxiv {
                 curPaper.setPublished(curEntry.getPublishedDate());
                 curPaper.setUpdated(curEntry.getUpdatedDate());
                 curPaper.setLink(linkArray);
+                curPaper.setSummary(curEntry.getDescription().getValue());
+                return curPaper;
+            }).forEachOrdered((curPaper) -> {
                 papers.add(curPaper);
-            }
-        } catch (Exception e) {
+            });
+        } catch (FeedException | IOException | IllegalArgumentException e) {
         }
         return papers;
     }

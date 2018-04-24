@@ -10,11 +10,21 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
 
+/**
+ *
+ * @author husche
+ */
 @ControllerAdvice
 public class ExceptionHandlingController {
 
     private Logger LOG = Logger.getLogger(ExceptionHandlingController.class.getName());
 
+    /**
+     *
+     * @param request
+     * @param ex
+     * @return
+     */
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
     public @ResponseBody
@@ -25,6 +35,12 @@ public class ExceptionHandlingController {
         return response;
     }
 
+    /**
+     *
+     * @param request
+     * @param ex
+     * @return
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalStateException.class)
     public @ResponseBody

@@ -9,10 +9,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ *
+ * @author husche
+ */
 @Component
 public class RestSecurityEntryPoint implements AuthenticationEntryPoint {
 
-	@Override
+    /**
+     *
+     * @param request
+     * @param response
+     * @param e
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException e) throws IOException, ServletException {
         response.setStatus(401);

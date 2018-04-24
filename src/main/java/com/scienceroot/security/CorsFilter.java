@@ -15,15 +15,32 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ *
+ * @author husche
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter implements Filter {
 
-@Override
+    /**
+     *
+     * @param fc
+     * @throws ServletException
+     */
+    @Override
 public void init(FilterConfig fc) throws ServletException {
 }
 
-@Override
+    /**
+     *
+     * @param req
+     * @param resp
+     * @param chain
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Override
 public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
     HttpServletResponse response = (HttpServletResponse) resp;
     HttpServletRequest request = (HttpServletRequest) req;
@@ -43,7 +60,10 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 }
 
-@Override
+    /**
+     *
+     */
+    @Override
 public void destroy() {
 }
 

@@ -24,6 +24,12 @@ public class PreprintService {
     
     private final String API_URL = "https://share.osf.io/api/v2/search/creativeworks/_search";
     
+    /**
+     *
+     * @param q
+     * @return
+     * @throws IOException
+     */
     public List<Preprint> search(String q) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

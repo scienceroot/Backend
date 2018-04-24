@@ -8,7 +8,9 @@ package com.scienceroot.search;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -19,16 +21,22 @@ import java.util.List;
  *
  * @author husche
  */
-public class CrossRef {
+public class CrossRef extends Search {
 
+    /**
+     *
+     */
     public CrossRef() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("query.title=");
         fieldNames.setAuthor("query.author=");
     }
 
-    private final SearchParameters fieldNames;
 
+    /**
+     * @param params
+     */
+    @Override
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
@@ -38,15 +46,19 @@ public class CrossRef {
         if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + params.getAuthor().replace(' ', '+'));
         }
-        String query = String.join("&", searchVars);
-        return query;
+        return String.join("&", searchVars);
     }
 
-    public List<Paper> runSearch(String url) {
+    /**
+     *
+     * @return
+     */
+    @Override
+    public List<Paper> runSearch() {
         LinkedList<Paper> papers = new LinkedList<>();
         try {
             StringBuilder content = new StringBuilder();
-            URL feedUrl = new URL(url);
+            URL feedUrl = new URL(this.url);
             URLConnection conn = feedUrl.openConnection();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;
@@ -66,7 +78,7 @@ public class CrossRef {
                 curPaper.setDOI(currObj.get("DOI").getAsString());
                 papers.add(curPaper);
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.toString());
             System.out.println(e.getMessage());
         }

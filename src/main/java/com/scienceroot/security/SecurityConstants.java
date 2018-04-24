@@ -13,11 +13,33 @@ import java.util.concurrent.TimeUnit;
  */
 public class SecurityConstants {
     
+    /**
+     *
+     */
     public static final String SECRET = "huehuehue";
 
+    /**
+     *
+     */
     public static final long EXPIRATION_TIME_IN_MILLIS = TimeUnit.DAYS.toMillis(10);
+
+    /**
+     *
+     */
     public static final String TOKEN_PREFIX = "Bearer ";
+
+    /**
+     *
+     */
     public static final String HEADER_STRING = "Authorization";
+
+    /**
+     *
+     */
     public static final String SIGN_UP_URL = "/register";
+
+    /**
+     *
+     */
     public static final String SIGN_IN_URL = "/login";
 }

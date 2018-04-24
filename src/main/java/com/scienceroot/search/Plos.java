@@ -11,7 +11,9 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.URLConnection;
 import java.util.List;
 
@@ -19,8 +21,11 @@ import java.util.List;
  *
  * @author husche
  */
-public class Plos {
+public class Plos extends Search {
 
+    /**
+     *
+     */
     public Plos() {
         fieldNames = new SearchParameters();
         fieldNames.setTitle("title:");
@@ -28,13 +33,16 @@ public class Plos {
         fieldNames.setAbstract("abstract:");
     }
 
-    private SearchParameters fieldNames;
-
+    /**
+     *
+     * @param params
+     */
+    @Override
     public String createQueryString(SearchParameters params) {
         //I'm 100% certain there's a better way to do this
         List<String> searchVars = new LinkedList<>();
         if (!"".equals(params.getTitle()) && !"".equals(fieldNames.getTitle())) {
-            searchVars.add(fieldNames.getTitle() + "\"" + params.getTitle() + "\"" );
+            searchVars.add(fieldNames.getTitle() + "\"" + params.getTitle() + "\"");
         }
         if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + "\"" + params.getAuthor() + "\"");
@@ -42,15 +50,20 @@ public class Plos {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + "\"" + params.getAbstract() + "\"");
         }
-        String query = String.join("%20AND%20", searchVars).concat("&wt=json");
-        return query;
+        return String.join("%20AND%20", searchVars).concat("&wt=json");
+
     }
 
-    public List<Paper> runSearch(String url) {
-        LinkedList<Paper> papers = new LinkedList<Paper>();
+    /**
+     *
+     * @return
+     */
+    @Override
+    public List<Paper> runSearch() {
+        LinkedList<Paper> papers = new LinkedList<>();
         try {
             StringBuilder content = new StringBuilder();
-            URL feedUrl = new URL(url);
+            URL feedUrl = new URL(this.url);
             URLConnection conn = feedUrl.openConnection();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 String line;
@@ -82,7 +95,7 @@ public class Plos {
                 //curPaper.setLink(linkArray);
                 papers.add(curPaper);
             }
-        } catch (Exception e) {
+        } catch (JsonSyntaxException | IOException e) {
             System.out.println(e.toString());
             System.out.println(e.getMessage());
         }

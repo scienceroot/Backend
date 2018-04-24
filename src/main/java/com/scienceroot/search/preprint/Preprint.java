@@ -8,20 +8,56 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ *
+ * @author husche
+ */
 public class Preprint implements Searchable {
     
+    /**
+     *
+     */
     public String id;
     
+    /**
+     *
+     */
     public String title;
+
+    /**
+     *
+     */
     public String description;
+
+    /**
+     *
+     */
     public List<String> authors;
     
+    /**
+     *
+     */
     public List<String> links;
     
+    /**
+     *
+     */
     public LocalDateTime created;
+
+    /**
+     *
+     */
     public LocalDateTime modified;
+
+    /**
+     *
+     */
     public LocalDateTime published;
 
+    /**
+     *
+     * @param json
+     */
     public Preprint(JsonNode json) {
         this.title = json.get("title").asText();
         this.description = json.get("description").asText();
@@ -54,6 +90,10 @@ public class Preprint implements Searchable {
        
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public SearchResult toSearchResult() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

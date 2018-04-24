@@ -155,6 +155,9 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Post> posts;
 
+    /**
+     *
+     */
     public ApplicationUser() {
         this.interests = new ArrayList<>();
         this.languages = new ArrayList<>();
@@ -164,6 +167,11 @@ public class ApplicationUser implements Serializable, Searchable {
         this.skills = new ArrayList<>();
     }
 
+    /**
+     *
+     * @param mail
+     * @param password
+     */
     public ApplicationUser(String mail, String password) {
         this.mail = mail;
         this.password = password;
@@ -172,6 +180,10 @@ public class ApplicationUser implements Serializable, Searchable {
         this.interests = new ArrayList<>();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public SearchResult toSearchResult() {
         SearchResult result = new SearchResult();
@@ -179,6 +191,11 @@ public class ApplicationUser implements Serializable, Searchable {
         return result;
     }
 
+    /**
+     *
+     * @param updatedUser
+     * @return
+     */
     public ApplicationUser update(ApplicationUser updatedUser) {
         
         this.setForename(updateAttribute(this.forename, updatedUser.forename));
@@ -193,119 +210,227 @@ public class ApplicationUser implements Serializable, Searchable {
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     @JsonGetter("uid")
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getForename() {
         return forename;
     }
 
+    /**
+     *
+     * @param forename
+     */
     public void setForename(String forename) {
         this.forename = forename;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getLastname() {
         return lastname;
     }
 
+    /**
+     *
+     * @param lastname
+     */
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
 
+    /**
+     *
+     * @return
+     */
     @JsonIgnore
     public String getPassword() {
         return password;
     }
 
+    /**
+     *
+     * @param password
+     */
     @JsonSetter("password")
     public void setPassword(String password) {
         this.password = password;
     }
     
+    /**
+     *
+     * @return
+     */
     public List<Job> getJobs() {
         return jobs;
     }
     
+    /**
+     *
+     * @param job
+     */
     public void addJob(Job job) {
         this.jobs.add(job);
     }
 
+    /**
+     *
+     * @return
+     */
     @JsonGetter("mail")
     public String getMail() {
         return mail;
     }
 
+    /**
+     *
+     * @param mail
+     */
     @JsonSetter("mail")
     public void setMail(String mail) {
         this.mail = mail;
     }
 
+    /**
+     *
+     * @return
+     */
     @JsonGetter("roles")
     public String[] getRoles() {
         return roles;
     }
 
+    /**
+     *
+     * @param roles
+     */
     @JsonSetter("roles")
     public void setRoles(String[] roles) {
         this.roles = roles;
     }
 
+    /**
+     *
+     * @return
+     */
     @JsonGetter("location")
     public Location getLocation() {
         return location;
     }
 
+    /**
+     *
+     * @param location
+     */
     @JsonSetter("location")
     public void setLocation(Location location) {
         this.location = location;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Skill> getSkills() {
         return skills;
     }
 
+    /**
+     *
+     * @param skills
+     */
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Interest> getInterests() {
         return interests;
     }
 
+    /**
+     *
+     * @param interest
+     */
     public void addInterest(Interest interest) {
         this.interests.add(interest);
     }
     
+    /**
+     *
+     * @param interest
+     */
     public void removeInterest(Interest interest) {
         this.interests.remove(interest);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getPublicKey() {
         return publicKey;
     }
 
+    /**
+     *
+     * @param publicKey
+     */
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Language> getLanguages() {
         return languages;
     }
 
+    /**
+     *
+     * @param languages
+     */
     public void setLanguages(List<Language> languages) {
         this.languages = languages;
     }
 
+    /**
+     *
+     * @return
+     */
     public UserContact getContact() {
         return contact;
     }
 
+    /**
+     *
+     * @param contact
+     */
     public void setContact(UserContact contact) {
         this.contact = contact;
     }

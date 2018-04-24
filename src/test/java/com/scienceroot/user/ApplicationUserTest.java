@@ -48,8 +48,8 @@ public class ApplicationUserTest {
             
         Job job = new Job();
         job.employer = "Scienceroot";
-        job.title = "Tester";
-        job.user = this.currentUser;
+        job.setTitle("Tester");
+        job.setUser(this.currentUser);
         
         this.userService.addJobToUser(this.currentUser, job);
         this.currentUser = this.userService.save(this.currentUser);

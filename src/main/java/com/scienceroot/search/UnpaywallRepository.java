@@ -3,14 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.scienceroot.user.language;
+package com.scienceroot.search;
 
-/**
- *
- * @author husche
- */
-
-import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -19,15 +13,14 @@ import org.springframework.data.repository.query.Param;
  *
  * @author husche
  */
-public interface LanguageRepository extends CrudRepository<Language, Long>{
+public interface UnpaywallRepository extends CrudRepository<Unpaywall, String>{
     
     /**
      *
-     * @param query
+     * @param doi
      * @return
      */
-    @Query("SELECT lang " +
-            "FROM Language lang " +
-            "WHERE lang.name like concat('%', :query, '%')")
-    List<Language> search(@Param("query") String query);
+    @Query("select url from Unpaywall t where doi = :doi")
+    String findOpenAccessLink(@Param("doi") String doi);
+    
 }

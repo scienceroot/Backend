@@ -19,6 +19,10 @@ import javax.persistence.FetchType;
 import javax.persistence.SequenceGenerator;
 import org.hibernate.annotations.GenericGenerator;
 
+/**
+ *
+ * @author husche
+ */
 @Entity
 @Table(name = "jobs")
 public class Job {
@@ -30,33 +34,55 @@ public class Job {
     private UUID id;
 
     @Column
-    public String title;
+    private String title;
     
     @Column
-    public Integer startMonth;
+    private Integer startMonth;
+
     @Column
-    public Integer startYear;
+    private Integer startYear;
     
     @Column
-    public Integer endMonth;
+    private Integer endMonth;
+
     @Column
-    public Integer endYear;
+    private Integer endYear;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    public ApplicationUser user;
+    private ApplicationUser user;
 
+    /**
+     *
+     */
     @Column
     public String employer;
     
+    /**
+     *
+     */
     @JoinColumn
     @OneToOne()
     public Industry industry;
 
+    /**
+     *
+     */
     public Job() {
     }
 
+    /**
+     *
+     * @param title
+     * @param startMonth
+     * @param startYear
+     * @param endMonth
+     * @param endYear
+     * @param user
+     * @param employer
+     * @param industry
+     */
     public Job(String title, Integer startMonth, Integer startYear, Integer endMonth, Integer endYear, ApplicationUser user, String employer, Industry industry) {
         this.title = title;
         this.startMonth = startMonth;
@@ -68,29 +94,99 @@ public class Job {
         this.industry = industry;
     }
     
-    
-
+    /**
+     *
+     * @return
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEmployer() {
         return employer;
     }
 
+    /**
+     *
+     * @param employer
+     */
     public void setEmployer(String employer) {
         this.employer = employer;
     }
 
+    /**
+     *
+     * @return
+     */
     public Industry getIndustry() {
         return industry;
     }
 
+    /**
+     *
+     * @param industry
+     */
     public void setIndustry(Industry industry) {
         this.industry = industry;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Integer getStartMonth() {
+        return startMonth;
+    }
+
+    public void setStartMonth(Integer startMonth) {
+        this.startMonth = startMonth;
+    }
+
+    public Integer getStartYear() {
+        return startYear;
+    }
+
+    public void setStartYear(Integer startYear) {
+        this.startYear = startYear;
+    }
+
+    public Integer getEndMonth() {
+        return endMonth;
+    }
+
+    public void setEndMonth(Integer endMonth) {
+        this.endMonth = endMonth;
+    }
+
+    public Integer getEndYear() {
+        return endYear;
+    }
+
+    public void setEndYear(Integer endYear) {
+        this.endYear = endYear;
+    }
+
+    public ApplicationUser getUser() {
+        return user;
+    }
+
+    public void setUser(ApplicationUser user) {
+        this.user = user;
     }
 }

@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ *
+ * @author husche
+ */
 @CrossOrigin
 @RestController
 @RequestMapping("/industries")
@@ -17,16 +21,30 @@ public class IndustryController {
 
     private IndustryRepository industryRepository;
 
+    /**
+     *
+     * @param industryRepository
+     */
     public IndustryController(@Autowired IndustryRepository industryRepository) {
         this.industryRepository = industryRepository;
     }
 
-
+    /**
+     *
+     * @param query
+     * @return
+     */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Industry> getByName(@RequestParam(name = "q") String query) {
         return this.industryRepository.findByContainsName(query);
     }
 
+    /**
+     *
+     * @param industry
+     * @return
+     * @throws JsonProcessingException
+     */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity create(@RequestBody Industry industry) throws JsonProcessingException {
         if(industry.getName() != null) {

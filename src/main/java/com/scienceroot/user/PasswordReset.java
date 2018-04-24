@@ -17,6 +17,9 @@ public class PasswordReset {
 
     private final Configuration config;
 
+    /**
+     *
+     */
     public PasswordReset() {
         this.config = new Configuration()
                 .apiKey("key-3c14d95e94ff3515c69e2a9199d1a127")
@@ -25,6 +28,11 @@ public class PasswordReset {
 
     }
 
+    /**
+     *
+     * @param mail
+     * @return
+     */
     public Boolean sendPasswordMail(String mail) {
         Response resp = Mail.using(config)
                 .to(mail)

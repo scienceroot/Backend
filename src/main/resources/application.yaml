@@ -1,5 +1,6 @@
 spring:
   datasource:
+    primary:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: Password.1
@@ -18,6 +19,7 @@ logging:
   level: info
   level.root: info
   level.org.hibernate: error
+
 ---
 spring:
   profiles: staging

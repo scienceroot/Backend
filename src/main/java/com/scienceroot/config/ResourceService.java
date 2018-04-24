@@ -8,18 +8,31 @@ import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
 
+/**
+ *
+ * @author husche
+ */
 @Service
 public class ResourceService {
 
 	private Logger LOG = Logger.getLogger(ResourceService.class.getName());
 	private Environment environment;
 
-	@Autowired
+    /**
+     *
+     * @param environment
+     */
+    @Autowired
 	public ResourceService(Environment environment) {
 		this.environment = environment;
 	}
 
-	public Resource loadFromResourcesFolder(String filename) {
+    /**
+     *
+     * @param filename
+     * @return
+     */
+    public Resource loadFromResourcesFolder(String filename) {
 
 		LOG.info("loading file '" + filename + "'");
 

@@ -1,5 +1,6 @@
 package com.scienceroot.user;
 
+import com.scienceroot.security.ActionForbiddenException;
 import com.scienceroot.user.skill.Skill;
 import com.scienceroot.user.language.Language;
 import com.scienceroot.user.job.Job;
@@ -25,7 +26,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class ApplicationUserController {
 
-    private ApplicationUserService userService;
+    private final ApplicationUserService userService;
 
     /**
      *
@@ -83,10 +84,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public ApplicationUser updateUser(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID id,
             @RequestBody ApplicationUser user
     ) {
+        String tokenUserMail = this.getJwtUserMail(token);
         ApplicationUser dbUser = this.userService.findOne(id);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
         
         return Optional.ofNullable(dbUser)
                 .map(oldUser -> oldUser.update(user))
@@ -370,6 +377,16 @@ public class ApplicationUserController {
             @RequestBody String mail){
         
         
+    }
+    
+    private String getJwtUserMail(String token) {
+        String mail = Jwts.parser()
+            .setSigningKey(SECRET.getBytes())
+            .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+            .getBody()
+            .getSubject();
+        
+        return mail;
     }
     
 }

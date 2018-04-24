@@ -8,9 +8,14 @@ import com.scienceroot.industry.Industry;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.interest.InterestRepository;
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
+import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
@@ -27,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import org.springframework.security.core.userdetails.User;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,6 +61,7 @@ public class ApplicationUserControllerTest {
     @Autowired private JobRepository jobRepository;
 
     private ApplicationUser currentUser;
+    private String jwt;
 
     @Before
     public void setUp() throws Exception {
@@ -63,6 +70,8 @@ public class ApplicationUserControllerTest {
             this.currentUser.setForename("Test");
             this.currentUser.setMail("test@test.de");
             this.currentUser = this.service.save(this.currentUser);
+            
+            this.jwt = this.createJwt(this.currentUser.getMail());
             
             // just to be sure, you can validate the start settings, defined in setUp()
             assertThat(this.currentUser, notNullValue());
@@ -81,6 +90,7 @@ public class ApplicationUserControllerTest {
             // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(put("/users/" + this.currentUser.getId())
                             .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", this.jwt)
                             .content("{\"lastname\":\"Test-Updated\"}"))
 
             // debug, prints a shit of info (remove this line, when not needed)
@@ -98,6 +108,21 @@ public class ApplicationUserControllerTest {
         assertThat(updatedUser, notNullValue());
         assertThat(updatedUser.getLastname(), is("Test-Updated"));
         assertThat(updatedUser.getForename(), is("Test"));
+    }
+    
+    @Test
+    public void updateUserNotAllowed() throws Exception {
+        String wrongJwt = this.createJwt("unallowed@unallowed.com");
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(put("/users/" + this.currentUser.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", wrongJwt)
+                            .content("{\"lastname\":\"Test-Updated\"}"))
+            .andDo(print())
+            .andExpect(status().isForbidden())
+            .andReturn();
     }
     
     @Test
@@ -413,5 +438,13 @@ public class ApplicationUserControllerTest {
                 .next();
         
         return language;
+    }
+    
+    private String createJwt(String mail) {
+        return Jwts.builder()
+                .setSubject(mail)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
+                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .compact();
     }
 }

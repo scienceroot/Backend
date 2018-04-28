@@ -275,6 +275,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param language
      * @return
@@ -282,11 +283,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/languages", method = RequestMethod.POST)
     public ApplicationUser addUserLanguage(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @RequestBody Language language
     ) {
-
         ApplicationUser dbUser = getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.addLanguageToUser(user, language))
@@ -296,6 +302,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param languageId
      * @return
@@ -303,11 +310,16 @@ public class ApplicationUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/languages/{languageId}", method = RequestMethod.DELETE)
     public ApplicationUser deleteUserLanguage(
+            @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @PathVariable("languageId") UUID languageId
     ) {
-
         ApplicationUser dbUser = getById(userId);
+        String tokenUserMail = this.getJwtUserMail(token);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
 
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.removeLanguageFromUser(user, languageId))

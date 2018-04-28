@@ -401,8 +401,9 @@ public class ApplicationUserControllerTest {
         this.mockMvc
             // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/languages")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(ow.writeValueAsString(languageToAdd))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(ow.writeValueAsString(languageToAdd))
+                    .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.languages").isArray())
@@ -423,11 +424,47 @@ public class ApplicationUserControllerTest {
         this.mockMvc
             // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
-                            .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", this.jwt)
             )
             .andExpect(status().is(201))
             .andExpect(jsonPath("$.languages").isArray())
             .andExpect(jsonPath("$.languages.length()").value(0));
+    }
+    
+    @Test
+    public void addUserLanguageForbidden() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Language language = this.getLanguage();
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(post("/users/" + this.currentUser.getId() + "/languages")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ow.writeValueAsString(language))
+                            .header("Authorization", this.createForbiddenJwt())
+            )
+            .andExpect(status().is(403));
+    }
+    
+    @Test
+    public void removeUserLanguageForbidden() throws Exception {
+        Language userLanguage = this.getLanguage();
+        List<Language> userLanguages = new ArrayList();
+               
+        userLanguages.add(userLanguage);
+        
+        this.currentUser.setLanguages(userLanguages);
+        this.repository.save(this.currentUser);
+        
+        this.mockMvc
+            // define your request url (PUT of '/users/{uuid}'), content, ...
+            .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", this.createForbiddenJwt())
+                           
+            )
+            .andExpect(status().is(403));
     }
     
     private Interest getInterest() {

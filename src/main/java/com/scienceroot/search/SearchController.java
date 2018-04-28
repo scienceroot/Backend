@@ -158,6 +158,7 @@ public class SearchController {
     @RequestMapping(value = "/languages", method = RequestMethod.GET)
     public List<Language> searchLanguages(
             @RequestParam("q") String q) {
+        System.out.println(q);
         return applicationUserService.searchLanguage(q);
     }
 

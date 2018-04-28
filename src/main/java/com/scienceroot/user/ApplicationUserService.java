@@ -77,7 +77,7 @@ public class ApplicationUserService {
      * @param query
      * @return
      */
-    @Query("SELECT lang FROM Language lang WHERE lower(lang.name) like lower(concat('%', :query, '%')) ")
+    
     public List<Language> searchLanguage(String query){
         return languageRepository.search(query);
     }

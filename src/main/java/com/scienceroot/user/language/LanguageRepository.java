@@ -26,8 +26,13 @@ public interface LanguageRepository extends CrudRepository<Language, Long>{
      * @param query
      * @return
      */
-    @Query("SELECT lang " +
-            "FROM Language lang " +
-            "WHERE lang.name like concat('%', :query, '%')")
+    @Query("SELECT lang FROM Language lang WHERE lower(lang.name) like concat('%', lower(:query), '%') ")
     List<Language> search(@Param("query") String query);
+    
+    /**
+     *
+     * @param name
+     * @return
+     */
+    List<Language> findByNameContaining(String name);
 }

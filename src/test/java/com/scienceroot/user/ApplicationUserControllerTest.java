@@ -189,6 +189,47 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
+    public void isFollowingUserTrue() throws Exception {
+        ApplicationUser following = new ApplicationUser();
+        List<ApplicationUser> follows = new LinkedList<>();
+        
+        following.setLastname("Test2");
+        following.setForename("Test2");
+        following = this.service.save(following);
+        
+        
+        follows.add(following);
+        this.currentUser.setFollows(follows);
+        this.service.save(this.currentUser);
+        
+        this.mockMvc
+            .perform(get("/users/" + this.currentUser.getId() + "/isFollowing/" + following.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", this.jwt)
+            )
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$.lastname").value(following.getLastname()))
+            .andExpect(jsonPath("$.forename").value(following.getForename()));
+    }
+    
+    @Test
+    public void isFollowingUserFalse() throws Exception {
+        ApplicationUser following = new ApplicationUser();
+        
+        following.setLastname("Test2");
+        following.setForename("Test2");
+        
+        following = this.service.save(following);
+        
+        this.mockMvc
+            .perform(get("/users/" + this.currentUser.getId() + "/isFollowing/" + following.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", this.jwt)
+            )
+            .andExpect(status().isNotFound());
+    }
+    
+    @Test
     public void unfollowUserForbidden() throws Exception {
         ApplicationUser following = new ApplicationUser();
         List<ApplicationUser> follows = new LinkedList<>();

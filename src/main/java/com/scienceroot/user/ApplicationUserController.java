@@ -103,6 +103,7 @@ public class ApplicationUserController {
     
     /**
      *
+     * @param token
      * @param userId
      * @param toFollowId
      * @return
@@ -125,6 +126,31 @@ public class ApplicationUserController {
         return Optional.ofNullable(dbUser)
                 .map(user -> userService.followUser(user, toFollowUser))
                 .map(user -> userService.save(user))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    /**
+     *
+     * @param token
+     * @param userId
+     * @param isFollowingId
+     * @return
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/isFollowing/{isFollowingId}", method = RequestMethod.GET)
+    public ApplicationUser isFollowingUser(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") UUID userId,
+            @PathVariable("isFollowingId") UUID isFollowingId
+    ) {
+        ApplicationUser isFollowing = getById(isFollowingId);
+        ApplicationUser dbUser = this.getById(userId);
+        
+        if(!dbUser.getFollows().contains(isFollowing)) {
+            throw new ResourceNotFoundException();
+        }
+
+        return Optional.ofNullable(isFollowing)
                 .orElseThrow(UserNotFoundException::new);
     }
     

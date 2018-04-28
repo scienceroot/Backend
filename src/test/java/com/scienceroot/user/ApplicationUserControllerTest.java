@@ -73,7 +73,6 @@ public class ApplicationUserControllerTest {
             
             this.jwt = this.createJwt(this.currentUser.getMail());
             
-            // just to be sure, you can validate the start settings, defined in setUp()
             assertThat(this.currentUser, notNullValue());
             assertThat(this.currentUser.getLastname(), is("Test"));
     }
@@ -97,7 +96,6 @@ public class ApplicationUserControllerTest {
             .andExpect(jsonPath("$.mail").value("test@test.de"))
             .andReturn();
 
-        // of course you can validate the state in the backend too
         ApplicationUser updatedUser = this.repository.findOne(this.currentUser.getId());
         assertThat(updatedUser, notNullValue());
         assertThat(updatedUser.getLastname(), is("Test-Updated"));
@@ -311,7 +309,6 @@ public class ApplicationUserControllerTest {
         Interest interestToAdd = this.getInterest();
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/interests")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(interestToAdd))
@@ -329,7 +326,6 @@ public class ApplicationUserControllerTest {
         String wrongJwt = this.createForbiddenJwt();
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/interests")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(interestToAdd))
@@ -347,7 +343,6 @@ public class ApplicationUserControllerTest {
                
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/contact")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(contact))
@@ -367,7 +362,6 @@ public class ApplicationUserControllerTest {
         contact.setSkype("testskype");
                
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/contact")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(contact))
@@ -399,7 +393,6 @@ public class ApplicationUserControllerTest {
         Language languageToAdd = this.getLanguage();
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/languages")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(ow.writeValueAsString(languageToAdd))
@@ -422,7 +415,6 @@ public class ApplicationUserControllerTest {
         this.repository.save(this.currentUser);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.jwt)
@@ -438,7 +430,6 @@ public class ApplicationUserControllerTest {
         Language language = this.getLanguage();
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(post("/users/" + this.currentUser.getId() + "/languages")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(ow.writeValueAsString(language))
@@ -458,7 +449,6 @@ public class ApplicationUserControllerTest {
         this.repository.save(this.currentUser);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.createForbiddenJwt())

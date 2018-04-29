@@ -43,6 +43,14 @@ public class PostService {
         return this.postRepository.save(s);
     }
     
+    public <S extends Post> void delete(S s) {
+        this.postRepository.delete(s);
+    }
+    
+    public Optional<Post> findById(UUID postId) {
+        return Optional.ofNullable(this.postRepository.findOne(postId));
+    }
+    
     /**
      *
      * @param creatorId

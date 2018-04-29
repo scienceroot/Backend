@@ -5,6 +5,7 @@ import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
+import com.scienceroot.user.ResourceNotFoundException;
 import com.scienceroot.user.UserNotFoundException;
 import io.jsonwebtoken.Jwts;
 import java.util.List;
@@ -66,6 +67,28 @@ public class PostController {
         }
         
         return this.postService.save(toCreate);
+    }
+    
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public Post delete(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") UUID postId
+    ) {
+        String mail = this.getJwtUserMail(token);
+        Optional<Post> toDelete = this.postService.findById(postId);
+        
+        if(!toDelete.isPresent()) {
+            throw new ResourceNotFoundException();
+        }
+        
+        if(!toDelete.get().getCreator().getMail().equals(mail)) {
+            throw new ActionForbiddenException();
+        } else {
+            this.postService.delete(toDelete.get());
+        }
+        
+        return toDelete.get();
     }
 
     /**

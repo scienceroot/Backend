@@ -4,11 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.InterestRepository;
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
+import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserRepository;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.user.language.LanguageRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -56,6 +61,7 @@ public class PostControllerTest {
     @Autowired private JobRepository jobRepository;
 
     private ApplicationUser currentUser;
+    private String jwt;
 
     @Before
     public void setUp() throws Exception {
@@ -64,9 +70,7 @@ public class PostControllerTest {
             this.currentUser.setForename("Test");
             this.currentUser = this.userService.save(this.currentUser);
             
-            // just to be sure, you can validate the start settings, defined in setUp()
-            assertThat(this.currentUser, notNullValue());
-            assertThat(this.currentUser.getLastname(), is("Test"));
+            this.jwt = this.createJwt(this.currentUser.getMail());
     }
 
     @After
@@ -93,14 +97,31 @@ public class PostControllerTest {
     }
     
     @Test
+    public void createPostForbidden() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Post toCreate = this.getTestPost();
+        
+        ApplicationUser wrongUser = new ApplicationUser();
+        wrongUser.setMail("wrong@wrong.com");
+        wrongUser = this.userService.save(wrongUser);
+        
+        toCreate.setCreator(wrongUser);
+        
+        this.mockMvc
+            .perform(post("/posts/")
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(ow.writeValueAsString(toCreate))
+            )
+            .andExpect(status().isForbidden());
+    }
+    
+    @Test
     public void getEmptyPostsByUserId() throws Exception {
         this.mockMvc
             .perform(get("/posts/user/" + this.currentUser.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            .andDo(print())
-
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(0));
@@ -115,9 +136,6 @@ public class PostControllerTest {
             .perform(get("/posts/user/" + this.currentUser.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            .andDo(print())
-
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1))
@@ -133,5 +151,13 @@ public class PostControllerTest {
         toCreate.setCreator(this.currentUser);
         
         return toCreate;
+    }
+    
+    private String createJwt(String mail) {
+        return Jwts.builder()
+                .setSubject(mail)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
+                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .compact();
     }
 }

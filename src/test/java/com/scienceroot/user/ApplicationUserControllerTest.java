@@ -253,6 +253,42 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
+    public void getEmptyFollowers () throws Exception { 
+        this.mockMvc
+            .perform(get("/users/" + this.currentUser.getId() + "/follows")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+    
+    @Test
+    public void getFolloweres () throws Exception {
+        ApplicationUser follower = new ApplicationUser();
+        List<ApplicationUser> follows = new LinkedList<>();
+        
+        follower.setLastname("Test2");
+        follower.setForename("Test2");
+        follower = this.service.save(follower);
+        
+        follows.add(follower);
+
+        this.currentUser.setFollows(follows);
+        this.currentUser = this.service.save(this.currentUser);
+        
+        this.mockMvc
+            .perform(get("/users/" + this.currentUser.getId() + "/follows")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].lastname").value(follower.getLastname()))
+            .andExpect(jsonPath("$[0].forename").value(follower.getForename()));
+    }
+    
+    @Test
     public void getEmptyFollowedBy () throws Exception { 
         this.mockMvc
             .perform(get("/users/" + this.currentUser.getId() + "/followedBy")

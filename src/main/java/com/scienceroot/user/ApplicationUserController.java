@@ -188,6 +188,21 @@ public class ApplicationUserController {
      * @return
      */
     @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/{id}/follows", method = RequestMethod.GET)
+    public List<ApplicationUser> getUserFollows(
+            @PathVariable("id") UUID userId
+    ) {
+        ApplicationUser dbUser = this.getById(userId);
+
+        return dbUser.getFollows();
+    }
+    
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
     public List<ApplicationUser> getUserFollowedBy(
             @PathVariable("id") UUID userId

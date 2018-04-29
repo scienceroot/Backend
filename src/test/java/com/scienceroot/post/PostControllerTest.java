@@ -127,7 +127,7 @@ public class PostControllerTest {
     
     private Post getTestPost() {
         Post toCreate = new Post();
-        String content = "Some random test post.";
+        String content = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lore";
         
         toCreate.setContent(content);
         toCreate.setCreator(this.currentUser);

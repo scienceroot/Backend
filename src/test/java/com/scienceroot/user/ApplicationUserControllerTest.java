@@ -12,6 +12,8 @@ import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILL
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
+import com.scienceroot.util.ApplicationUserHelper;
+import com.scienceroot.util.JwtHelper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.ArrayList;
@@ -32,12 +34,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import org.springframework.security.core.userdetails.User;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,21 +65,15 @@ public class ApplicationUserControllerTest {
 
     @Before
     public void setUp() throws Exception {
-            this.currentUser = new ApplicationUser();
-            this.currentUser.setLastname("Test");
-            this.currentUser.setForename("Test");
-            this.currentUser.setMail("test@test.de");
-            this.currentUser = this.service.save(this.currentUser);
-            
-            this.jwt = this.createJwt(this.currentUser.getMail());
-            
-            assertThat(this.currentUser, notNullValue());
-            assertThat(this.currentUser.getLastname(), is("Test"));
+        this.currentUser = ApplicationUserHelper.getTestUser();
+        this.currentUser = this.service.save(this.currentUser);
+        
+        this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
     }
 
     @After
     public void tearDown() throws Exception {
-            this.repository.deleteAll();
+        this.repository.deleteAll();
     }
 
     @Test
@@ -563,14 +557,6 @@ public class ApplicationUserControllerTest {
     }
     
     private String createForbiddenJwt() {
-        return this.createJwt("forbidden@forbidden.com");
-    }
-    
-    private String createJwt(String mail) {
-        return Jwts.builder()
-                .setSubject(mail)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
+        return JwtHelper.createJwt("forbidden@forbidden.com");
     }
 }

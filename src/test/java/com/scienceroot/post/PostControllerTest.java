@@ -1,25 +1,20 @@
 package com.scienceroot.post;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.InterestRepository;
-import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
-import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserRepository;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.user.language.LanguageRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Date;
-import java.util.List;
+import com.scienceroot.util.ApplicationUserHelper;
+import com.scienceroot.util.JwtHelper;
 import java.util.Optional;
 import java.util.UUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import org.hamcrest.core.IsNull;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
@@ -34,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,13 +63,10 @@ public class PostControllerTest {
 
     @Before
     public void setUp() throws Exception {
-            this.currentUser = new ApplicationUser();
-            this.currentUser.setLastname("Test");
-            this.currentUser.setForename("Test");
-            this.currentUser.setMail("test@test.com");
+            this.currentUser = ApplicationUserHelper.getTestUser();
             this.currentUser = this.userService.save(this.currentUser);
             
-            this.jwt = this.createJwt(this.currentUser.getMail());
+            this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
     }
 
     @After
@@ -85,14 +76,13 @@ public class PostControllerTest {
     
     @Test
     public void createPost() throws Exception {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Post toCreate = this.getTestPost();
+        Post toCreate = this.getCurrentUserPost();
         
         this.mockMvc
             .perform(post("/posts/")
                     .header("Authorization", this.jwt)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(ow.writeValueAsString(toCreate))
+                    .content(this.getPostAsString(toCreate))
             )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.creator.uid").value(this.currentUser.getId().toString()))
@@ -101,8 +91,7 @@ public class PostControllerTest {
     
     @Test
     public void createPostForbidden() throws Exception {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Post toCreate = this.getTestPost();
+        Post toCreate = this.getCurrentUserPost();
         
         ApplicationUser wrongUser = new ApplicationUser();
         wrongUser.setMail("wrong@wrong.com");
@@ -114,14 +103,14 @@ public class PostControllerTest {
             .perform(post("/posts/")
                     .header("Authorization", this.jwt)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(ow.writeValueAsString(toCreate))
+                    .content(this.getPostAsString(toCreate))
             )
             .andExpect(status().isForbidden());
     }
     
     @Test
     public void deletePost() throws Exception {
-        Post toDelete = this.getTestPost();
+        Post toDelete = this.getCurrentUserPost();
         
         toDelete = this.postService.save(toDelete);
         
@@ -139,7 +128,7 @@ public class PostControllerTest {
     
     @Test
     public void deletePostForbidden() throws Exception {
-        Post toDelete = this.getTestPost();
+        Post toDelete = this.getCurrentUserPost();
         ApplicationUser wrongUser = new ApplicationUser();
         
         wrongUser.setMail("wrong@wrong.com");
@@ -184,8 +173,7 @@ public class PostControllerTest {
     
     @Test
     public void getPostsByUserId() throws Exception {
-        Post post = this.getTestPost();
-        this.postService.save(post);
+        Post post = this.getCurrentUserPost();
         
         this.mockMvc
             .perform(get("/posts/user/" + this.currentUser.getId())
@@ -198,21 +186,27 @@ public class PostControllerTest {
             .andExpect(jsonPath("$[0].creator.uid").value(this.currentUser.getId().toString()));
     }
     
-    private Post getTestPost() {
+    public void getPostsFeed() {
+        
+    }
+    
+    private Post getCurrentUserPost() {
+        return this.getTestPost(this.currentUser);
+    }
+    
+    private Post getTestPost(ApplicationUser creator) {
         Post toCreate = new Post();
         String content = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lore";
         
         toCreate.setContent(content);
-        toCreate.setCreator(this.currentUser);
+        toCreate.setCreator(creator);
         
         return toCreate;
     }
     
-    private String createJwt(String mail) {
-        return Jwts.builder()
-                .setSubject(mail)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
+    private String getPostAsString(Post toString) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        
+        return ow.writeValueAsString(toString);
     }
 }

@@ -176,7 +176,7 @@ public class PostControllerTest {
     
     @Test
     public void getPostsByUserId() throws Exception {
-        Post post = this.getCurrentUserPost();
+        Post post = this.postService.save(this.getCurrentUserPost());
         
         this.mockMvc
             .perform(get("/posts/user/" + this.currentUser.getId())

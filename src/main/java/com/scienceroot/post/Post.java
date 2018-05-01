@@ -24,6 +24,7 @@ public class Post implements Serializable {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
     
+    @Column(columnDefinition = "TEXT")
     private String content;
     
     @ManyToOne()

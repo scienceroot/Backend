@@ -4,14 +4,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.InterestRepository;
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
+import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserRepository;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.user.language.LanguageRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import org.hamcrest.core.IsNull;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
@@ -24,6 +32,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,17 +65,17 @@ public class PostControllerTest {
     @Autowired private JobRepository jobRepository;
 
     private ApplicationUser currentUser;
+    private String jwt;
 
     @Before
     public void setUp() throws Exception {
             this.currentUser = new ApplicationUser();
             this.currentUser.setLastname("Test");
             this.currentUser.setForename("Test");
+            this.currentUser.setMail("test@test.com");
             this.currentUser = this.userService.save(this.currentUser);
             
-            // just to be sure, you can validate the start settings, defined in setUp()
-            assertThat(this.currentUser, notNullValue());
-            assertThat(this.currentUser.getLastname(), is("Test"));
+            this.jwt = this.createJwt(this.currentUser.getMail());
     }
 
     @After
@@ -81,15 +90,85 @@ public class PostControllerTest {
         
         this.mockMvc
             .perform(post("/posts/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(ow.writeValueAsString(toCreate))
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(ow.writeValueAsString(toCreate))
             )
-
-            .andDo(print())
-
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.creator.uid").value(this.currentUser.getId().toString()))
             .andExpect(jsonPath("$.content").value(toCreate.getContent()));
+    }
+    
+    @Test
+    public void createPostForbidden() throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        Post toCreate = this.getTestPost();
+        
+        ApplicationUser wrongUser = new ApplicationUser();
+        wrongUser.setMail("wrong@wrong.com");
+        wrongUser = this.userService.save(wrongUser);
+        
+        toCreate.setCreator(wrongUser);
+        
+        this.mockMvc
+            .perform(post("/posts/")
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(ow.writeValueAsString(toCreate))
+            )
+            .andExpect(status().isForbidden());
+    }
+    
+    @Test
+    public void deletePost() throws Exception {
+        Post toDelete = this.getTestPost();
+        
+        toDelete = this.postService.save(toDelete);
+        
+        this.mockMvc
+            .perform(delete("/posts/" + toDelete.getId())
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andReturn();
+        
+        Optional<Post> after = this.postService.findById(toDelete.getId());
+        assertThat(after.isPresent(), is(false));
+    }
+    
+    @Test
+    public void deletePostForbidden() throws Exception {
+        Post toDelete = this.getTestPost();
+        ApplicationUser wrongUser = new ApplicationUser();
+        
+        wrongUser.setMail("wrong@wrong.com");
+        wrongUser = this.userService.save(wrongUser);
+        
+        toDelete.setCreator(wrongUser);
+       
+        toDelete = this.postService.save(toDelete);
+        
+        this.mockMvc
+            .perform(delete("/posts/" + toDelete.getId())
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden())
+            .andReturn();
+    }
+    
+     @Test
+    public void deletePostNotExisting() throws Exception {
+        UUID notExisting = UUID.fromString("8589f23c-174e-471e-998c-9cbeb2893ae7");
+        
+        this.mockMvc
+            .perform(delete("/posts/" + notExisting)
+                    .header("Authorization", this.jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound())
+            .andReturn();
     }
     
     @Test
@@ -98,9 +177,6 @@ public class PostControllerTest {
             .perform(get("/posts/user/" + this.currentUser.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            .andDo(print())
-
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(0));
@@ -115,9 +191,6 @@ public class PostControllerTest {
             .perform(get("/posts/user/" + this.currentUser.getId())
                 .contentType(MediaType.APPLICATION_JSON)
             )
-
-            .andDo(print())
-
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1))
@@ -127,11 +200,19 @@ public class PostControllerTest {
     
     private Post getTestPost() {
         Post toCreate = new Post();
-        String content = "Some random test post.";
+        String content = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lore";
         
         toCreate.setContent(content);
         toCreate.setCreator(this.currentUser);
         
         return toCreate;
+    }
+    
+    private String createJwt(String mail) {
+        return Jwts.builder()
+                .setSubject(mail)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
+                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .compact();
     }
 }

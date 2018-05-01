@@ -1,15 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.scienceroot.search;
 
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
+import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.language.Language;
 import com.scienceroot.user.skill.Skill;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -26,13 +26,11 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- *
- * @author husche
- */
-@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestPropertySource("classpath:test-database.properties")
@@ -47,19 +45,22 @@ public class SearchControllerTest {
     @Autowired
     private SearchService searchService;
 
+    
+    private ApplicationUser currentUser;
+    private String jwt;
+    
     public SearchControllerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
     }
 
     @Before
     public void setUp() {
+        this.currentUser = new ApplicationUser();
+        this.currentUser.setLastname("Test");
+        this.currentUser.setForename("Test");
+        this.currentUser.setMail("test@test.de");
+        this.currentUser = this.service.save(this.currentUser);
+
+        this.jwt = this.createJwt(this.currentUser.getMail());
     }
 
     @After
@@ -70,6 +71,7 @@ public class SearchControllerTest {
      * Test of search method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearch() throws IOException {
         String q = "";
         String type = "";
@@ -85,6 +87,7 @@ public class SearchControllerTest {
      * Test of searchPapers method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearchPapers() {
         String q = "";
         SearchController instance = null;
@@ -96,6 +99,7 @@ public class SearchControllerTest {
     }
     
     @Test
+    @Ignore
     public void testSearchpreprints() throws Exception {
         this.mockMvc.perform(get("/search/preprints")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,6 +111,7 @@ public class SearchControllerTest {
      * Test of searchPapersAdvanced method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearchPapersAdvanced() throws Exception {
         String title = "checkerboard";
         String author = "del_maestro";
@@ -123,6 +128,7 @@ public class SearchControllerTest {
      * Test of searchUsers method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearchUsers() throws Exception {
         String q = "";
         List<ApplicationUser> expResult = null;
@@ -137,6 +143,7 @@ public class SearchControllerTest {
      * Test of searchSkills method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearchSkills() {
         String q = "";
         SearchController instance = null;
@@ -151,14 +158,32 @@ public class SearchControllerTest {
      * Test of searchLanguages method, of class SearchController.
      */
     @Test
-    public void testSearchLanguages() {
-        String q = "";
-        SearchController instance = null;
-        List<Language> expResult = null;
-        List<Language> result = instance.searchLanguages(q);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSearchLanguages() throws Exception {
+        String q = "afrikaans";
+        
+        this.mockMvc
+            .perform(get("/search/languages")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", this.jwt)
+                            .param("q", q)
+            )
+                .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].name").value("Afrikaans"))
+            .andReturn();
     }
-
+    
+    private String createForbiddenJwt() {
+        return this.createJwt("forbidden@forbidden.com");
+    }
+    
+    private String createJwt(String mail) {
+        return Jwts.builder()
+                .setSubject(mail)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
+                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .compact();
+    }
 }

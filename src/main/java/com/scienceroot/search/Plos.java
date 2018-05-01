@@ -97,16 +97,20 @@ public class Plos extends Search {
                 }
 
                 curPaper.setAuthor(authorsArray);
-                curPaper.setTitle(currObj.get("title_display").getAsString());
-                curPaper.setDOI(currObj.get("id").getAsString());
-                curPaper.setJournalName(currObj.get("journal").getAsString());
-                curPaper.setSummary(currObj.get("abstract").getAsString());
+                if (currObj.has("title_display"))
+                    curPaper.setTitle(currObj.get("title_display").getAsString());
+                if (currObj.has("id"))
+                    curPaper.setDOI(currObj.get("id").getAsString());
+                if (currObj.has("journal"))
+                    curPaper.setJournalName(currObj.get("journal").getAsString());
+                if (currObj.has("abstract"))
+                    curPaper.setSummary(currObj.get("abstract").getAsString());
                 //curPaper.setPublished(currObj.get("publication_date").);
                 //curPaper.setUpdated(curEntry.getUpdatedDate());
                 //curPaper.setLink(linkArray);
                 papers.add(curPaper);
             }
-        } catch (JsonSyntaxException | IOException e) {
+        } catch (JsonSyntaxException | IOException | NullPointerException e) {
             System.out.println(e.toString());
             System.out.println(e.getMessage());
         }

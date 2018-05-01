@@ -72,6 +72,21 @@ public class ApplicationUserControllerTest {
     }
 
     @Test
+    public void getMe() throws Exception {
+        this.mockMvc
+            .perform(get("/users/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", this.jwt)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lastname").value(this.currentUser.getLastname()))
+            .andExpect(jsonPath("$.forename").value(this.currentUser.getForename()))
+            .andExpect(jsonPath("$.follows").doesNotExist())
+            .andExpect(jsonPath("$.followedBy").doesNotExist())
+            .andReturn();
+    }
+    
+    @Test
     public void updateUser() throws Exception {
         
         this.mockMvc
@@ -154,11 +169,12 @@ public class ApplicationUserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.jwt)
             )
-            .andExpect(status().is(201))
-            .andExpect(jsonPath("$.follows").isArray())
-            .andExpect(jsonPath("$.follows.length()").value(1))
-            .andExpect(jsonPath("$.follows[0].lastname").value(toFollow.getLastname()))
-            .andExpect(jsonPath("$.follows[0].forename").value(toFollow.getForename()));
+            .andExpect(status().is(201));
+        
+        
+        ApplicationUser test = this.service.findOne(this.currentUser.getId());
+        assertThat(test.getFollows().size(), is(1));
+        assertThat(test.getFollows().get(0).getId(), is(toFollow.getId()));
     }
     
     @Test

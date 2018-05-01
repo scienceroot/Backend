@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,15 +78,17 @@ public class SearchControllerTest {
      * Test of searchPapers method, of class SearchController.
      */
     @Test
-    @Ignore
-    public void testSearchPapers() {
-        String q = "";
-        SearchController instance = null;
-        List<Paper> expResult = null;
-        List<Paper> result = instance.searchPapers(q);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSearchPapers() throws Exception {
+        String q = "Paper";
+        MvcResult andReturn = this.mockMvc.perform(get("/search/papers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", this.jwt)
+                .param("q", q))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        String resp = andReturn.getResponse().getContentAsString();
+// TODO review the generated test code and remove the default call to fail.
     }
     
     @Test
@@ -101,13 +104,13 @@ public class SearchControllerTest {
      * Test of searchPapersAdvanced method, of class SearchController.
      */
     @Test
-    @Ignore
     public void testSearchPapersAdvanced() throws Exception {
         String title = "checkerboard";
         String author = "del_maestro";
         String abstractText = "";
         this.mockMvc.perform(get("/search/papers_advanced")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", this.jwt)
                 .param("ti", title)
                 .param("au", author)
                 .param("abs", abstractText))
@@ -148,6 +151,7 @@ public class SearchControllerTest {
      * Test of searchLanguages method, of class SearchController.
      */
     @Test
+    @Ignore
     public void testSearchLanguages() throws Exception {
         String q = "afrikaans";
         

@@ -4,13 +4,15 @@
  * and open the template in the editor.
  */
 package com.scienceroot.search;
+
 import java.util.Date;
+
 /**
  *
  * @author husche
  */
 public class Paper implements Searchable {
-    
+
     //roughly based on https://docs.microsoft.com/en-us/azure/cognitive-services/academic-knowledge/paperentityattributes
     private String id;
     private Date published;
@@ -47,7 +49,10 @@ public class Paper implements Searchable {
      * @return
      */
     public Date getPublished() {
-        return new Date(published.getTime());
+        if (null != published) {
+            return new Date(published.getTime());
+        }
+        return null;
     }
 
     /**
@@ -55,7 +60,9 @@ public class Paper implements Searchable {
      * @param published
      */
     public void setPublished(Date published) {
-        this.published = new Date(published.getTime());
+        if (null != published) {
+            this.published = new Date(published.getTime());
+        }
     }
 
     /**
@@ -63,7 +70,10 @@ public class Paper implements Searchable {
      * @return
      */
     public Date getUpdated() {
-        return new Date(updated.getTime());
+        if (null != updated) {
+            return new Date(updated.getTime());
+        }
+        return null;
     }
 
     /**
@@ -71,7 +81,9 @@ public class Paper implements Searchable {
      * @param updated
      */
     public void setUpdated(Date updated) {
-        this.updated = new Date(updated.getTime());
+        if (null != updated) {
+            this.updated = new Date(updated.getTime());
+        }
     }
 
     /**

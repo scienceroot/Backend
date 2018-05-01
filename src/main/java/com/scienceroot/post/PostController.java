@@ -38,6 +38,7 @@ public class PostController {
     /**
      *
      * @param postService
+     * @param userService
      */
     @Autowired
     public PostController(
@@ -67,6 +68,23 @@ public class PostController {
         }
         
         return this.postService.save(toCreate);
+    }
+    
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public List<Post> getFeed(
+        @RequestHeader("Authorization") String token
+    ) {
+        String mail = this.getJwtUserMail(token);
+        Optional<ApplicationUser> user = this.userService.findByMail(mail);
+        
+        if(!user.isPresent()) {
+            throw new UserNotFoundException();
+        }
+        
+        List<ApplicationUser> follows = user.get().getFollows();
+        
+        return this.postService.getByUsers(follows);
     }
     
     @ResponseStatus(HttpStatus.OK)

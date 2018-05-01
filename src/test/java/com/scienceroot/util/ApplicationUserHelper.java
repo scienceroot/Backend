@@ -16,4 +16,13 @@ public class ApplicationUserHelper {
         
         return testUser;
     }
+    
+    public static ApplicationUser getTestUser(String suffix) {
+        ApplicationUser testUser = new ApplicationUser();
+        testUser.setLastname("Test" + suffix);
+        testUser.setForename("Test" + suffix);
+        testUser.setMail("test"  + suffix + "@test.de");
+        
+        return testUser;
+    }
 }

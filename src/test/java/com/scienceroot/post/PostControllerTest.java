@@ -12,6 +12,8 @@ import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.user.language.LanguageRepository;
 import com.scienceroot.util.ApplicationUserHelper;
 import com.scienceroot.util.JwtHelper;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -186,8 +189,38 @@ public class PostControllerTest {
             .andExpect(jsonPath("$[0].creator.uid").value(this.currentUser.getId().toString()));
     }
     
-    public void getPostsFeed() {
+    @Test
+    public void getPostsFeed() throws Exception {
+        /**
+         * Create followed users for currentUser
+         */
+        ApplicationUser userA = this.userService.save(ApplicationUserHelper.getTestUser("A"));
+        ApplicationUser userB = this.userService.save(ApplicationUserHelper.getTestUser("B"));
         
+        List<ApplicationUser> follows = new LinkedList<>();
+        follows.add(userA);
+        follows.add(userB);
+        
+        this.currentUser.setFollows(follows);
+        this.currentUser = this.userService.save(this.currentUser);
+        
+        /**
+         * Create posts for followed users
+         */
+        this.postService.save(this.getTestPost(userA));
+        this.postService.save(this.getTestPost(userB));
+        
+        this.mockMvc
+            .perform(get("/posts/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", this.jwt)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].creator.uid").value(userA.getId().toString()))
+            .andExpect(jsonPath("$[1].creator.uid").value(userB.getId().toString()));
     }
     
     private Post getCurrentUserPost() {

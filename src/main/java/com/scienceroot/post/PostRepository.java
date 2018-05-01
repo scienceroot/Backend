@@ -14,4 +14,6 @@ public interface PostRepository extends CrudRepository<Post, UUID> {
      * @return
      */
     public List<Post> findByCreator(ApplicationUser creator);    
+    
+    public List<Post> findByCreatorIn(List<ApplicationUser> creator);    
 }

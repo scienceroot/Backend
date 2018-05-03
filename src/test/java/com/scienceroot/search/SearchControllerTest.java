@@ -1,21 +1,14 @@
 package com.scienceroot.search;
 
-import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
-import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
-import com.scienceroot.user.language.Language;
 import com.scienceroot.user.skill.Skill;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.scienceroot.util.ApplicationUserHelper;
+import com.scienceroot.util.JwtHelper;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
@@ -27,10 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,13 +48,10 @@ public class SearchControllerTest {
 
     @Before
     public void setUp() {
-        this.currentUser = new ApplicationUser();
-        this.currentUser.setLastname("Test");
-        this.currentUser.setForename("Test");
-        this.currentUser.setMail("test@test.de");
+        this.currentUser = ApplicationUserHelper.getTestUser();
         this.currentUser = this.service.save(this.currentUser);
 
-        this.jwt = this.createJwt(this.currentUser.getMail());
+        this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
     }
 
     @After
@@ -183,14 +170,6 @@ public class SearchControllerTest {
     }
     
     private String createForbiddenJwt() {
-        return this.createJwt("forbidden@forbidden.com");
-    }
-    
-    private String createJwt(String mail) {
-        return Jwts.builder()
-                .setSubject(mail)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
+        return JwtHelper.createJwt("forbidden@forbidden.com");
     }
 }

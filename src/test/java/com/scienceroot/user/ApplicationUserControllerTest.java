@@ -8,14 +8,11 @@ import com.scienceroot.industry.Industry;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.interest.InterestRepository;
-import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
-import static com.scienceroot.security.SecurityConstants.SECRET;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.scienceroot.util.ApplicationUserHelper;
+import com.scienceroot.util.JwtHelper;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
@@ -32,12 +29,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import org.springframework.security.core.userdetails.User;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,23 +60,32 @@ public class ApplicationUserControllerTest {
 
     @Before
     public void setUp() throws Exception {
-            this.currentUser = new ApplicationUser();
-            this.currentUser.setLastname("Test");
-            this.currentUser.setForename("Test");
-            this.currentUser.setMail("test@test.de");
-            this.currentUser = this.service.save(this.currentUser);
-            
-            this.jwt = this.createJwt(this.currentUser.getMail());
-            
-            assertThat(this.currentUser, notNullValue());
-            assertThat(this.currentUser.getLastname(), is("Test"));
+        this.currentUser = ApplicationUserHelper.getTestUser();
+        this.currentUser = this.service.save(this.currentUser);
+        
+        this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
     }
 
     @After
     public void tearDown() throws Exception {
-            this.repository.deleteAll();
+        this.repository.deleteAll();
     }
 
+    @Test
+    public void getMe() throws Exception {
+        this.mockMvc
+            .perform(get("/users/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", this.jwt)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.lastname").value(this.currentUser.getLastname()))
+            .andExpect(jsonPath("$.forename").value(this.currentUser.getForename()))
+            .andExpect(jsonPath("$.follows").doesNotExist())
+            .andExpect(jsonPath("$.followedBy").doesNotExist())
+            .andReturn();
+    }
+    
     @Test
     public void updateUser() throws Exception {
         
@@ -165,11 +169,12 @@ public class ApplicationUserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.jwt)
             )
-            .andExpect(status().is(201))
-            .andExpect(jsonPath("$.follows").isArray())
-            .andExpect(jsonPath("$.follows.length()").value(1))
-            .andExpect(jsonPath("$.follows[0].lastname").value(toFollow.getLastname()))
-            .andExpect(jsonPath("$.follows[0].forename").value(toFollow.getForename()));
+            .andExpect(status().is(201));
+        
+        
+        ApplicationUser test = this.service.findOne(this.currentUser.getId());
+        assertThat(test.getFollows().size(), is(1));
+        assertThat(test.getFollows().get(0).getId(), is(toFollow.getId()));
     }
     
     @Test
@@ -563,14 +568,6 @@ public class ApplicationUserControllerTest {
     }
     
     private String createForbiddenJwt() {
-        return this.createJwt("forbidden@forbidden.com");
-    }
-    
-    private String createJwt(String mail) {
-        return Jwts.builder()
-                .setSubject(mail)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
-                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
-                .compact();
+        return JwtHelper.createJwt("forbidden@forbidden.com");
     }
 }

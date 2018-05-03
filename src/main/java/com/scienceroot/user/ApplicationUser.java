@@ -129,16 +129,18 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Language> languages;
     
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "follows",
                 joinColumns = @JoinColumn(name = "user_id"),
                 inverseJoinColumns = @JoinColumn(name = "follows_id"))
+    @JsonIgnore
     private List<ApplicationUser> follows;
     
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "follows",
                 joinColumns = @JoinColumn(name = "follows_id"),
                 inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JsonIgnore
     private List<ApplicationUser> followedBy;
 
     @Column

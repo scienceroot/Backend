@@ -61,4 +61,8 @@ public class PostService {
         
         return this.postRepository.findByCreator(dbUser);
     }
+    
+    public List<Post> getByUsers(List<ApplicationUser> creators) {
+        return this.postRepository.findByCreatorIn(creators);
+    }
 }

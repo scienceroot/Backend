@@ -15,6 +15,7 @@ public abstract class Search {
     
     protected String url;
     protected SearchParameters fieldNames;
+    protected int maxResults = 40;
 
     public void createAdvancedUrl(SearchParameters params) {
     }

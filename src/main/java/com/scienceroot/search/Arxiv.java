@@ -22,9 +22,8 @@ import java.util.List;
  */
 public class Arxiv extends Search {
 
-    
     protected static final String URL_ARXIV = "http://export.arxiv.org/api/query";
-    
+
     /**
      *
      */
@@ -54,12 +53,12 @@ public class Arxiv extends Search {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + params.getAbstract());
         }
-        this.url = URL_ARXIV + "?search_query=" + String.join("+AND+", searchVars);
+        this.url = URL_ARXIV + "?search_query=" + String.join("+AND+", searchVars) + "&max_results=" + this.maxResults;
     }
-    
+
     @Override
-    public void createSimpleUrl(String query){
-        this.url = URL_ARXIV + "?search_query=all:" + query;
+    public void createSimpleUrl(String query) {
+        this.url = URL_ARXIV + "?search_query=all:" + query + "&max_results=" + this.maxResults;
     }
 
     /**

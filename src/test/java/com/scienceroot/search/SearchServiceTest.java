@@ -48,14 +48,11 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearch() {
-        String query = "electron microscope";
-        SearchService instance = new SearchService();
+        String query = "Paper";
+        SearchService instance = new SearchService(60);
         List<Paper> result = instance.search(query);
-        assertEquals(result.size(), 40);
+        assertEquals(60, result.size());
         
-        //assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
     }
 
     /**
@@ -63,25 +60,23 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearchAdvanced() {
-        SearchService instance = new SearchService();
+        SearchService instance = new SearchService(45);
         SearchParameters mp = new SearchParameters();
         mp.setTitle("electron microscope");
-        mp.setAbstract("analysis");
+        mp.setAbstract("electron");
         
         List<Paper> result = instance.searchAdvanced(mp);
-        assertEquals(result.size(), 30);
+        assertEquals(45, result.size());
     }
     
-    @Test
-    @Ignore
-    public void testSearchCache(){
-        String query = "DNA";
-
-        SearchService instance = new SearchService();
+    @Test 
+    public void testFilter(){
+        int maxResults = 20;
+        String query = "Paper";
+        SearchService instance = new SearchService(40);
         List<Paper> result = instance.search(query);
-        assertEquals(result.size(), 40);
-        result = instance.search(query);
-        assertEquals(result.size(), 40);
+        result = SearchFilter.filter(result, maxResults);
+        assertEquals(maxResults, result.size());
     }
     
 }

@@ -13,7 +13,15 @@ import java.util.stream.Collectors;
 @Service
 public class SearchService {
 
-    ;
+    private final int maxResults;
+    
+    public SearchService(){
+        this.maxResults = 20;
+    }
+    
+    public SearchService(int maxResults){
+        this.maxResults = maxResults;
+    }
     
 
     /**
@@ -36,7 +44,7 @@ public class SearchService {
         searchList.parallelStream()
                 .map(Search::runSearch)
                 .forEachOrdered(v -> retlist.addAll(v));
-        return retlist;
+        return SearchFilter.filter(retlist, maxResults);
     }
 
     /**
@@ -60,7 +68,7 @@ public class SearchService {
                 .map(Search::runSearch)
                 .forEachOrdered(v -> retlist.addAll(v));
 
-        return retlist;
+        return SearchFilter.filter(retlist, maxResults);
     }
 
 }

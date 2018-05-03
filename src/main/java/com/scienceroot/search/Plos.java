@@ -52,7 +52,7 @@ public class Plos extends Search {
         if (!"".equals(params.getAbstract()) && !"".equals(fieldNames.getAbstract())) {
             searchVars.add(fieldNames.getAbstract() + "\"" + params.getAbstract() + "\"");
         }
-        this.url = URL_PLOS + "?q=" + String.join("%20AND%20", searchVars).concat("&wt=json");
+        this.url = URL_PLOS + "?q=" + String.join("%20AND%20", searchVars).concat("&wt=json&rows="+this.maxResults);
 
     }
     
@@ -62,7 +62,7 @@ public class Plos extends Search {
      */
     @Override
     public void createSimpleUrl(String query){
-        this.url = URL_PLOS + "?q=everything:" + query + "&wt=json";
+        this.url = URL_PLOS + "?q=everything:" + query + "&wt=json&rows="+this.maxResults;
     }
 
     /**

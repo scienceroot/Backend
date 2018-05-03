@@ -50,12 +50,12 @@ public class CrossRef extends Search {
         if (!"".equals(params.getAuthor()) && !"".equals(fieldNames.getAuthor())) {
             searchVars.add(fieldNames.getAuthor() + params.getAuthor().replace(' ', '+'));
         }
-        this.url = URL_CROSSREF + "?" + String.join("&", searchVars);
+        this.url = URL_CROSSREF + "?query=" + String.join("&", searchVars) + "&rows=" + this.maxResults;
     }
     
     @Override
     public void createSimpleUrl(String query){
-        this.url = URL_CROSSREF + "?query=" + query;
+        this.url = URL_CROSSREF + "?query=" + query + "&rows=" + this.maxResults;
     }
 
     /**

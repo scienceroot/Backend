@@ -5,6 +5,11 @@
  */
 package com.scienceroot.user;
 
+import static com.scienceroot.security.SecurityConstants.EXPIRATION_TIME_IN_MILLIS;
+import static com.scienceroot.security.SecurityConstants.SECRET;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
@@ -34,10 +39,17 @@ public class PasswordReset {
      * @return
      */
     public Boolean sendPasswordMail(String mail) {
+        
+        String newToken = Jwts.builder()
+                .setSubject(mail)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLIS))
+                .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
+                .compact();
+                
         Response resp = Mail.using(config)
                 .to(mail)
                 .subject("Password reset")
-                .text("forgotten password")
+                .text("You seem to have forgotten your password, click here to change it: ")
                 .build()
                 .send();
         return resp.isOk();

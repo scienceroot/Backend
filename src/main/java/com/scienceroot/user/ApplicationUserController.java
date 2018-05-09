@@ -16,6 +16,7 @@ import java.util.UUID;
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 import java.util.List;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  *
@@ -27,16 +28,21 @@ import java.util.List;
 public class ApplicationUserController {
 
     private final ApplicationUserService userService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      *
      * @param applicationUserService
+     * @param bCryptPasswordEncoder
      */
     @Autowired
     public ApplicationUserController(
-            ApplicationUserService applicationUserService
+            ApplicationUserService applicationUserService,
+            @Autowired BCryptPasswordEncoder bCryptPasswordEncoder
     ) {
         this.userService = applicationUserService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        
     }
 
     /**
@@ -100,6 +106,32 @@ public class ApplicationUserController {
                 .map(tmpUser -> this.userService.save(tmpUser))
                 .orElseThrow(UserNotFoundException::new);
     }
+    
+    
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequestMapping(value = "/{id}/setPassword", method = RequestMethod.PUT)
+    public ApplicationUser updateUserPassword(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") UUID id,
+            @RequestBody String password
+    ) {
+        String tokenUserMail = this.getJwtUserMail(token);
+        ApplicationUser dbUser = this.getById(id);
+        
+        if(!tokenUserMail.equals(dbUser.getMail())) {
+            throw new ActionForbiddenException();
+        }
+        
+        String passwordHashed = bCryptPasswordEncoder.encode(password);
+        dbUser.setPassword(passwordHashed);
+        
+        return Optional.ofNullable(dbUser)
+                .map(tmpUser -> this.userService.save(tmpUser))
+                .orElseThrow(UserNotFoundException::new);
+    }
+    
+    
+    
     
     /**
      *
@@ -465,6 +497,8 @@ public class ApplicationUserController {
     @RequestMapping(value = "/reset", method = RequestMethod.POST)
     public void resetPassword(
             @RequestBody String mail){
+        PasswordReset pr = new PasswordReset();
+        pr.sendPasswordMail(mail);
         
         
     }

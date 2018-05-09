@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -41,6 +42,7 @@ public class PasswordResetTest {
      * Test of sendPasswordMail method, of class PasswordReset.
      */
     @Test
+    @Ignore
     public void testSendPasswordMail() {
         String mail = "frederik.huschebeck@gmail.com";
         PasswordReset instance = new PasswordReset();

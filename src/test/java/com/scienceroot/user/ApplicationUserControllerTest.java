@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -107,11 +108,31 @@ public class ApplicationUserControllerTest {
     }
     
     @Test
+    public void updatePassword() throws Exception{
+        String currentPassword = this.currentUser.getPassword();
+        this.mockMvc
+            .perform(put("/users/" + this.currentUser.getId() +"/setPassword")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", this.jwt)
+                            .content("{\"password\":\"newpw\"}"))
+            .andExpect(status().isNoContent())
+            .andExpect(jsonPath("$.forename").value("Test"))
+            .andExpect(jsonPath("$.mail").value("test@test.de"))
+            .andReturn();
+
+        ApplicationUser updatedUser = this.repository.findOne(this.currentUser.getId());
+        assertThat(updatedUser, notNullValue());
+        assertThat(updatedUser.getPassword(), not(currentPassword));
+        assertThat(updatedUser.getForename(), is("Test"));
+        
+    }
+    
+    @Test
     public void updateUserForbidden() throws Exception {
         String wrongJwt = this.createForbiddenJwt();
         
         this.mockMvc
-            .perform(put("/users/" + this.currentUser.getId())
+            .perform(put("/users/" + this.currentUser.getId() +"/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", wrongJwt)
                             .content("{\"lastname\":\"Test-Updated\"}"))

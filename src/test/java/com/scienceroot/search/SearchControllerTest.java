@@ -79,7 +79,7 @@ public class SearchControllerTest {
      */
     @Test
     public void testSearchPapers() throws Exception {
-        String q = "Paper";
+        String q = "Electron Microscope";
         MvcResult andReturn = this.mockMvc.perform(get("/search/papers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", this.jwt)

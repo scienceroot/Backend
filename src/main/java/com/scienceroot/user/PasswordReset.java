@@ -48,8 +48,8 @@ public class PasswordReset {
                 
         Response resp = Mail.using(config)
                 .to(mail)
-                .subject("Password reset")
-                .text("You seem to have forgotten your password, click here to change it: ")
+                .subject("ScienceRoot Password reset")
+                .text("You seem to have forgotten your password, click here to change it: demo.scienceroots.com/resetPassword?t=" + newToken )
                 .build()
                 .send();
         return resp.isOk();

@@ -23,7 +23,7 @@ public class Blockchain {
 
     private static final Logger LOG = Logger.getLogger(Blockchain.class.getName());
 
-    private static final String GENESIS_SEED_VAR_NAME = "scienceroot";
+    private static final String GENESIS_SEED = "scienceroot";
     private static final String NODE_URL = "https://scienceblock.org";
     private static final char NETWORK_ID = 'D';
     
@@ -63,9 +63,19 @@ public class Blockchain {
         return true;
     }
     
-    private PrivateKeyAccount getGenesisAccount() {
-        String seed = System.getenv(Blockchain.GENESIS_SEED_VAR_NAME);
+    public PrivateKeyAccount createAccount() {
+        String seed = PrivateKeyAccount.generateSeed();
         
+        return this.getAccount(seed);
+    }
+    
+    private PrivateKeyAccount getGenesisAccount() {
+        String seed = System.getenv(Blockchain.GENESIS_SEED);
+        
+        return this.getAccount(seed);
+    }
+    
+    private PrivateKeyAccount getAccount(String seed) {
         return PrivateKeyAccount.fromSeed(seed, 0, Blockchain.NETWORK_ID);
     }
 }

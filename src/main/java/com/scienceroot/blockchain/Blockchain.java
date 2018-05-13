@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -22,11 +23,22 @@ public class Blockchain {
 
     private static final Logger LOG = Logger.getLogger(Blockchain.class.getName());
 
+    private static final String GENESIS_SEED_VAR_NAME = "scienceroot";
+    private static final String NODE_URL = "https://scienceblock.org";
+    private static final char NETWORK_ID = 'D';
+    
+    private Node node;
+    
     /**
      *
      */
     @Autowired
     public Blockchain() {
+        try {
+            this.node = new Node(Blockchain.NODE_URL);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Blockchain.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -35,23 +47,25 @@ public class Blockchain {
      * @return
      */
     public boolean sendInitialFunds(String publicKey) {
-
-        String genesisAccountSeed = "scienceroot";
-        String nodeAddress = "https://scienceblock.org";
-        PrivateKeyAccount genesisAcc = PrivateKeyAccount.fromSeed(genesisAccountSeed, 0, 'D');
+        PrivateKeyAccount genesisAcc = this.getGenesisAccount();
         long amount = 1000000;
 
         try {
-            PublicKeyAccount pka = new PublicKeyAccount(publicKey, 'D');
-            Node node = new Node(nodeAddress);
-            node.transfer(genesisAcc, pka.getAddress(), amount, 100000, "initial funds");
-        } catch (URISyntaxException | IOException e) {
+            PublicKeyAccount pka = new PublicKeyAccount(publicKey, Blockchain.NETWORK_ID);
+            this.node.transfer(genesisAcc, pka.getAddress(), amount, 100000, "initial funds");
+        } catch (IOException e) {
             LOG.severe(e.getMessage());
             return false;
         }
 
-        LOG.info("sending initial funding done");
+        LOG.log(Level.INFO, "sending initial funding to {0}", publicKey);
+        
         return true;
     }
-
+    
+    private PrivateKeyAccount getGenesisAccount() {
+        String seed = System.getenv(Blockchain.GENESIS_SEED_VAR_NAME);
+        
+        return PrivateKeyAccount.fromSeed(seed, 0, Blockchain.NETWORK_ID);
+    }
 }

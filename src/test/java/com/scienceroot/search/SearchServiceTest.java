@@ -43,10 +43,10 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearch() {
-        String query = "Paper";
-        SearchService instance = new SearchService(60);
+        String query = "electron microscope";
+        SearchService instance = new SearchService(40);
         List<Paper> result = instance.search(query);
-        assertEquals(60, result.size());
+        assertEquals(40, result.size());
         
     }
 
@@ -55,13 +55,16 @@ public class SearchServiceTest {
      */
     @Test
     public void testSearchAdvanced() {
-        SearchService instance = new SearchService(45);
+        SearchService instance = new SearchService(60);
         SearchParameters mp = new SearchParameters();
         mp.setTitle("electron microscope");
         mp.setAbstract("electron");
         
         List<Paper> result = instance.searchAdvanced(mp);
-        assertEquals(45, result.size());
+        assertEquals(40, result.size());
+        for (Paper p : result){
+            System.out.println(p.getLink().length);
+        }
     }
     
     @Test 

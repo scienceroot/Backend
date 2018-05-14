@@ -62,9 +62,6 @@ public class SearchServiceTest {
         
         List<Paper> result = instance.searchAdvanced(mp);
         assertEquals(40, result.size());
-        for (Paper p : result){
-            System.out.println(p.getLink().length);
-        }
     }
     
     @Test 

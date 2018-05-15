@@ -42,4 +42,6 @@ public class SecurityConstants {
      *
      */
     public static final String SIGN_IN_URL = "/login";
+    
+    public static final String PASSWORD_RESET_URL = "/users/reset";
 }

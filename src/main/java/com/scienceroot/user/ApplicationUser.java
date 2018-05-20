@@ -16,6 +16,7 @@ import com.scienceroot.interest.Interest;
 import com.scienceroot.search.SearchResult;
 import com.scienceroot.search.Searchable;
 import com.scienceroot.post.Post;
+import com.scienceroot.repository.Repository;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -156,6 +157,13 @@ public class ApplicationUser implements Serializable, Searchable {
             orphanRemoval = true
     )
     private List<Post> posts;
+    
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "creator",
+            orphanRemoval = true
+    )
+    private List<Repository> repositories;
 
     /**
      *

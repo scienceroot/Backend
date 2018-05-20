@@ -69,10 +69,13 @@ public class RepositoryControllerTest {
             .perform(post("/repositories/")
                 .header("Authorization", this.jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(this.repositoryToJson(toCreate))
+                .content(this.toJson(toCreate))
             )
+            .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.name").value(repoName))
+            .andExpect(jsonPath("$.privateKey").exists())
+            .andExpect(jsonPath("$.publicKey").exists())
             .andExpect(jsonPath("$.creator.uid").value(this.currentUser.getId().toString()));
     }
     
@@ -91,9 +94,12 @@ public class RepositoryControllerTest {
                 .header("Authorization", this.jwt)
                 .contentType(MediaType.APPLICATION_JSON)
             )
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(toCreate.getId().toString()))
             .andExpect(jsonPath("$.name").value(repoName))
+            .andExpect(jsonPath("$.privateKey").doesNotExist())
+            .andExpect(jsonPath("$.publicKey").exists())
             .andExpect(jsonPath("$.creator.uid").value(this.currentUser.getId().toString()));
     }
     
@@ -108,9 +114,33 @@ public class RepositoryControllerTest {
             .andExpect(status().isNotFound());
     }
     
-    private String repositoryToJson(Repository repository) throws JsonProcessingException {
+    @Test()
+    public void storeData() throws Exception {
+        Repository toCreate = new Repository();
+        String repoName = "Some test repository";
+        
+        toCreate.setName(repoName);
+        toCreate.setCreator(this.currentUser);
+        
+        toCreate = this.repositoryService.create(toCreate);
+        
+        byte[] data = "Some text!".getBytes();
+        DataRequestBody body = new DataRequestBody(data, toCreate.getPrivateKey());
+        String repoId = toCreate.getId().toString();
+        
+        this.mockMvc
+            .perform(post("/repositories/" + repoId)
+                .header("Authorization", this.jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.toJson(body))
+            )
+            .andDo(print())
+            .andExpect(status().isCreated());
+    }
+    
+    private String toJson(Object obj) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         
-        return ow.writeValueAsString(repository);
+        return ow.writeValueAsString(obj);
     }
 }

@@ -1,5 +1,10 @@
 package com.scienceroot.repository;
 
+import com.scienceroot.blockchain.Blockchain;
+import com.wavesplatform.wavesj.Base58;
+import com.wavesplatform.wavesj.PrivateKeyAccount;
+import com.wavesplatform.wavesj.Transaction;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,15 +13,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class RepositoryService {
 
-    private RepositoryRepository repositoryRepository;
+    private final RepositoryRepository repositoryRepository;
+    private final Blockchain blockchain;
 
     @Autowired
-    public RepositoryService(RepositoryRepository repositoryRepository) {
+    public RepositoryService(
+            RepositoryRepository repositoryRepository,
+            Blockchain blockchain
+    ) {
         this.repositoryRepository = repositoryRepository;
+        this.blockchain = blockchain;
+    }
+    
+    public Repository create(Repository repository) {
+        PrivateKeyAccount acc = this.blockchain.createAccount();
+            
+        repository.setPrivateKey(Base58.encode(acc.getPrivateKey()));
+        repository.setPublicKey(Base58.encode(acc.getPublicKey()));
+        
+        return this.save(repository);
     }
     
     public Repository save(Repository s) {
         return this.repositoryRepository.save(s);
+    }
+    
+    public String store(Repository repository, DataRequestBody dataRequestBody) throws IOException {
+        repository.setPrivateKey(dataRequestBody.privateKey);
+        Transaction dataTx = repository.store(dataRequestBody.data);
+        
+        return this.blockchain.sendTx(dataTx);
     }
     
     

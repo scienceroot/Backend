@@ -8,6 +8,7 @@ package com.scienceroot.blockchain;
 import com.wavesplatform.wavesj.Node;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.PublicKeyAccount;
+import com.wavesplatform.wavesj.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -22,10 +23,10 @@ import java.util.logging.Logger;
 public class Blockchain {
 
     private static final Logger LOG = Logger.getLogger(Blockchain.class.getName());
-
     private static final String GENESIS_SEED = "scienceroot";
-    private static final String NODE_URL = "https://scienceblock.org";
-    private static final char NETWORK_ID = 'D';
+    
+    public static final String NODE_URL = "https://scienceblock.org";
+    public static final char NETWORK_ID = 'D';
     
     private Node node;
     
@@ -53,6 +54,7 @@ public class Blockchain {
         try {
             PublicKeyAccount pka = new PublicKeyAccount(publicKey, Blockchain.NETWORK_ID);
             this.node.transfer(genesisAcc, pka.getAddress(), amount, 100000, "initial funds");
+            
         } catch (IOException e) {
             LOG.severe(e.getMessage());
             return false;
@@ -63,19 +65,27 @@ public class Blockchain {
         return true;
     }
     
+    public String sendTx(Transaction tx) throws IOException {
+        return this.node.send(tx);
+    }
+    
     public PrivateKeyAccount createAccount() {
         String seed = PrivateKeyAccount.generateSeed();
         
         return this.getAccount(seed);
     }
     
-    private PrivateKeyAccount getGenesisAccount() {
-        String seed = System.getenv(Blockchain.GENESIS_SEED);
-        
-        return this.getAccount(seed);
+    public long getBalance(String address) throws IOException {
+        return this.node.getBalance(address);
     }
     
-    private PrivateKeyAccount getAccount(String seed) {
+    public PrivateKeyAccount getAccount(String seed) {
         return PrivateKeyAccount.fromSeed(seed, 0, Blockchain.NETWORK_ID);
+    }
+    
+    private PrivateKeyAccount getGenesisAccount() {
+        String seed = Blockchain.GENESIS_SEED;
+        
+        return this.getAccount(seed);
     }
 }

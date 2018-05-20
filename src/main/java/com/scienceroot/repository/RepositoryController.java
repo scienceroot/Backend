@@ -1,14 +1,24 @@
 package com.scienceroot.repository;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.scienceroot.blockchain.Blockchain;
+import com.scienceroot.security.ActionForbiddenException;
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.ResourceNotFoundException;
 import com.scienceroot.user.UserNotFoundException;
+import com.wavesplatform.wavesj.PrivateKeyAccount;
+import com.wavesplatform.wavesj.Transaction;
 import io.jsonwebtoken.Jwts;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.HeaderParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,8 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/repositories")
 public class RepositoryController {
     
-    private RepositoryService repositoryService;
-    private ApplicationUserService userService;
+    private final RepositoryService repositoryService;
+    private final ApplicationUserService userService;
 
     @Autowired
     public RepositoryController(
@@ -41,27 +51,25 @@ public class RepositoryController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/", method = RequestMethod.POST)
+    @JsonView(RepositoryViews.Authorized.class)
     public Repository create(
             @RequestHeader(name = "Authorization") String jwt,
             @RequestBody Repository repository
-    ) {
-        String userMail = Jwts.parser().setSigningKey(SECRET.getBytes())
-                .parseClaimsJws(jwt.replace(TOKEN_PREFIX, ""))
-                .getBody()
-                .getSubject();
-        
-        Optional<ApplicationUser> creator = this.userService.findByMail(userMail);
+    ) { 
+        Optional<ApplicationUser> creator = this.userFromJwt(jwt);
         
         if (!creator.isPresent()) {
             throw new UserNotFoundException();
-        } else {
-            repository.setCreator(creator.get());
-        }
+        } 
         
-        return this.repositoryService.save(repository);
+        repository.setCreator(creator.get());
+        repository = this.repositoryService.create(repository);
+        
+        return repository;
     }
     
     @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    @JsonView(RepositoryViews.Public.class)
     public Repository get(
             @PathVariable(name = "id") UUID repositoryId
     ) {
@@ -72,5 +80,47 @@ public class RepositoryController {
         } 
         
         return repo.get();
+    }
+    
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "/{id}", method = RequestMethod.POST)
+    public String storeText(
+            @PathVariable(name = "id") UUID repositoryId,
+            @RequestHeader(name = "Authorization") String jwt,
+            @RequestBody DataRequestBody dataRequest
+    ) {
+        Repository repository = this.get(repositoryId);
+        Optional<ApplicationUser> creator = this.userFromJwt(jwt);
+        
+        if(!creator.isPresent()) {
+            throw new UserNotFoundException();
+        }
+        
+        if(!repository.getCreator().getId().toString().equals(creator.get().getId().toString())) {
+            throw new ActionForbiddenException();
+        }
+        
+        
+        try {
+            String tx;
+            tx = this.repositoryService.store(repository, dataRequest);
+            
+            return tx;
+        } catch (IOException ex) {
+            Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            return null;
+        }
+        
+        
+    }
+    
+    private Optional<ApplicationUser> userFromJwt(String jwt) {
+        String userMail = Jwts.parser().setSigningKey(SECRET.getBytes())
+                .parseClaimsJws(jwt.replace(TOKEN_PREFIX, ""))
+                .getBody()
+                .getSubject();
+        
+        return this.userService.findByMail(userMail);
     }
 }

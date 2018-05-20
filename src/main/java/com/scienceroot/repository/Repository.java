@@ -1,13 +1,22 @@
 package com.scienceroot.repository;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.user.ApplicationUser;
+import com.wavesplatform.wavesj.DataEntry;
+import com.wavesplatform.wavesj.PrivateKeyAccount;
+import com.wavesplatform.wavesj.Transaction;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -22,19 +31,42 @@ public class Repository implements Serializable {
     @GenericGenerator(name = "uuid_repositories", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", unique = true, nullable = false)
     @JsonProperty("id")
+    @JsonView(RepositoryViews.Public.class)
     private UUID id;
     
     @Column
+    @JsonView(RepositoryViews.Public.class)
     private String name;
     
     @Column
-    private String seed;
+    @JsonView(RepositoryViews.Authorized.class)
+    private String privateKey;
     
     @Column
+    @JsonView(RepositoryViews.Public.class)
+    private String publicKey;
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonView(RepositoryViews.Public.class)
     private ApplicationUser creator; 
 
     public Repository() {
         
+    }
+    
+    /**
+     *
+     * @param data
+     * @return 
+     */
+    public Transaction store(byte[] data){
+        DataEntry entry = new DataEntry.BinaryEntry("wiki", data);
+        PrivateKeyAccount sender = PrivateKeyAccount.fromPrivateKey(this.privateKey, Blockchain.NETWORK_ID);
+        List<DataEntry<?>> dataEntries = new LinkedList();
+        
+        dataEntries.add(entry);
+        
+        return Transaction.makeDataTx(sender, dataEntries, 100);
     }
 
     public UUID getId() {
@@ -53,14 +85,6 @@ public class Repository implements Serializable {
         this.name = name;
     }
 
-    public String getSeed() {
-        return seed;
-    }
-
-    public void setSeed(String seed) {
-        this.seed = seed;
-    }
-
     public ApplicationUser getCreator() {
         return creator;
     }
@@ -68,6 +92,20 @@ public class Repository implements Serializable {
     public void setCreator(ApplicationUser creator) {
         this.creator = creator;
     }
-     
-    
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 }

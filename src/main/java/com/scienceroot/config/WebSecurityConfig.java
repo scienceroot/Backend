@@ -60,6 +60,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
                 .antMatchers(HttpMethod.POST, SIGN_IN_URL).permitAll()
                 .antMatchers(HttpMethod.POST, PASSWORD_RESET_URL).permitAll()
+                .antMatchers(HttpMethod.GET, "/search/papers").permitAll()
+                .antMatchers(HttpMethod.GET, "/search/preprints").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

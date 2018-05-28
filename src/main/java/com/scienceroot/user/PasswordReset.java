@@ -28,8 +28,8 @@ public class PasswordReset {
     public PasswordReset() {
         this.config = new Configuration()
                 .apiKey("key-3c14d95e94ff3515c69e2a9199d1a127")
-                .domain("sandbox6fcc129c89bf4b5390715241f60d9c33.mailgun.org")
-                .from("Scienceroot", "frederik.huschebeck@scienceroot.com");
+                .domain("demo.scienceroots.com")
+                .from("Scienceroot", "postmaster@demo.scienceroots.com");
 
     }
 
@@ -49,7 +49,7 @@ public class PasswordReset {
         Response resp = Mail.using(config)
                 .to(mail)
                 .subject("ScienceRoot Password reset")
-                .text("You seem to have forgotten your password, click here to change it: demo.scienceroots.com/resetPassword?t=" + newToken )
+                .text("You seem to have forgotten your password, click here to change it: https://demo.scienceroots.com/resetPassword?t=" + newToken )
                 .build()
                 .send();
         return resp.isOk();

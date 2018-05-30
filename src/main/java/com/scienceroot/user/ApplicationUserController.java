@@ -109,18 +109,12 @@ public class ApplicationUserController {
     
     
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = "/{id}/setPassword", method = RequestMethod.PUT)
+    @RequestMapping(value = "/setPassword", method = RequestMethod.PUT)
     public ApplicationUser updateUserPassword(
             @RequestHeader("Authorization") String token,
-            @PathVariable("id") UUID id,
             @RequestBody String password
     ) {
-        String tokenUserMail = this.getJwtUserMail(token);
-        ApplicationUser dbUser = this.getById(id);
-        
-        if(!tokenUserMail.equals(dbUser.getMail())) {
-            throw new ActionForbiddenException();
-        }
+        ApplicationUser dbUser = this.getMe(token);
         
         String passwordHashed = bCryptPasswordEncoder.encode(password);
         dbUser.setPassword(passwordHashed);

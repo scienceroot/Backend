@@ -109,7 +109,7 @@ public class ApplicationUserController {
     
     
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @RequestMapping(value = "/setPassword", method = RequestMethod.PUT)
+    @RequestMapping(value = "/setPassword", method = RequestMethod.POST)
     public ApplicationUser updateUserPassword(
             @RequestHeader("Authorization") String token,
             @RequestBody String password

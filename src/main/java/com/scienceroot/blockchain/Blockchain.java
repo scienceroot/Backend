@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 public class Blockchain {
 
     private static final Logger LOG = Logger.getLogger(Blockchain.class.getName());
-    private static final String GENESIS_SEED = "scienceroot";
-    
+    private static final String GENESIS_ENV_VARIBALE = "SCR_GENESIS_SEED";
+ 
     public static final String NODE_URL = "https://scienceblock.org";
     public static final char NETWORK_ID = 'D';
     
@@ -34,7 +34,7 @@ public class Blockchain {
      *
      */
     @Autowired
-    public Blockchain() {
+    public Blockchain() { 
         try {
             this.node = new Node(Blockchain.NODE_URL);
         } catch (URISyntaxException ex) {
@@ -84,7 +84,7 @@ public class Blockchain {
     }
     
     private PrivateKeyAccount getGenesisAccount() {
-        String seed = Blockchain.GENESIS_SEED;
+        String seed = System.getProperty(Blockchain.GENESIS_ENV_VARIBALE);
         
         return this.getAccount(seed);
     }

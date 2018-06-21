@@ -8,12 +8,13 @@ import com.scienceroot.industry.Industry;
 import com.scienceroot.industry.IndustryRepository;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.interest.InterestRepository;
+import com.scienceroot.user.fellowship.Fellowship;
+import com.scienceroot.user.fellowship.FellowshipService;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.util.ApplicationUserHelper;
 import com.scienceroot.util.JwtHelper;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +50,9 @@ public class ApplicationUserControllerTest {
     private ApplicationUserService service;
 
     @Autowired
+    private FellowshipService fellowshipService;
+
+    @Autowired
     private ApplicationUserRepository repository;
     
     @Autowired private InterestRepository interestRepository;
@@ -69,6 +73,7 @@ public class ApplicationUserControllerTest {
 
     @After
     public void tearDown() throws Exception {
+        this.fellowshipService.deleteAll();
         this.repository.deleteAll();
     }
 
@@ -111,11 +116,11 @@ public class ApplicationUserControllerTest {
     public void updatePassword() throws Exception{
         String currentPassword = this.currentUser.getPassword();
         this.mockMvc
-            .perform(put("/users/" + this.currentUser.getId() +"/setPassword")
+            .perform(post("/users/setPassword")
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", this.jwt)
                             .content("{\"password\":\"newpw\"}"))
-            .andExpect(status().isNoContent())
+            .andExpect(status().isOk())
             .andExpect(jsonPath("$.forename").value("Test"))
             .andExpect(jsonPath("$.mail").value("test@test.de"))
             .andReturn();
@@ -190,12 +195,9 @@ public class ApplicationUserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.jwt)
             )
-            .andExpect(status().is(201));
-        
-        
-        ApplicationUser test = this.service.findOne(this.currentUser.getId());
-        assertThat(test.getFollows().size(), is(1));
-        assertThat(test.getFollows().get(0).getId(), is(toFollow.getId()));
+            .andExpect(status().is(201))
+            .andExpect(jsonPath("$.followed").isNotEmpty())
+            .andExpect(jsonPath("$.follower").isNotEmpty());
     }
     
     @Test
@@ -216,26 +218,22 @@ public class ApplicationUserControllerTest {
     
     @Test
     public void isFollowingUserTrue() throws Exception {
-        ApplicationUser following = new ApplicationUser();
-        List<ApplicationUser> follows = new LinkedList<>();
+        ApplicationUser follower = new ApplicationUser();
         
-        following.setLastname("Test2");
-        following.setForename("Test2");
-        following = this.service.save(following);
+        follower.setLastname("Test2");
+        follower.setForename("Test2");
+        follower = this.service.save(follower);
         
-        
-        follows.add(following);
-        this.currentUser.setFollows(follows);
-        this.service.save(this.currentUser);
+        this.fellowshipService.follow(this.currentUser, follower);
         
         this.mockMvc
-            .perform(get("/users/" + this.currentUser.getId() + "/isFollowing/" + following.getId())
+            .perform(get("/users/" + follower.getId() + "/isFollowing/" + this.currentUser.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", this.jwt)
             )
             .andExpect(status().is(200))
-            .andExpect(jsonPath("$.lastname").value(following.getLastname()))
-            .andExpect(jsonPath("$.forename").value(following.getForename()));
+            .andExpect(jsonPath("$.lastname").value(this.currentUser.getLastname()))
+            .andExpect(jsonPath("$.forename").value(this.currentUser.getForename()));
     }
     
     @Test
@@ -258,17 +256,13 @@ public class ApplicationUserControllerTest {
     @Test
     public void unfollowUserForbidden() throws Exception {
         ApplicationUser following = new ApplicationUser();
-        List<ApplicationUser> follows = new LinkedList<>();
         String wrongJwt = this.createForbiddenJwt();
         
         following.setLastname("Test2");
         following.setForename("Test2");
         following = this.service.save(following);
         
-        
-        follows.add(following);
-        this.currentUser.setFollows(follows);
-        this.service.save(this.currentUser);
+        this.fellowshipService.follow(this.currentUser, following);
         
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/unfollow/" + following.getId())
@@ -292,16 +286,12 @@ public class ApplicationUserControllerTest {
     @Test
     public void getFolloweres () throws Exception {
         ApplicationUser follower = new ApplicationUser();
-        List<ApplicationUser> follows = new LinkedList<>();
         
         follower.setLastname("Test2");
         follower.setForename("Test2");
         follower = this.service.save(follower);
         
-        follows.add(follower);
-
-        this.currentUser.setFollows(follows);
-        this.currentUser = this.service.save(this.currentUser);
+        Fellowship fellowship = this.fellowshipService.follow(follower, this.currentUser);
         
         this.mockMvc
             .perform(get("/users/" + this.currentUser.getId() + "/follows")
@@ -310,8 +300,8 @@ public class ApplicationUserControllerTest {
             .andExpect(status().is(200))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].lastname").value(follower.getLastname()))
-            .andExpect(jsonPath("$[0].forename").value(follower.getForename()));
+            .andExpect(jsonPath("$[0].followed.lastname").value(follower.getLastname()))
+            .andExpect(jsonPath("$[0].followed.forename").value(follower.getForename()));
     }
     
     @Test
@@ -328,15 +318,12 @@ public class ApplicationUserControllerTest {
     @Test
     public void getFollowedBy () throws Exception {
         ApplicationUser follower = new ApplicationUser();
-        List<ApplicationUser> follows = new LinkedList<>();
-        
-        follows.add(this.currentUser);
         
         follower.setLastname("Test2");
         follower.setForename("Test2");
-        follower.setFollows(follows);
-        
         follower = this.service.save(follower);
+
+        this.fellowshipService.follow(this.currentUser, follower);
         
         this.mockMvc
             .perform(get("/users/" + this.currentUser.getId() + "/followedBy")
@@ -345,8 +332,8 @@ public class ApplicationUserControllerTest {
             .andExpect(status().is(200))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].lastname").value(follower.getLastname()))
-            .andExpect(jsonPath("$[0].forename").value(follower.getForename()));
+            .andExpect(jsonPath("$[0].follower.lastname").value(follower.getLastname()))
+            .andExpect(jsonPath("$[0].follower.forename").value(follower.getForename()));
     }
     
     @Test
@@ -375,9 +362,7 @@ public class ApplicationUserControllerTest {
     public void removeUserJob() throws Exception {
         Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
         
-        this.currentUser.addJob(jobToAdd);
-        this.jobRepository.save(jobToAdd);
-        this.repository.save(this.currentUser);
+        this.service.addJobToUser(this.currentUser, jobToAdd);
         
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
@@ -394,9 +379,7 @@ public class ApplicationUserControllerTest {
         Job jobToAdd = new Job("CEO", 1, 2017, null, null, this.currentUser, "Scienceroot", this.getIndustry());
         String wrongJwt = this.createForbiddenJwt();
         
-        this.currentUser.addJob(jobToAdd);
-        this.jobRepository.save(jobToAdd);
-        this.repository.save(this.currentUser);
+        this.service.addJobToUser(this.currentUser, jobToAdd);
         
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/jobs/" + jobToAdd.getId())
@@ -477,11 +460,9 @@ public class ApplicationUserControllerTest {
     public void removeUserInterest() throws Exception {
         Interest userInterest = this.getInterest();
         
-        this.currentUser.addInterest(userInterest);
-        this.repository.save(this.currentUser);
+        this.service.addInterestToUser(this.currentUser, userInterest);
         
         this.mockMvc
-            // define your request url (PUT of '/users/{uuid}'), content, ...
             .perform(delete("/users/" + this.currentUser.getId() + "/interests/" + userInterest.getId())
                             .contentType(MediaType.APPLICATION_JSON)
             )
@@ -510,12 +491,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserLanguage() throws Exception {
         Language userLanguage = this.getLanguage();
-        List<Language> userLanguages = new ArrayList();
-               
-        userLanguages.add(userLanguage);
         
-        this.currentUser.setLanguages(userLanguages);
-        this.repository.save(this.currentUser);
+        this.service.addLanguageToUser(this.currentUser, userLanguage);
         
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())
@@ -544,12 +521,8 @@ public class ApplicationUserControllerTest {
     @Test
     public void removeUserLanguageForbidden() throws Exception {
         Language userLanguage = this.getLanguage();
-        List<Language> userLanguages = new ArrayList();
-               
-        userLanguages.add(userLanguage);
-        
-        this.currentUser.setLanguages(userLanguages);
-        this.repository.save(this.currentUser);
+
+        this.service.addLanguageToUser(this.currentUser, userLanguage);
         
         this.mockMvc
             .perform(delete("/users/" + this.currentUser.getId() + "/languages/" + userLanguage.getId())

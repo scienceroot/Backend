@@ -7,16 +7,20 @@ package com.scienceroot.user;
 
 import com.scienceroot.user.skill.Skill;
 import com.scienceroot.user.language.Language;
+import com.scienceroot.user.fellowship.Fellowship;
 import com.scienceroot.user.job.Job;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.scienceroot.interest.Interest;
 import com.scienceroot.search.SearchResult;
 import com.scienceroot.search.Searchable;
 import com.scienceroot.post.Post;
 import com.scienceroot.repository.Repository;
+import com.scienceroot.repository.RepositoryViews;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -73,14 +77,17 @@ public class ApplicationUser implements Serializable, Searchable {
     @GenericGenerator(name = "uuid_users", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", unique = true, nullable = false)
     @JsonProperty("uid")
+    @JsonView(RepositoryViews.Public.class)
     private UUID id;
 
     @Column
     @JsonProperty("forename")
+    @JsonView(RepositoryViews.Public.class)
     private String forename;
 
     @Column
     @JsonProperty("lastname")
+    @JsonView(RepositoryViews.Public.class)
     private String lastname;
 
     @Column
@@ -130,19 +137,19 @@ public class ApplicationUser implements Serializable, Searchable {
     )
     private List<Language> languages;
     
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "follows",
-                joinColumns = @JoinColumn(name = "user_id"),
-                inverseJoinColumns = @JoinColumn(name = "follows_id"))
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "followed"
+    )
     @JsonIgnore
-    private List<ApplicationUser> follows;
-    
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "follows",
-                joinColumns = @JoinColumn(name = "follows_id"),
-                inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<Fellowship> fellowshipsFollower;
+
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "follower"
+    )
     @JsonIgnore
-    private List<ApplicationUser> followedBy;
+    private List<Fellowship> fellowshipsFollows;
 
     @Column
     @JsonProperty("publicKey")
@@ -171,7 +178,8 @@ public class ApplicationUser implements Serializable, Searchable {
     public ApplicationUser() {
         this.interests = new ArrayList<>();
         this.languages = new ArrayList<>();
-        this.follows = new ArrayList<>();
+        this.fellowshipsFollower = new ArrayList<>();
+        this.fellowshipsFollows = new ArrayList<>();
         this.jobs = new ArrayList<>();
         this.posts = new ArrayList<>();
         this.skills = new ArrayList<>();
@@ -188,6 +196,8 @@ public class ApplicationUser implements Serializable, Searchable {
         this.location = new Location();
         this.contact = new UserContact();
         this.interests = new ArrayList<>();
+        this.fellowshipsFollower = new ArrayList<>();
+        this.fellowshipsFollows = new ArrayList<>();
     }
 
     /**
@@ -210,12 +220,6 @@ public class ApplicationUser implements Serializable, Searchable {
         
         this.setForename(updateAttribute(this.forename, updatedUser.forename));
         this.setLastname(updateAttribute(this.lastname, updatedUser.lastname));
-        
-        /*
-        this.setLastname(updatedUser.lastname);
-        this.setLocation(updatedUser.location);
-        this.setMail(updatedUser.mail);
-        */
         
         return this;
     }
@@ -446,25 +450,19 @@ public class ApplicationUser implements Serializable, Searchable {
     }
 
     /**
-     * @return the follows
-     */
-    public List<ApplicationUser> getFollows() {
-        return follows;
-    }
-
-    /**
-     * @param follows the follows to set
-     */
-    public void setFollows(List<ApplicationUser> follows) {
-        this.follows = follows;
-    }
-
-    /**
-     * @return the followedBy
+     * @return the fellowships
      */
     @JsonIgnore
-    public List<ApplicationUser> getFollowedBy() {
-        return followedBy;
+    public List<Fellowship> getFollows() {
+        return this.fellowshipsFollows;
+    }
+
+    /**
+     * @return the fellowships
+     */
+    @JsonIgnore
+    public List<Fellowship> getFollower() {
+        return this.fellowshipsFollower;
     }
 
     /**
@@ -473,13 +471,6 @@ public class ApplicationUser implements Serializable, Searchable {
     @JsonIgnore
     public List<Post> getPosts() {
         return posts;
-    }
-
-    /**
-     * @param posts the posts to set
-     */
-    public void setPosts(List<Post> posts) {
-        this.posts = posts;
     }
 
     @Override
@@ -495,8 +486,6 @@ public class ApplicationUser implements Serializable, Searchable {
         hash = 47 * hash + Objects.hashCode(this.interests);
         hash = 47 * hash + Objects.hashCode(this.skills);
         hash = 47 * hash + Objects.hashCode(this.languages);
-        hash = 47 * hash + Objects.hashCode(this.follows);
-        hash = 47 * hash + Objects.hashCode(this.followedBy);
         hash = 47 * hash + Objects.hashCode(this.publicKey);
         hash = 47 * hash + Objects.hashCode(this.contact);
         hash = 47 * hash + Objects.hashCode(this.posts);
@@ -546,12 +535,6 @@ public class ApplicationUser implements Serializable, Searchable {
             return false;
         }
         if (!Objects.equals(this.languages, other.languages)) {
-            return false;
-        }
-        if (!Objects.equals(this.follows, other.follows)) {
-            return false;
-        }
-        if (!Objects.equals(this.followedBy, other.followedBy)) {
             return false;
         }
         if (!Objects.equals(this.contact, other.contact)) {

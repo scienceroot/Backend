@@ -8,6 +8,7 @@ import com.scienceroot.user.job.Job;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.interest.Interest;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
@@ -91,6 +92,10 @@ public class ApplicationUserService {
     public <S extends ApplicationUser> S save(S s) {
         return userRepository.save(s);
     }
+    
+    public Iterable<ApplicationUser> saveAll(Iterable<ApplicationUser> s) {
+        return userRepository.save(s);
+    }
 
     /**
      *
@@ -109,36 +114,7 @@ public class ApplicationUserService {
     public Optional<ApplicationUser> findByMail(String mail) {
         return userRepository.findByMail(mail);
     }
-    
-    /**
-     *
-     * @param user
-     * @param toFollow
-     * @return
-     */
-    public ApplicationUser followUser(ApplicationUser user, ApplicationUser toFollow) {
-        List<ApplicationUser> following = user.getFollows();
-        
-        following.add(toFollow);
-        user.setFollows(following);
-        
-        return user;
-    }
-    
-    /**
-     *
-     * @param user
-     * @param toUnfollow
-     * @return
-     */
-    public ApplicationUser unfollowUser(ApplicationUser user, ApplicationUser toUnfollow) {
-        List<ApplicationUser> following = user.getFollows();
-        following.remove(toUnfollow);
-      
-        user.setFollows(following);
-        
-        return user;
-    }
+
 
     /**
      *

@@ -1,7 +1,6 @@
 package com.scienceroot.repository;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.security.ActionForbiddenException;
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
@@ -9,16 +8,12 @@ import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.ResourceNotFoundException;
 import com.scienceroot.user.UserNotFoundException;
-import com.wavesplatform.wavesj.PrivateKeyAccount;
-import com.wavesplatform.wavesj.Transaction;
 import io.jsonwebtoken.Jwts;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ws.rs.HeaderParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;

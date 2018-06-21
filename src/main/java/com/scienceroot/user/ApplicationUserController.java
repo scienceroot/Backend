@@ -3,6 +3,8 @@ package com.scienceroot.user;
 import com.scienceroot.security.ActionForbiddenException;
 import com.scienceroot.user.skill.Skill;
 import com.scienceroot.user.language.Language;
+import com.scienceroot.user.fellowship.Fellowship;
+import com.scienceroot.user.fellowship.FellowshipService;
 import com.scienceroot.user.job.Job;
 import com.scienceroot.interest.Interest;
 import io.jsonwebtoken.Jwts;
@@ -28,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class ApplicationUserController {
 
     private final ApplicationUserService userService;
+    private final FellowshipService fellowshipService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
@@ -38,11 +41,12 @@ public class ApplicationUserController {
     @Autowired
     public ApplicationUserController(
             ApplicationUserService applicationUserService,
-            @Autowired BCryptPasswordEncoder bCryptPasswordEncoder
+            FellowshipService fellowshipService,
+            BCryptPasswordEncoder bCryptPasswordEncoder
     ) {
         this.userService = applicationUserService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        
+        this.fellowshipService = fellowshipService;
     }
 
     /**
@@ -108,7 +112,7 @@ public class ApplicationUserController {
     }
     
     
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/setPassword", method = RequestMethod.POST)
     public ApplicationUser updateUserPassword(
             @RequestHeader("Authorization") String token,
@@ -136,7 +140,7 @@ public class ApplicationUserController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/{id}/follow/{toFollowId}", method = RequestMethod.POST)
-    public ApplicationUser followUser(
+    public Fellowship followUser(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") UUID userId,
             @PathVariable("toFollowId") UUID toFollowId
@@ -150,8 +154,7 @@ public class ApplicationUserController {
         }
 
         return Optional.ofNullable(dbUser)
-                .map(user -> userService.followUser(user, toFollowUser))
-                .map(user -> userService.save(user))
+                .map(user -> fellowshipService.follow(toFollowUser, user))
                 .orElseThrow(UserNotFoundException::new);
     }
     
@@ -169,14 +172,14 @@ public class ApplicationUserController {
             @PathVariable("id") UUID userId,
             @PathVariable("isFollowingId") UUID isFollowingId
     ) {
-        ApplicationUser isFollowing = getById(isFollowingId);
-        ApplicationUser dbUser = this.getById(userId);
+        ApplicationUser followed = getById(isFollowingId);
+        ApplicationUser follower = this.getById(userId);
         
-        if(!dbUser.getFollows().contains(isFollowing)) {
+        if(!this.fellowshipService.isFollowing(followed, follower)) {
             throw new ResourceNotFoundException();
         }
 
-        return Optional.ofNullable(isFollowing)
+        return Optional.ofNullable(followed)
                 .orElseThrow(UserNotFoundException::new);
     }
     
@@ -194,18 +197,17 @@ public class ApplicationUserController {
             @PathVariable("id") UUID userId,
             @PathVariable("toUnfollowId") UUID toUnfollowId
     ) {
-        ApplicationUser dbUser = this.getById(userId);
-        ApplicationUser toUnfollowUser = getById(toUnfollowId);
+        ApplicationUser follower = this.getById(userId);
+        ApplicationUser followed = getById(toUnfollowId);
         String tokenUserMail = this.getJwtUserMail(token);
         
-        if(!tokenUserMail.equals(dbUser.getMail())) {
+        if(!tokenUserMail.equals(follower.getMail())) {
             throw new ActionForbiddenException();
         }
 
-        return Optional.ofNullable(dbUser)
-                .map(user -> userService.unfollowUser(user, toUnfollowUser))
-                .map(user -> userService.save(user))
-                .orElseThrow(UserNotFoundException::new);
+        this.fellowshipService.unfollow(followed, follower);
+
+        return followed;
     }
     
     /**
@@ -215,12 +217,12 @@ public class ApplicationUserController {
      */
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}/follows", method = RequestMethod.GET)
-    public List<ApplicationUser> getUserFollows(
+    public List<Fellowship> getUserFollows(
             @PathVariable("id") UUID userId
     ) {
         ApplicationUser dbUser = this.getById(userId);
 
-        return dbUser.getFollows();
+        return this.fellowshipService.getFollows(dbUser);
     }
     
     /**
@@ -230,12 +232,12 @@ public class ApplicationUserController {
      */
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(value = "/{id}/followedBy", method = RequestMethod.GET)
-    public List<ApplicationUser> getUserFollowedBy(
+    public List<Fellowship> getUserFollowedBy(
             @PathVariable("id") UUID userId
     ) {
         ApplicationUser dbUser = this.getById(userId);
 
-        return dbUser.getFollowedBy();
+        return this.fellowshipService.getFollowers(dbUser);
     }
     
     /**

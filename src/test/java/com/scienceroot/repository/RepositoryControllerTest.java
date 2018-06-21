@@ -87,7 +87,7 @@ public class RepositoryControllerTest {
         toCreate.setName(repoName);
         toCreate.setCreator(this.currentUser);
         
-        toCreate = this.repositoryService.save(toCreate);
+        toCreate = this.repositoryService.create(toCreate);
         
         this.mockMvc
             .perform(get("/repositories/" + toCreate.getId().toString())

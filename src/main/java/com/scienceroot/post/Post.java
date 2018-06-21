@@ -1,5 +1,6 @@
 package com.scienceroot.post;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.scienceroot.user.ApplicationUser;
 import java.io.Serializable;
 import java.util.UUID;
@@ -28,7 +29,13 @@ public class Post implements Serializable {
     private String content;
     
     @ManyToOne()
+    @JsonIgnoreProperties({"fellowshipsFollower", "fellowshipsFollows", "hibernateLazyInitializer", "handler" })
     private ApplicationUser creator;
+
+
+    public Post() {
+
+    }
 
     /**
      * @return the id

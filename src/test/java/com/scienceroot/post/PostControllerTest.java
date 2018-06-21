@@ -8,6 +8,7 @@ import com.scienceroot.interest.InterestRepository;
 import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserRepository;
 import com.scienceroot.user.ApplicationUserService;
+import com.scienceroot.user.fellowship.FellowshipService;
 import com.scienceroot.user.job.JobRepository;
 import com.scienceroot.user.language.LanguageRepository;
 import com.scienceroot.util.ApplicationUserHelper;
@@ -49,32 +50,31 @@ public class PostControllerTest {
 
     @Autowired
     private ApplicationUserService userService;
+
+    @Autowired
+    private FellowshipService fellowshipService;
     
     @Autowired
     private PostService postService;
 
     @Autowired
     private ApplicationUserRepository repository;
-    
-    @Autowired private InterestRepository interestRepository;
-    @Autowired private LanguageRepository languageRepository;
-    @Autowired private IndustryRepository industryRepository;
-    @Autowired private JobRepository jobRepository;
 
     private ApplicationUser currentUser;
     private String jwt;
 
     @Before
     public void setUp() throws Exception {
-            this.currentUser = ApplicationUserHelper.getTestUser();
-            this.currentUser = this.userService.save(this.currentUser);
-            
-            this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
+        this.currentUser = ApplicationUserHelper.getTestUser();
+        this.currentUser = this.userService.save(this.currentUser);
+        
+        this.jwt = JwtHelper.createJwt(this.currentUser.getMail());
     }
 
     @After
     public void tearDown() throws Exception {
-            this.repository.deleteAll();
+        this.fellowshipService.deleteAll();
+        this.repository.deleteAll();
     }
     
     @Test
@@ -197,12 +197,8 @@ public class PostControllerTest {
         ApplicationUser userA = this.userService.save(ApplicationUserHelper.getTestUser("A"));
         ApplicationUser userB = this.userService.save(ApplicationUserHelper.getTestUser("B"));
         
-        List<ApplicationUser> follows = new LinkedList<>();
-        follows.add(userA);
-        follows.add(userB);
-        
-        this.currentUser.setFollows(follows);
-        this.currentUser = this.userService.save(this.currentUser);
+        this.fellowshipService.follow(userA, this.currentUser);
+        this.fellowshipService.follow(userB, this.currentUser);
         
         /**
          * Create posts for followed users

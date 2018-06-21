@@ -7,10 +7,16 @@ import com.scienceroot.user.ApplicationUser;
 import com.scienceroot.user.ApplicationUserService;
 import com.scienceroot.user.ResourceNotFoundException;
 import com.scienceroot.user.UserNotFoundException;
+import com.scienceroot.user.fellowship.Fellowship;
+import com.scienceroot.user.fellowship.FellowshipService;
+
 import io.jsonwebtoken.Jwts;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
     
     private final PostService postService;
-    
+    private final FellowshipService fellowshipService;
     private final ApplicationUserService userService;
     
     /**
@@ -43,10 +49,12 @@ public class PostController {
     @Autowired
     public PostController(
             PostService postService,
+            FellowshipService fellowshipService,
             ApplicationUserService userService
     ) {
         this.postService = postService;
         this.userService = userService;
+        this.fellowshipService = fellowshipService;
     }
     
     /**
@@ -82,7 +90,10 @@ public class PostController {
             throw new UserNotFoundException();
         }
         
-        List<ApplicationUser> follows = user.get().getFollows();
+        List<ApplicationUser> follows = this.fellowshipService.getFollows(user.get())
+            .stream()
+            .map(Fellowship::getFollowed)
+            .collect(Collectors.toList());
         
         return this.postService.getByUsers(follows);
     }

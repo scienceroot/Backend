@@ -45,8 +45,8 @@ public class ApplicationUserTest {
         job.setUser(this.currentUser);
         
         this.userService.addJobToUser(this.currentUser, job);
-        this.currentUser = this.userService.save(this.currentUser);
-
-        assertEquals(1, this.currentUser.getJobs().size());
+        
+        ApplicationUser dbUser = this.userService.findOne(this.currentUser.getId());
+        assertEquals(1, dbUser.getJobs().size());
     }
 }

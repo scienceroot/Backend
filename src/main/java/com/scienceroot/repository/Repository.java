@@ -7,6 +7,8 @@ import com.scienceroot.user.ApplicationUser;
 import com.wavesplatform.wavesj.DataEntry;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.Transaction;
+import com.wavesplatform.wavesj.DataEntry.BinaryEntry;
+
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +48,7 @@ public class Repository implements Serializable {
     @JsonView(RepositoryViews.Public.class)
     private String publicKey;
     
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JsonView(RepositoryViews.Public.class)
     private ApplicationUser creator; 
 
@@ -60,7 +62,7 @@ public class Repository implements Serializable {
      * @return 
      */
     public Transaction store(byte[] data){
-        DataEntry entry = new DataEntry.BinaryEntry("wiki", data);
+        BinaryEntry entry = new DataEntry.BinaryEntry("wiki", data);
         PrivateKeyAccount sender = PrivateKeyAccount.fromPrivateKey(this.privateKey, Blockchain.NETWORK_ID);
         List<DataEntry<?>> dataEntries = new LinkedList();
         

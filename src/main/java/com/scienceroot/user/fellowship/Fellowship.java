@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scienceroot.user.ApplicationUser;
@@ -17,6 +18,7 @@ import com.scienceroot.user.ApplicationUser;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
+@Table(name = "fellowships")
 public class Fellowship implements Serializable {
 
     public static final long serialVersionUID = 1L;

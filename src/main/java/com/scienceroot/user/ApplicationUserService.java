@@ -217,10 +217,9 @@ public class ApplicationUserService {
      * @return
      */
     public ApplicationUser addPublicKeyToUser(ApplicationUser user, String publicKey) {
-        if ("".equals(user.getPublicKey())) {
-            blockchain.sendInitialFunds(publicKey);
-        }
+        blockchain.sendInitialFunds(publicKey);
         user.setPublicKey(publicKey);
+
         return user;
     }
     

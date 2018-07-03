@@ -21,15 +21,18 @@ import net.sargue.mailgun.Response;
 public class PasswordReset {
 
     private final Configuration config;
+    private static final String APIKEY_ENV_VARIABLE = "SCR_MAILGUN_API_KEY";
+    private static final String DOMAIN_ENV_VARIABLE = "SCR_MAILGUN_DOMAIN";
+    private static final String LOGIN_ENV_VARIABLE = "SCR_MAILGUN_LOGIN";
 
     /**
      *
      */
     public PasswordReset() {
         this.config = new Configuration()
-                .apiKey("key-3c14d95e94ff3515c69e2a9199d1a127")
-                .domain("demo.scienceroots.com")
-                .from("Scienceroot", "postmaster@demo.scienceroots.com");
+                .apiKey(System.getProperty(APIKEY_ENV_VARIABLE))
+                .domain(System.getProperty(DOMAIN_ENV_VARIABLE))
+                .from("Scienceroot", System.getProperty(LOGIN_ENV_VARIABLE));
 
     }
 
@@ -49,7 +52,7 @@ public class PasswordReset {
         Response resp = Mail.using(config)
                 .to(mail)
                 .subject("ScienceRoot Password reset")
-                .text("You seem to have forgotten your password, click here to change it: https://demo.scienceroots.com/resetPassword?t=" + newToken )
+                .text("You seem to have forgotten your password, click here to change it: https://"+System.getProperty(DOMAIN_ENV_VARIABLE)+"/resetPassword?t=" + newToken )
                 .build()
                 .send();
         return resp.isOk();

@@ -19,6 +19,10 @@ logging:
   level: info
   level.root: info
   level.org.hibernate: error
+SCR_GENESIS_SEED: 3FT3JH1c1LxVAZZqG61VRcEaKnMjPzyHobU
+SCR_MAILGUN_API_KEY: key-3c14d95e94ff3515c69e2a9199d1a127
+SCR_MAILGUN_DOMAIN: demo.scienceroots.com
+
 
 ---
 spring:
@@ -36,6 +40,10 @@ logging:
   level: error
   level.root: info
   level.org.hibernate: info
+SCR_GENESIS_SEED: 3FT3JH1c1LxVAZZqG61VRcEaKnMjPzyHobU
+SCR_MAILGUN_API_KEY: key-3c14d95e94ff3515c69e2a9199d1a127
+SCR_MAILGUN_DOMAIN: demo.scienceroots.com
+SCR_MAILGUN_LOGIN: postmaster@demo.scienceroots.com
 ---
 spring:
   profiles: production
@@ -50,3 +58,7 @@ logging:
   level: error
   level.root: info
   level.org.hibernate: info
+SCR_GENESIS_SEED: 3FT3JH1c1LxVAZZqG61VRcEaKnMjPzyHobU
+SCR_MAILGUN_API_KEY: key-3c14d95e94ff3515c69e2a9199d1a127
+SCR_MAILGUN_DOMAIN: app.scienceroots.com
+SCR_MAILGUN_LOGIN: postmaster@app.scienceroots.com

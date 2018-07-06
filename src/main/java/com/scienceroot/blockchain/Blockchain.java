@@ -84,7 +84,7 @@ public class Blockchain {
     }
     
     private PrivateKeyAccount getGenesisAccount() {
-        String seed = System.getProperty(Blockchain.GENESIS_ENV_VARIBALE);
+        String seed = "3FT3JH1c1LxVAZZqG61VRcEaKnMjPzyHobU";
         
         return this.getAccount(seed);
     }

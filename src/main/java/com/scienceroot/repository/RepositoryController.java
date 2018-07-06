@@ -1,6 +1,7 @@
 package com.scienceroot.repository;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.security.ActionForbiddenException;
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
@@ -35,14 +36,17 @@ public class RepositoryController {
     
     private final RepositoryService repositoryService;
     private final ApplicationUserService userService;
+    private final Blockchain blockchain;
 
     @Autowired
     public RepositoryController(
             RepositoryService repositoryService,
-            ApplicationUserService userService
+            ApplicationUserService userService,
+            Blockchain blockchain
     ) {
         this.repositoryService = repositoryService;
         this.userService = userService;
+        this.blockchain = blockchain;
     }
     
 
@@ -61,6 +65,8 @@ public class RepositoryController {
         
         repository.setCreator(creator.get());
         repository = this.repositoryService.create(repository);
+
+        this.blockchain.sendInitialFunds(repository.getPublicKey());
         
         return repository;
     }

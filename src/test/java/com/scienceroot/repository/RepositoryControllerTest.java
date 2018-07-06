@@ -102,6 +102,31 @@ public class RepositoryControllerTest {
             .andExpect(jsonPath("$.publicKey").exists())
             .andExpect(jsonPath("$.creator.uid").value(this.currentUser.getId().toString()));
     }
+
+    @Test()
+    public void getRepositoryByUser() throws Exception {
+        Repository toCreate = new Repository();
+        String repoName = "Some test repository";
+        
+        toCreate.setName(repoName);
+        toCreate.setCreator(this.currentUser);
+        
+        toCreate = this.repositoryService.create(toCreate);
+        
+        this.mockMvc
+            .perform(get("/repositories/")
+                .header("Authorization", this.jwt)
+                .param("userId", this.currentUser.getId().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(toCreate.getId().toString()))
+            .andExpect(jsonPath("$[0].name").value(repoName))
+            .andExpect(jsonPath("$[0].privateKey").doesNotExist())
+            .andExpect(jsonPath("$[0].publicKey").exists())
+            .andExpect(jsonPath("$[0].creator.uid").value(this.currentUser.getId().toString()));
+    }
     
     @Test()
     public void getNotExistingRepository() throws Exception {

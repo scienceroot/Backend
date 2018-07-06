@@ -1,10 +1,12 @@
 package com.scienceroot.repository;
 
 import com.scienceroot.blockchain.Blockchain;
+import com.scienceroot.user.ApplicationUser;
 import com.wavesplatform.wavesj.Base58;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.Transaction;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +50,9 @@ public class RepositoryService {
     
     public Optional<Repository> findOne(UUID id) {
         return Optional.ofNullable(this.repositoryRepository.findOne(id));
+    }
+
+    public List<Repository> find(ApplicationUser user) {
+        return this.repositoryRepository.findByCreator(user);
     }
 }

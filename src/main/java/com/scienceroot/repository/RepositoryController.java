@@ -10,6 +10,7 @@ import com.scienceroot.user.ResourceNotFoundException;
 import com.scienceroot.user.UserNotFoundException;
 import io.jsonwebtoken.Jwts;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,6 +63,22 @@ public class RepositoryController {
         repository = this.repositoryService.create(repository);
         
         return repository;
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(path = "/", method = RequestMethod.GET)
+    @JsonView(RepositoryViews.Public.class)
+    public List<Repository> get(
+            @RequestHeader(name = "Authorization") String jwt,
+            @RequestParam(name = "userId") UUID userId
+    ) { 
+        ApplicationUser filterUser = this.userService.findOne(userId);
+        
+        if (filterUser == null) {
+            throw new UserNotFoundException();
+        }
+        
+        return this.repositoryService.find(filterUser);
     }
     
     @RequestMapping(path = "/{id}", method = RequestMethod.GET)

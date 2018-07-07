@@ -70,6 +70,10 @@ public class Repository implements Serializable {
 
         int kb = data.length / 1024;
         int fee = 100000 * kb;
+
+        if (fee < 100000) {
+            fee = 100000;
+        }
         
         return Transaction.makeDataTx(sender, dataEntries, fee);
     }

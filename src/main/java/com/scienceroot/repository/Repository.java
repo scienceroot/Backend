@@ -67,8 +67,11 @@ public class Repository implements Serializable {
         List<DataEntry<?>> dataEntries = new LinkedList();
         
         dataEntries.add(entry);
+
+        int kb = data.length / 1024;
+        int fee = 100000 * kb;
         
-        return Transaction.makeDataTx(sender, dataEntries, 100);
+        return Transaction.makeDataTx(sender, dataEntries, fee);
     }
 
     public UUID getId() {

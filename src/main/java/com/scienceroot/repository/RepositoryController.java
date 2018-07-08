@@ -103,7 +103,7 @@ public class RepositoryController {
     
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/{id}", method = RequestMethod.POST)
-    public String storeText(
+    public String storePage(
             @PathVariable(name = "id") UUID repositoryId,
             @RequestHeader(name = "Authorization") String jwt,
             @RequestBody DataRequestBody dataRequest
@@ -119,19 +119,40 @@ public class RepositoryController {
             throw new ActionForbiddenException();
         }
         
-        
         try {
-            String tx;
-            tx = this.repositoryService.store(repository, dataRequest);
-            
-            return tx;
+            return this.repositoryService.store(repository, dataRequest);
         } catch (IOException ex) {
             Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
             
             return null;
         }
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    public String updatePage(
+            @PathVariable(name = "id") UUID repositoryId,
+            @RequestHeader(name = "Authorization") String jwt,
+            @RequestBody DataRequestBody dataRequest
+    ) {
+        Repository repository = this.get(repositoryId);
+        Optional<ApplicationUser> creator = this.userFromJwt(jwt);
         
+        if(!creator.isPresent()) {
+            throw new UserNotFoundException();
+        }
         
+        if(!repository.getCreator().getId().toString().equals(creator.get().getId().toString())) {
+            throw new ActionForbiddenException();
+        }
+        
+        try {
+            return this.repositoryService.update(repository, dataRequest);
+        } catch (IOException ex) {
+            Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            return null;
+        }
     }
     
     private Optional<ApplicationUser> userFromJwt(String jwt) {

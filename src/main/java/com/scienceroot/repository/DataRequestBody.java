@@ -2,6 +2,7 @@ package com.scienceroot.repository;
 
 public class DataRequestBody {
 
+    public String key;
     public byte[] data;
     public String privateKey;
 
@@ -13,5 +14,9 @@ public class DataRequestBody {
         this.privateKey = privateKey;
     }
     
-    
+    public DataRequestBody(String key, byte[] data, String privateKey) {
+        this.key = key;
+        this.data = data;
+        this.privateKey = privateKey;
+    }
 }

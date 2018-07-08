@@ -42,7 +42,10 @@ public class RepositoryService {
     
     public String store(Repository repository, DataRequestBody dataRequestBody) throws IOException {
         repository.setPrivateKey(dataRequestBody.privateKey);
+        
         Transaction dataTx = repository.store(dataRequestBody.data);
+
+        this.save(repository);
         
         return this.blockchain.sendTx(dataTx);
     }

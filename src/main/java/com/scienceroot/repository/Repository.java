@@ -1,25 +1,26 @@
 package com.scienceroot.repository;
 
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.user.ApplicationUser;
 import com.wavesplatform.wavesj.DataEntry;
+import com.wavesplatform.wavesj.DataEntry.BinaryEntry;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.Transaction;
-import com.wavesplatform.wavesj.DataEntry.BinaryEntry;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -47,6 +48,10 @@ public class Repository implements Serializable {
     @Column
     @JsonView(RepositoryViews.Public.class)
     private String publicKey;
+
+    @Column
+    @JsonView(RepositoryViews.Authorized.class)
+    private Integer pageSequenceNextValue = 1;
     
     @ManyToOne()
     @JsonView(RepositoryViews.Public.class)
@@ -62,9 +67,10 @@ public class Repository implements Serializable {
      * @return 
      */
     public Transaction store(byte[] data){
-        BinaryEntry entry = new DataEntry.BinaryEntry("wiki", data);
+        String key = this.getPageKey();
+        BinaryEntry entry = new DataEntry.BinaryEntry(key, data);
         PrivateKeyAccount sender = PrivateKeyAccount.fromPrivateKey(this.privateKey, Blockchain.NETWORK_ID);
-        List<DataEntry<?>> dataEntries = new LinkedList();
+        List<DataEntry<?>> dataEntries = new LinkedList<>();
         
         dataEntries.add(entry);
 
@@ -116,5 +122,31 @@ public class Repository implements Serializable {
 
     public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
+    }
+    
+    /**
+     * @return the pageSequenceNextValue
+     */
+    public Integer getPageSequenceNextValue() {
+        return pageSequenceNextValue;
+    }
+
+    /**
+     * @param pageSequenceNextValue the pageSequenceNextValue to set
+     */
+    public void setPageSequenceNextValue(Integer pageSequenceNextValue) {
+        this.pageSequenceNextValue = pageSequenceNextValue;
+    }
+
+    private String getPageKey() {
+        return "wiki_" + this.pageSequenceNext().toString();
+    }
+
+    private Integer pageSequenceNext() {
+        Integer currentValue = this.pageSequenceNextValue;
+
+        this.pageSequenceNextValue += 1;
+
+        return currentValue;
     }
 }

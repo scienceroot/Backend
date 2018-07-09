@@ -13,19 +13,13 @@ import java.util.Date;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 
 /**
  *
  * @author husche
  */
-
 public class PasswordReset {
 
-    @Autowired
-    private Environment environment;
-    
     private final Configuration config;
     private static final String APIKEY_ENV_VARIABLE = "SCR_MAILGUN_API_KEY";
     private static final String DOMAIN_ENV_VARIABLE = "SCR_MAILGUN_DOMAIN";
@@ -36,9 +30,10 @@ public class PasswordReset {
      */
     public PasswordReset() {
         this.config = new Configuration()
-                .apiKey(environment.getProperty(APIKEY_ENV_VARIABLE))
-                .domain(environment.getProperty(DOMAIN_ENV_VARIABLE))
-                .from("Scienceroot", environment.getProperty(LOGIN_ENV_VARIABLE));
+                //FIXME: effing environment variables still not loading, hardwiring for private beta...
+                .apiKey("key-3c14d95e94ff3515c69e2a9199d1a127")
+                .domain("app.scienceroot.com")
+                .from("Scienceroot", "postmaster@app.scienceroot.com");
 
     }
 
@@ -58,7 +53,7 @@ public class PasswordReset {
         Response resp = Mail.using(config)
                 .to(mail)
                 .subject("ScienceRoot Password reset")
-                .text("You seem to have forgotten your password, click here to change it: https://"+environment.getProperty(DOMAIN_ENV_VARIABLE)+"/resetPassword?t=" + newToken )
+                .text("You seem to have forgotten your password, click here to change it: https://"+"app.scienceroot.com"+"/resetPassword?t=" + newToken )
                 .build()
                 .send();
         return resp.isOk();

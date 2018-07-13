@@ -1,6 +1,7 @@
 package com.scienceroot.repository;
 
 import com.scienceroot.blockchain.Blockchain;
+import com.scienceroot.repository.exceptions.DataTransactionSizeException;
 import com.scienceroot.user.ApplicationUser;
 import com.wavesplatform.wavesj.Base58;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
@@ -14,6 +15,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RepositoryService {
+
+    /**
+     * Max size in bytes of binary type in data transaction
+     */
+    private static final int MAX_DATA_TRANSACTION_SIZE = 32768;
 
     private final RepositoryRepository repositoryRepository;
     private final Blockchain blockchain;
@@ -41,6 +47,10 @@ public class RepositoryService {
     }
     
     public String store(Repository repository, DataRequestBody dataRequestBody) throws IOException {
+        if (this.validateDataRequest(dataRequestBody.data)) {
+            return null;    
+        }
+
         repository.setPrivateKey(dataRequestBody.privateKey);
         
         Transaction dataTx = repository.create(dataRequestBody.data);
@@ -54,6 +64,10 @@ public class RepositoryService {
     }
 
     public String update(Repository repository, DataRequestBody dataRequestBody) throws IOException {
+        if (this.validateDataRequest(dataRequestBody.data)) {
+            return null;    
+        }
+        
         repository.setPrivateKey(dataRequestBody.privateKey);
         
         Transaction dataTx = repository.update(dataRequestBody.key, dataRequestBody.data);
@@ -68,5 +82,13 @@ public class RepositoryService {
 
     public List<Repository> find(ApplicationUser user) {
         return this.repositoryRepository.findByCreator(user);
+    }
+
+    private boolean validateDataRequest(byte[] dataRequest) {
+        if (dataRequest.length > MAX_DATA_TRANSACTION_SIZE) {
+            throw new DataTransactionSizeException();
+        }
+
+        return true;
     }
 }

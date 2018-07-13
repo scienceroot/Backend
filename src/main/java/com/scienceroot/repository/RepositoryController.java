@@ -2,6 +2,7 @@ package com.scienceroot.repository;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.scienceroot.blockchain.Blockchain;
+import com.scienceroot.repository.exceptions.DataTransactionSizeException;
 import com.scienceroot.security.ActionForbiddenException;
 import static com.scienceroot.security.SecurityConstants.SECRET;
 import static com.scienceroot.security.SecurityConstants.TOKEN_PREFIX;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/repositories")
 public class RepositoryController {
-    
+
     private final RepositoryService repositoryService;
     private final ApplicationUserService userService;
     private final Blockchain blockchain;

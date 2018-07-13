@@ -9,6 +9,8 @@ import com.wavesplatform.wavesj.PrivateKeyAccount;
 import com.wavesplatform.wavesj.PublicKeyAccount;
 import com.wavesplatform.wavesj.Transaction;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -112,10 +114,12 @@ public class RepositoryService {
         return true;
     }
 
-    private boolean validateSufficientFunding(String address, long fee) throws IOException, InsufficientFundsException {
-        double balance = this.blockchain.getBalance(address) * Math.pow(10, 8);
-        
-        if (balance < fee) {
+    private boolean validateSufficientFunding(String address, long feeValue) throws IOException, InsufficientFundsException {
+        double balanceValue = this.blockchain.getBalance(address) * Math.pow(10, 8);
+        BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
+        BigDecimal fee = new BigDecimal(feeValue);
+
+        if (balance.compareTo(fee) < 0) {
             throw new InsufficientFundsException();
         }
 

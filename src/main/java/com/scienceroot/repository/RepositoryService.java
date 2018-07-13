@@ -123,7 +123,7 @@ public class RepositoryService {
         BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
         BigDecimal fee = new BigDecimal(feeValue);
 
-        LOG.log(Level.INFO, "balance: {0}, ({1})", balance.toString(), address);
+        LOG.log(Level.INFO, "balance: " + balance.toString() + ", (" + address + ")");
         LOG.log(Level.INFO, "fee: {0}", fee.toString());
 
         if (balance.compareTo(fee) < 0) {

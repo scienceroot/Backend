@@ -123,8 +123,8 @@ public class RepositoryService {
         BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
         BigDecimal fee = new BigDecimal(feeValue);
 
-        LOG.log(Level.INFO, "balance", balance.toString());
-        LOG.log(Level.INFO, "fee", fee.toString());
+        LOG.log(Level.INFO, "balance: {0}", balance.toString());
+        LOG.log(Level.INFO, "fee: {0}", fee.toString());
 
         if (balance.compareTo(fee) < 0) {
             throw new InsufficientFundsException();

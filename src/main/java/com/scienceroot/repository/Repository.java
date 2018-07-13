@@ -66,14 +66,14 @@ public class Repository implements Serializable {
      * @param data
      * @return 
      */
-    public Transaction create(byte[] data){
+    public Transaction create(byte[] data, int fee){
         String key = this.getPageKey();
         
-        return this.getDataTransaction(key, data);
+        return this.getDataTransaction(key, data, fee);
     }
 
-    public Transaction update(String key, byte[] data){
-        return this.getDataTransaction(key, data);
+    public Transaction update(String key, byte[] data, int fee){
+        return this.getDataTransaction(key, data, fee);
     }
 
     public UUID getId() {
@@ -142,25 +142,13 @@ public class Repository implements Serializable {
         return currentValue;
     }
 
-    private Transaction getDataTransaction(String key, byte[] data) {
+    private Transaction getDataTransaction(String key, byte[] data, int fee) {
         BinaryEntry entry = new DataEntry.BinaryEntry(key, data);
         PrivateKeyAccount sender = PrivateKeyAccount.fromPrivateKey(this.privateKey, Blockchain.NETWORK_ID);
         List<DataEntry<?>> dataEntries = new LinkedList<>();
-        int fee = this.calculateFee(data);
 
         dataEntries.add(entry);
         
         return Transaction.makeDataTx(sender, dataEntries, fee);
-    }
-
-    private int calculateFee(byte[] data) {
-        int kb = data.length / 1024;
-        int fee = 100000 * kb;
-
-        if (fee < 100000) {
-            fee = 100000;
-        }
-
-        return fee;
     }
 }

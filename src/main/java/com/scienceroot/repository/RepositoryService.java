@@ -2,9 +2,11 @@ package com.scienceroot.repository;
 
 import com.scienceroot.blockchain.Blockchain;
 import com.scienceroot.repository.exceptions.DataTransactionSizeException;
+import com.scienceroot.repository.exceptions.InsufficientFundsException;
 import com.scienceroot.user.ApplicationUser;
 import com.wavesplatform.wavesj.Base58;
 import com.wavesplatform.wavesj.PrivateKeyAccount;
+import com.wavesplatform.wavesj.PublicKeyAccount;
 import com.wavesplatform.wavesj.Transaction;
 import java.io.IOException;
 import java.util.List;
@@ -53,7 +55,8 @@ public class RepositoryService {
 
         repository.setPrivateKey(dataRequestBody.privateKey);
         
-        Transaction dataTx = repository.create(dataRequestBody.data);
+        int fee = this.calculateFee(dataRequestBody.data);
+        Transaction dataTx = repository.create(dataRequestBody.data, fee);
 
         /**
          * Save updated page sequence value
@@ -70,9 +73,17 @@ public class RepositoryService {
         
         repository.setPrivateKey(dataRequestBody.privateKey);
         
-        Transaction dataTx = repository.update(dataRequestBody.key, dataRequestBody.data);
         
-        return this.blockchain.sendTx(dataTx);
+        int fee = this.calculateFee(dataRequestBody.data);
+        PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey().getBytes(), Blockchain.NETWORK_ID);
+        
+        if (this.validateSufficientFunding(account.getAddress(), fee)) {
+            Transaction dataTx = repository.update(dataRequestBody.key, dataRequestBody.data, fee);
+        
+            return this.blockchain.sendTx(dataTx);   
+        } else {
+            return null;
+        }
     }
     
     
@@ -90,5 +101,26 @@ public class RepositoryService {
         }
 
         return true;
+    }
+
+    private boolean validateSufficientFunding(String address, long fee) throws IOException {
+        long balance = this.blockchain.getBalance(address);
+        
+        if (balance < fee) {
+            throw new InsufficientFundsException();
+        }
+
+        return true;
+    }
+
+    private int calculateFee(byte[] data) {
+        int kb = data.length / 1024;
+        int fee = 100000 * kb;
+
+        if (fee < 100000) {
+            fee = 100000;
+        }
+
+        return fee;
     }
 }

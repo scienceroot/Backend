@@ -90,9 +90,9 @@ public class RepositoryService {
         
         
         int fee = this.calculateFee(dataRequestBody.data);
-        PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey().getBytes(), Blockchain.NETWORK_ID);
-        
-        if (this.validateSufficientFunding(account.getAddress(), fee)) {
+        PrivateKeyAccount prAcc = PrivateKeyAccount.fromPrivateKey(dataRequestBody.privateKey, Blockchain.NETWORK_ID);
+
+        if (this.validateSufficientFunding(prAcc.getAddress(), fee)) {
             Transaction dataTx = repository.update(dataRequestBody.key, dataRequestBody.data, fee);
         
             return this.blockchain.sendTx(dataTx);   
@@ -123,7 +123,7 @@ public class RepositoryService {
         BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
         BigDecimal fee = new BigDecimal(feeValue);
 
-        LOG.log(Level.INFO, "balance: {0}", balance.toString());
+        LOG.log(Level.INFO, "balance: {0}, ({1})", balance.toString(), address);
         LOG.log(Level.INFO, "fee: {0}", fee.toString());
 
         if (balance.compareTo(fee) < 0) {

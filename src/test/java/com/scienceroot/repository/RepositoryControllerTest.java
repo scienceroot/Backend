@@ -160,7 +160,8 @@ public class RepositoryControllerTest {
                 .content(this.toJson(body))
             )
             .andDo(print())
-            .andExpect(status().isCreated());
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$").isString());
     }
     
     private String toJson(Object obj) throws JsonProcessingException {

@@ -48,26 +48,35 @@ public class RepositoryService {
         return this.repositoryRepository.save(s);
     }
     
-    public String store(Repository repository, DataRequestBody dataRequestBody) throws IOException {
-        if (this.validateDataRequest(dataRequestBody.data)) {
+    public String store(
+        Repository repository, 
+        DataRequestBody dataRequestBody
+    ) throws IOException, DataTransactionSizeException, InsufficientFundsException {
+        if (!this.validateDataRequest(dataRequestBody.data)) {
             return null;    
         }
 
         repository.setPrivateKey(dataRequestBody.privateKey);
         
         int fee = this.calculateFee(dataRequestBody.data);
-        Transaction dataTx = repository.create(dataRequestBody.data, fee);
+        PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey().getBytes(), Blockchain.NETWORK_ID);
 
-        /**
-         * Save updated page sequence value
-         */
-        this.save(repository);
-        
-        return this.blockchain.sendTx(dataTx);
+        if (this.validateSufficientFunding(account.getAddress(), fee)) {
+            Transaction dataTx = repository.create(dataRequestBody.data, fee);
+
+            /**
+             * Save updated page sequence value
+             */
+            this.save(repository);
+
+            return this.blockchain.sendTx(dataTx);   
+        } else {
+            return null;
+        }
     }
 
     public String update(Repository repository, DataRequestBody dataRequestBody) throws IOException {
-        if (this.validateDataRequest(dataRequestBody.data)) {
+        if (!this.validateDataRequest(dataRequestBody.data)) {
             return null;    
         }
         
@@ -95,7 +104,7 @@ public class RepositoryService {
         return this.repositoryRepository.findByCreator(user);
     }
 
-    private boolean validateDataRequest(byte[] dataRequest) {
+    private boolean validateDataRequest(byte[] dataRequest) throws DataTransactionSizeException {
         if (dataRequest.length > MAX_DATA_TRANSACTION_SIZE) {
             throw new DataTransactionSizeException();
         }
@@ -103,7 +112,7 @@ public class RepositoryService {
         return true;
     }
 
-    private boolean validateSufficientFunding(String address, long fee) throws IOException {
+    private boolean validateSufficientFunding(String address, long fee) throws IOException, InsufficientFundsException {
         long balance = this.blockchain.getBalance(address);
         
         if (balance < fee) {

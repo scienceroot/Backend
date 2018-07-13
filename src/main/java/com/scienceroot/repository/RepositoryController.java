@@ -121,7 +121,9 @@ public class RepositoryController {
         }
         
         try {
-            return this.repositoryService.store(repository, dataRequest);
+            String txId = this.repositoryService.store(repository, dataRequest);
+            
+            return txId;
         } catch (IOException ex) {
             Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
             
@@ -148,7 +150,9 @@ public class RepositoryController {
         }
         
         try {
-            return this.repositoryService.update(repository, dataRequest);
+            String txId = this.repositoryService.update(repository, dataRequest);
+            
+            return txId;
         } catch (IOException ex) {
             Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
             

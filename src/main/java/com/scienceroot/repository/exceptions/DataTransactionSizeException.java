@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * DataTransactionSizeException
  */
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Data too large.")
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Data too large.")
 public class DataTransactionSizeException extends RuntimeException {
 
     

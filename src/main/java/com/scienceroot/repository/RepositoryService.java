@@ -113,7 +113,7 @@ public class RepositoryService {
     }
 
     private boolean validateSufficientFunding(String address, long fee) throws IOException, InsufficientFundsException {
-        long balance = this.blockchain.getBalance(address);
+        double balance = this.blockchain.getBalance(address) * Math.pow(10, 8);
         
         if (balance < fee) {
             throw new InsufficientFundsException();

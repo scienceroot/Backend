@@ -14,6 +14,8 @@ import java.math.MathContext;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ public class RepositoryService {
      * Max size in bytes of binary type in data transaction
      */
     private static final int MAX_DATA_TRANSACTION_SIZE = 32768;
+
+    private static final Logger LOG = Logger.getLogger(RepositoryService.class.getName());
 
     private final RepositoryRepository repositoryRepository;
     private final Blockchain blockchain;
@@ -61,7 +65,7 @@ public class RepositoryService {
         repository.setPrivateKey(dataRequestBody.privateKey);
         
         int fee = this.calculateFee(dataRequestBody.data);
-        PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey().getBytes(), Blockchain.NETWORK_ID);
+        PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey(), Blockchain.NETWORK_ID);
 
         if (this.validateSufficientFunding(account.getAddress(), fee)) {
             Transaction dataTx = repository.create(dataRequestBody.data, fee);
@@ -118,6 +122,9 @@ public class RepositoryService {
         double balanceValue = this.blockchain.getBalance(address) * Math.pow(10, 8);
         BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
         BigDecimal fee = new BigDecimal(feeValue);
+
+        LOG.log(Level.INFO, "balance", balance.toString());
+        LOG.log(Level.INFO, "fee", fee.toString());
 
         if (balance.compareTo(fee) < 0) {
             throw new InsufficientFundsException();

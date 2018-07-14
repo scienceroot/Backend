@@ -66,13 +66,13 @@ public class Repository implements Serializable {
      * @param data
      * @return 
      */
-    public Transaction create(byte[] data, int fee){
+    public Transaction create(byte[] data, double fee){
         String key = this.getPageKey();
         
         return this.getDataTransaction(key, data, fee);
     }
 
-    public Transaction update(String key, byte[] data, int fee){
+    public Transaction update(String key, byte[] data, double fee){
         return this.getDataTransaction(key, data, fee);
     }
 
@@ -142,13 +142,13 @@ public class Repository implements Serializable {
         return currentValue;
     }
 
-    private Transaction getDataTransaction(String key, byte[] data, int fee) {
+    private Transaction getDataTransaction(String key, byte[] data, double fee) {
         BinaryEntry entry = new DataEntry.BinaryEntry(key, data);
         PrivateKeyAccount sender = PrivateKeyAccount.fromPrivateKey(this.privateKey, Blockchain.NETWORK_ID);
         List<DataEntry<?>> dataEntries = new LinkedList<>();
 
         dataEntries.add(entry);
         
-        return Transaction.makeDataTx(sender, dataEntries, fee);
+        return Transaction.makeDataTx(sender, dataEntries, (int) fee);
     }
 }

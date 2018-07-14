@@ -64,7 +64,7 @@ public class RepositoryService {
 
         repository.setPrivateKey(dataRequestBody.privateKey);
         
-        int fee = this.calculateFee(dataRequestBody.data);
+        double fee = this.calculateFee(dataRequestBody.data);
         PublicKeyAccount account = new PublicKeyAccount(repository.getPublicKey(), Blockchain.NETWORK_ID);
 
         if (this.validateSufficientFunding(account.getAddress(), fee)) {
@@ -89,7 +89,7 @@ public class RepositoryService {
         repository.setPrivateKey(dataRequestBody.privateKey);
         
         
-        int fee = this.calculateFee(dataRequestBody.data);
+        double fee = this.calculateFee(dataRequestBody.data);
         PrivateKeyAccount prAcc = PrivateKeyAccount.fromPrivateKey(dataRequestBody.privateKey, Blockchain.NETWORK_ID);
 
         if (this.validateSufficientFunding(prAcc.getAddress(), fee)) {
@@ -118,7 +118,7 @@ public class RepositoryService {
         return true;
     }
 
-    private boolean validateSufficientFunding(String address, long feeValue) throws IOException, InsufficientFundsException {
+    private boolean validateSufficientFunding(String address, double feeValue) throws IOException, InsufficientFundsException {
         double balanceValue = this.blockchain.getBalance(address) * Math.pow(10, 8);
         BigDecimal balance = new BigDecimal(balanceValue, MathContext.DECIMAL64);
         BigDecimal fee = new BigDecimal(feeValue);
@@ -133,9 +133,9 @@ public class RepositoryService {
         return true;
     }
 
-    private int calculateFee(byte[] data) {
-        int kb = data.length / 1024;
-        int fee = 100000 * kb;
+    private double calculateFee(byte[] data) {
+        double kb = Math.ceil(data.length / 1024);
+        double fee = 100000 * kb;
 
         if (fee < 100000) {
             fee = 100000;

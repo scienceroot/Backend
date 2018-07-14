@@ -126,7 +126,7 @@ public class RepositoryController {
             return txId;
         } catch (IOException ex) {
             Logger.getLogger(RepositoryController.class.getName()).log(Level.SEVERE, null, ex);
-            
+
             return null;
         }
     }

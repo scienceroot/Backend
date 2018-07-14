@@ -134,7 +134,7 @@ public class RepositoryService {
     }
 
     private double calculateFee(byte[] data) {
-        double kb = Math.ceil(data.length / 1024);
+        double kb = Math.ceil(data.length / 1024.0);
         double fee = 100000 * kb;
 
         if (fee < 100000) {
